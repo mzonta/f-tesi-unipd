@@ -1,0 +1,522 @@
+%% Style for LaTeX 2.09
+%% deipdthesis.sty
+%%
+%% Style to compose a thesis for University of Padua, Italy
+%% Usage: \documentstyle{deipdthesis}
+% modified [12pt,italian]{report} style
+\typeout{Document Style `deipdthesis' <30 Jun 92>.}
+
+
+\font\twlsfi = cmssi10  \@magscale1 % italic sans serif
+\font\twldunh=cmdunh10 \@magscale2
+\def\@ptsize{2}
+\@twosidetrue \@mparswitchtrue
+\def\ds@draft{\overfullrule 5pt} 
+\@options
+
+\def\ps@bfplain{\let\@mkboth\@gobbletwo
+     \def\@oddhead{}\def\@oddfoot{\bf\hfil\thepage
+     }\def\@evenhead{}\let\@evenfoot\@oddfoot}
+
+\lineskip 1pt \normallineskip 1pt
+\def\baselinestretch{1}
+
+\def\@normalsize{\@setsize\normalsize{14.5pt}\xiipt\@xiipt
+\abovedisplayskip 12pt plus3pt minus7pt\belowdisplayskip \abovedisplayskip
+\abovedisplayshortskip \z@ plus3pt\belowdisplayshortskip 6.5pt plus3.5pt
+minus3pt\let\@listi\@listI} 
+\def\small{\@setsize\small{13.6pt}\xipt\@xipt
+\abovedisplayskip 11pt plus3pt minus6pt\belowdisplayskip \abovedisplayskip
+\abovedisplayshortskip \z@ plus3pt\belowdisplayshortskip 6.5pt plus3.5pt
+minus3pt
+\def\@listi{\leftmargin\leftmargini \parsep 4.5pt plus 2pt minus 1pt
+ \itemsep \parsep
+ \topsep 9pt plus 3pt minus 5pt}}
+\def\footnotesize{\@setsize\footnotesize{12pt}\xpt\@xpt
+\abovedisplayskip 10pt plus2pt minus5pt\belowdisplayskip \abovedisplayskip
+\abovedisplayshortskip \z@ plus3pt\belowdisplayshortskip 6pt plus3pt minus3pt
+\def\@listi{\leftmargin\leftmargini \topsep 6pt plus 2pt minus 2pt\parsep 3pt
+plus 2pt minus 1pt
+\itemsep \parsep}}
+\def\scriptsize{\@setsize\scriptsize{9.5pt}\viiipt\@viiipt}
+\def\tiny{\@setsize\tiny{7pt}\vipt\@vipt}
+\def\large{\@setsize\large{18pt}\xivpt\@xivpt}
+\def\Large{\@setsize\Large{22pt}\xviipt\@xviipt}
+\def\LARGE{\@setsize\LARGE{25pt}\xxpt\@xxpt}
+\def\huge{\@setsize\huge{30pt}\xxvpt\@xxvpt}
+\let\Huge=\huge
+\normalsize 
+
+\if@twoside \oddsidemargin 56pt \evensidemargin 0pt \marginparwidth 85pt
+\else \oddsidemargin 39.5pt \evensidemargin 39.5pt
+ \marginparwidth 68pt 
+\fi
+\marginparsep 10pt 
+ \topmargin 27pt \headheight 12pt \headsep 25pt \footskip 30pt 
+
+\textheight = 36\baselineskip
+\advance\textheight by \topskip
+\textwidth 390pt \columnsep 10pt \columnseprule 0pt 
+
+\footnotesep 8.4pt 
+\skip\footins 10.8pt plus 4pt minus 2pt 
+\floatsep 14pt plus 2pt minus 4pt \textfloatsep 20pt plus 2pt minus 4pt
+\intextsep 14pt plus 4pt minus 4pt \@maxsep 20pt \dblfloatsep 14pt plus 2pt
+minus 4pt \dbltextfloatsep 20pt plus 2pt minus 4pt \@dblmaxsep 20pt 
+\@fptop 0pt plus 1fil \@fpsep 10pt plus 2fil \@fpbot 0pt plus 1fil 
+\@dblfptop 0pt plus 1fil \@dblfpsep 10pt plus 2fil \@dblfpbot 0pt plus 1fil
+\marginparpush 7pt 
+
+\parskip 0pt plus 1pt \parindent 1.5em \partopsep 3pt plus 2pt minus 2pt 
+\@lowpenalty 51 \@medpenalty 151 \@highpenalty 301 
+\@beginparpenalty -\@lowpenalty \@endparpenalty -\@lowpenalty \@itempenalty
+-\@lowpenalty 
+
+\def\@makechapterhead#1{ \vspace*{20pt} { \parindent 0pt \raggedright 
+ \ifnum \c@secnumdepth >\m@ne \huge\bf \@chapapp{} \thechapter \par 
+ \vskip 20pt \fi \Huge \bf #1\par 
+ \nobreak \vskip 40pt } }
+
+%cambiamento
+
+\def\@makeschapterhead#1{ \vspace*{20pt} { \parindent 0pt \raggedright 
+ \Huge \bf #1\par 
+ \nobreak \vskip 40pt } }
+
+\def\chapter{\cleardoublepage \thispagestyle{bfplain} \global\@topnum\z@
+\@afterindentfalse \secdef\@chapter\@schapter} 
+\def\@chapter[#1]#2{\ifnum \c@secnumdepth >\m@ne
+ \refstepcounter{chapter}
+ \typeout{\@chapapp\space\thechapter.}
+ \addcontentsline{toc}{chapter}{\protect
+ \numberline{\thechapter}#1}\else
+ \addcontentsline{toc}{chapter}{#1}\fi
+ \chaptermark{#1}
+ \addtocontents{lof}{\protect\addvspace{10pt}}
+\addtocontents{lot}{\protect\addvspace{10pt}} \if@twocolumn
+\@topnewpage[\@makechapterhead{#2}] 
+ \else \@makechapterhead{#2}
+ \@afterheading \fi} 
+\def\@schapter#1{\if@twocolumn \@topnewpage[\@makeschapterhead{#1}]
+ \else \@makeschapterhead{#1} 
+ \@afterheading\fi}
+
+\def\section{\@startsection {section}{1}{\z@}{-3.5ex plus -1ex minus 
+ -.2ex}{2.3ex plus .2ex}{\Large\bf}}
+\def\subsection{\@startsection{subsection}{2}{\z@}{-3.25ex plus -1ex minus 
+ -.2ex}{1.5ex plus .2ex}{\large\bf}}
+\def\subsubsection{\@startsection{subsubsection}{3}{\z@}{-3.25ex plus 
+ -1ex minus -.2ex}{1.5ex plus .2ex}{\normalsize\bf}}
+\def\paragraph{\@startsection
+ {paragraph}{4}{\z@}{3.25ex plus 1ex minus .2ex}{-1em}{\normalsize\bf}}
+\def\subparagraph{\@startsection
+ {subparagraph}{4}{\parindent}{3.25ex plus 1ex minus 
+ .2ex}{-1em}{\normalsize\bf}}
+
+\def\chaptermark#1{}
+
+\setcounter{secnumdepth}{2}
+
+%\def\appendix{\par
+% \setcounter{chapter}{0}
+% \setcounter{section}{0}
+% \def\@chapapp{Appendice}
+% \def\thechapter{\Alph{chapter}}}
+ 
+
+\leftmargini 2.5em
+\leftmarginii 2.2em \leftmarginiii 1.87em \leftmarginiv 1.7em \leftmarginv 1em
+\leftmarginvi 1em
+\leftmargin\leftmargini
+\labelsep .5em
+\labelwidth\leftmargini\advance\labelwidth-\labelsep
+\def\@listI{\leftmargin\leftmargini \parsep 5pt plus 2.5pt minus 1pt\topsep
+10pt plus 4pt minus 6pt\itemsep 5pt plus 2.5pt minus 1pt}
+\let\@listi\@listI
+\@listi 
+\def\@listii{\leftmargin\leftmarginii
+ \labelwidth\leftmarginii\advance\labelwidth-\labelsep
+ \topsep 5pt plus 2.5pt minus 1pt
+ \parsep 2.5pt plus 1pt minus 1pt
+ \itemsep \parsep}
+\def\@listiii{\leftmargin\leftmarginiii
+ \labelwidth\leftmarginiii\advance\labelwidth-\labelsep
+ \topsep 2.5pt plus 1pt minus 1pt 
+ \parsep \z@ \partopsep 1pt plus 0pt minus 1pt
+ \itemsep \topsep}
+\def\@listiv{\leftmargin\leftmarginiv
+ \labelwidth\leftmarginiv\advance\labelwidth-\labelsep}
+\def\@listv{\leftmargin\leftmarginv
+ \labelwidth\leftmarginv\advance\labelwidth-\labelsep}
+\def\@listvi{\leftmargin\leftmarginvi
+ \labelwidth\leftmarginvi\advance\labelwidth-\labelsep}
+
+\def\labelenumi{\theenumi.} 
+\def\theenumi{\arabic{enumi}} 
+\def\labelenumii{(\theenumii)}
+\def\theenumii{\alph{enumii}}
+\def\p@enumii{\theenumi}
+\def\labelenumiii{\theenumiii.}
+\def\theenumiii{\roman{enumiii}}
+\def\p@enumiii{\theenumi(\theenumii)}
+\def\labelenumiv{\theenumiv.}
+\def\theenumiv{\Alph{enumiv}} 
+\def\p@enumiv{\p@enumiii\theenumiii}
+
+\def\labelitemi{$\bullet$}
+\def\labelitemii{\bf --}
+\def\labelitemiii{$\ast$}
+\def\labelitemiv{$\cdot$}
+
+\def\verse{\let\\=\@centercr 
+ \list{}{\itemsep\z@ \itemindent -1.5em\listparindent \itemindent 
+ \rightmargin\leftmargin\advance\leftmargin 1.5em}\item[]}
+\let\endverse\endlist
+\def\quotation{\list{}{\listparindent 1.5em
+ \itemindent\listparindent
+ \rightmargin\leftmargin\parsep 0pt plus 1pt}\item[]}
+\let\endquotation=\endlist
+\def\quote{\list{}{\rightmargin\leftmargin}\item[]}
+\let\endquote=\endlist
+
+\def\descriptionlabel#1{\hspace\labelsep \bf #1}
+\def\description{\list{}{\labelwidth\z@ \itemindent-\leftmargin
+ \let\makelabel\descriptionlabel}}
+\let\enddescription\endlist
+\newdimen\descriptionmargin
+\descriptionmargin=3em
+
+\def\titlepage{\@restonecolfalse\if@twocolumn\@restonecoltrue\onecolumn
+ \else \newpage \fi \thispagestyle{empty}\c@page\z@}
+\def\endtitlepage{\if@restonecol\twocolumn \else \newpage \fi}
+
+\arraycolsep 5pt \tabcolsep 6pt \arrayrulewidth .4pt \doublerulesep 2pt 
+\tabbingsep \labelsep 
+\skip\@mpfootins = \skip\footins
+\fboxsep = 3pt \fboxrule = .4pt 
+
+\newcounter{part}
+\newcounter {chapter}
+\newcounter {section}[chapter]
+\newcounter {subsection}[section]
+\newcounter {subsubsection}[subsection]
+\newcounter {paragraph}[subsubsection]
+\newcounter {subparagraph}[paragraph]
+
+\def\thepart {\Roman{part}}
+\def\thechapter {\arabic{chapter}}
+\def\thesection {\thechapter.\arabic{section}}
+\def\thesubsection {\thesection.\arabic{subsection}}
+\def\thesubsubsection {\thesubsection .\arabic{subsubsection}}
+\def\theparagraph {\thesubsubsection.\arabic{paragraph}}
+\def\thesubparagraph {\theparagraph.\arabic{subparagraph}}
+%\def\@chapapp{Chapter}
+%\def\@chapapp{Capitolo}
+\newcommand\@chapapp{\chaptername}
+
+\def\part{\cleardoublepage \thispagestyle{bfplain} \if@twocolumn \onecolumn
+\@tempswatrue \else \@tempswafalse \fi \hbox{}\vfil \secdef\@part\@spart} 
+
+\def\@part[#1]#2{\ifnum \c@secnumdepth >-2\relax \refstepcounter{part}
+\addcontentsline{toc}{part}{\thepart \hspace{1em}#1}\else
+\addcontentsline{toc}{part}{#1}\fi \markboth{}{}
+ {\centering \ifnum \c@secnumdepth >-2\relax \huge\bf Part \thepart \par
+\vskip 20pt \fi \Huge \bf #2\par}\@endpart} 
+\def\@endpart{\vfil\newpage \if@twoside \hbox{} \thispagestyle{empty} 
+ \newpage 
+ \fi \if@tempswa \twocolumn \fi} 
+\def\@spart#1{{\centering \Huge \bf #1\par}\@endpart} 
+
+
+\def\@pnumwidth{1.55em}
+\def\@tocrmarg {2.55em}
+\def\@dotsep{4.5}
+\setcounter{tocdepth}{2}
+
+
+\def\tableofcontents{\@restonecolfalse\if@twocolumn\@restonecoltrue\onecolumn
+ %\fi\chapter*{Contents\@mkboth{CONTENTS}{CONTENTS}}
+ \fi\chapter*{Indice\@mkboth{Indice}{Indice}}
+ \@starttoc{toc}\if@restonecol\twocolumn\fi}
+\def\l@part#1#2{\addpenalty{-\@highpenalty}
+ \addvspace{2.25em plus 1pt} \begingroup
+ \@tempdima 3em \parindent \z@ \rightskip \@pnumwidth \parfillskip
+-\@pnumwidth 
+ {\large \bf \leavevmode #1\hfil \hbox to\@pnumwidth{\hss #2}}\par
+ \nobreak \global\@nobreaktrue \everypar{\global\@nobreakfalse\everypar{}}
+\endgroup}
+\def\l@chapter#1#2{\addpenalty{-\@highpenalty} 
+ \vskip 1.0em plus 1pt \@tempdima 1.5em \begingroup
+ \parindent \z@ \rightskip \@pnumwidth 
+ \parfillskip -\@pnumwidth 
+ \bf \leavevmode \advance\leftskip\@tempdima \hskip -\leftskip #1\nobreak\hfil
+\nobreak\hbox to\@pnumwidth{\hss #2}\par
+ \penalty\@highpenalty \endgroup}
+\def\l@section{\@dottedtocline{1}{1.5em}{2.3em}}
+\def\l@subsection{\@dottedtocline{2}{3.8em}{3.2em}}
+\def\l@subsubsection{\@dottedtocline{3}{7.0em}{4.1em}}
+\def\l@paragraph{\@dottedtocline{4}{10em}{5em}}
+\def\l@subparagraph{\@dottedtocline{5}{12em}{6em}}
+\def\listoffigures{\@restonecolfalse\if@twocolumn\@restonecoltrue\onecolumn
+ \fi\chapter*{Indice delle figure\@mkboth
+ {Indice delle figure}{Indice delle figure}}\@starttoc{lof}\if@restonecol
+ \twocolumn\fi}
+\def\l@figure{\@dottedtocline{1}{1.5em}{2.3em}}
+\def\listoftables{\@restonecolfalse\if@twocolumn\@restonecoltrue\onecolumn
+ \fi\chapter*{Indice delle tabelle\@mkboth
+ {Indice delle tabelle}{Indice delle tabelle}}\@starttoc{lot}\if@restonecol
+ \twocolumn\fi}
+\let\l@table\l@figure
+
+\newif\if@restonecol
+\def\theindex{\@restonecoltrue\if@twocolumn\@restonecolfalse\fi
+\columnseprule \z@
+\columnsep 35pt\twocolumn[\@makeschapterhead{Indice Analitico}]
+ \@mkboth{Indice analitico}{Indice analitico}\thispagestyle{bfplain}\parindent\z@
+ \parskip\z@ plus .3pt\relax\let\item\@idxitem}
+\def\@idxitem{\par\hangindent 40pt}
+\def\subitem{\par\hangindent 40pt \hspace*{20pt}}
+\def\subsubitem{\par\hangindent 40pt \hspace*{30pt}}
+\def\endtheindex{\if@restonecol\onecolumn\else\clearpage\fi}
+\def\indexspace{\par \vskip 10pt plus 5pt minus 3pt\relax}
+
+\def\footnoterule{\kern-3\p@ 
+ \hrule width .4\columnwidth 
+ \kern 2.6\p@} 
+\@addtoreset{footnote}{chapter} 
+\long\def\@makefntext#1{\parindent 1em\noindent 
+ \hbox to 1.8em{\hss$^{\@thefnmark}$}#1}
+
+
+\setcounter{topnumber}{2}
+\def\topfraction{.7}
+\setcounter{bottomnumber}{1}
+\def\bottomfraction{.3}
+\setcounter{totalnumber}{3}
+\def\textfraction{.2}
+\def\floatpagefraction{.5}
+\setcounter{dbltopnumber}{2}
+\def\dbltopfraction{.7}
+\def\dblfloatpagefraction{.5}
+
+\long\def\@makecaption#1#2{
+ \vskip 10pt 
+ \setbox\@tempboxa\hbox{#1: #2}
+ \ifdim \wd\@tempboxa >\hsize #1: #2\par \else \hbox
+to\hsize{\hfil\box\@tempboxa\hfil} 
+ \fi}
+
+
+\newcounter{figure}[chapter]
+\def\thefigure{\thechapter.\@arabic\c@figure}
+\def\fps@figure{tbp}
+\def\ftype@figure{1}
+\def\ext@figure{lof}
+%\def\fnum@figure{Figure \thefigure}
+\def\fnum@figure{Figura \thefigure}
+\def\figure{\@float{figure}}
+\let\endfigure\end@float
+\@namedef{figure*}{\@dblfloat{figure}}
+\@namedef{endfigure*}{\end@dblfloat}
+\newcounter{table}[chapter]
+\def\thetable{\thechapter.\@arabic\c@table}
+\def\fps@table{tbp}
+\def\ftype@table{2}
+\def\ext@table{lot}
+\def\fnum@table{Table \thetable}
+\def\table{\@float{table}}
+\let\endtable\end@float
+\@namedef{table*}{\@dblfloat{table}}
+\@namedef{endtable*}{\end@dblfloat}
+
+\mark{{}{}} 
+
+\if@twoside \def\ps@headings{\let\@mkboth\markboth
+\def\@oddfoot{}\def\@evenfoot{}\def\@evenhead{\bf \thepage\hfil \twlsfi
+\leftmark}\def\@oddhead{\hbox{}\twlsfi \rightmark \hfil
+\bf\thepage}\def\chaptermark##1{\markboth {\uppercase{}{\ifnum \c@secnumdepth
+>\m@ne
+ \@chapapp\ \thechapter. \ \fi ##1}}{}}\def\sectionmark##1{\markright
+{\uppercase{}{\ifnum \c@secnumdepth >\z@
+ \thesection. \ \fi ##1}}}}
+\else \def\ps@headings{\let\@mkboth\markboth
+\def\@oddfoot{}\def\@evenfoot{}\def\@oddhead{\hbox {}\twlsfi\rightmark \hfil
+\bf\thepage}\def\chaptermark##1{\markright {\uppercase{}{\ifnum \c@secnumdepth
+>\m@ne
+ \@chapapp\ \thechapter. \ \fi ##1}}}}
+\fi
+\def\ps@myheadings{\let\@mkboth\@gobbletwo
+\def\@oddhead{\hbox{}\twlsfi\rightmark \hfil
+\bf\thepage}\def\@oddfoot{}\def\@evenhead{\bf \thepage\hfil\twlsfi\leftmark\hbox
+{}}\def\@evenfoot{}\def\chaptermark##1{}\def\sectionmark##1{}%
+\def\subsectionmark##1{}}
+
+
+\def\today{\ifcase\month\or
+ January\or February\or March\or April\or May\or June\or
+ July\or August\or September\or October\or November\or December\fi
+ \space\number\day, \number\year}
+\@addtoreset{equation}{chapter} 
+\def\theequation{\thechapter.\arabic{equation}}
+
+
+\pagenumbering{arabic} \onecolumn \if@twoside\else\raggedbottom\fi 
+% new commands
+%
+% Choose our default language
+%
+%\input{italian.sty} comando originale
+% new theorems
+\newtheorem{teorema}{Teorema}[chapter]
+\newtheorem{lemma}{Lemma}[chapter]
+\newtheorem{definizione}{Definizione}[chapter]
+\newtheorem{corollario}{Corollario}[chapter]
+\newtheorem{assioma}{Assioma}[section]
+\newtheorem{proposizione}{Proposizione}[chapter]
+\newtheorem{osservazione}{Osservazione}[chapter]
+\newtheorem{algoritmo}{Algoritmo}[chapter]
+% an environment for proofs
+\newenvironment{proof}[0]{\par\noindent{\bf Dimostrazione}:}{\samepage\hfill
+{$\Box$}\par\medskip} 
+% macro for definitions
+\newcommand{\defequal}{\stackrel{\Delta}{=}}
+% macro for the ==> sign
+\let\implies=\Longrightarrow
+% macro for the <==> sign
+\let\iff=\Longleftrightarrow
+%
+% exceptions
+\hyphenation{geo-me-tria geo-me-trie que-sto que-sta que-sti qua-le
+quel-lo quel-la quel-li tec-ni-ca tec-ni-che e-qua-zio-ne seg--men-to
+seg-men-ti al-go-rit-mo al-go-rit-mi quan-tiz-za-to-re
+quan-tiz-za-to-ri quan-tiz-za-to quan-tiz-za-ti quan-tiz-za-zio-ne
+fre-quen-za fre-quen-ze}
+% BlackBoard Bold font
+\newfont{\Bbb}{msbm10 at 12pt}
+\newfont{\smallBbb}{msbm10 at 10pt}
+%
+%\ipse\dixit, macros for scholar quotations
+\newcommand{\dixit}{\begingroup\renewcommand{\baselinestretch}{.95}
+\smallskip\small\sf
+\flushright\obeylines}
+\newcommand{\ipse}[1]{\endgroup{\small\it\hfill #1}\vspace{30pt}}
+% cambiamo l'orrendo default 'contenuto' al posto di 'indice'
+\gdef\contentsname{Indice}%
+
+\pagestyle{headings}
+
+% abstract, in two languages
+\newenvironment{abstract}{\small\thispagestyle{empty} %\setcounter{page}{5}
+\def\baselinestretch{1}
+\begin{center}{\bf Abstract\vspace{.3em}\vspace{0pt}}\end{center}
+\center\minipage{12cm}\small}{\endminipage\endcenter}
+\newenvironment{sommario}{\small\thispagestyle{empty} %\setcounter{page}{5}
+\def\baselinestretch{1}
+\begin{center}{\bf Sommario\vspace{.3em}\vspace{0pt}}\end{center}
+\center\minipage{12cm}\small}{\endminipage\endcenter}
+
+% Redefine the macro used for floats (including figures and tables)
+% so that single spacing is used.
+% (Note \def\figure{\@float{figure}set single spacing} doesn't work
+%  because figure has an optional argument)
+\def\@xfloat#1[#2]{\ifhmode \@bsphack\@floatpenalty -\@Mii\else
+   \@floatpenalty-\@Miii\fi\def\@captype{#1}\ifinner
+      \@parmoderr\@floatpenalty\z@
+    \else\@next\@currbox\@freelist{\@tempcnta\csname ftype@#1\endcsname
+       \multiply\@tempcnta\@xxxii\advance\@tempcnta\sixt@@n
+       \@tfor \@tempa :=#2\do
+                        {\if\@tempa h\advance\@tempcnta \@ne\fi
+                         \if\@tempa t\advance\@tempcnta \tw@\fi
+                         \if\@tempa b\advance\@tempcnta 4\relax\fi
+                         \if\@tempa p\advance\@tempcnta 8\relax\fi
+         }\global\count\@currbox\@tempcnta}\@fltovf\fi
+    \global\setbox\@currbox\vbox\bgroup 
+    \def\baselinestretch{1}\@normalsize
+    \boxmaxdepth\z@
+    \hsize\columnwidth \@parboxrestore}
+
+% Redefine the macro used for footnotes to use single spacing
+\long\def\@footnotetext#1{\insert\footins{\def\baselinestretch{1}\footnotesize
+    \interlinepenalty\interfootnotelinepenalty 
+    \splittopskip\footnotesep
+    \splitmaxdepth \dp\strutbox \floatingpenalty \@MM
+    \hsize\columnwidth \@parboxrestore
+   \edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}\@makefntext
+    {\rule{\z@}{\footnotesep}\ignorespaces
+      #1\strut}}}
+
+\def\autore#1{\gdef\@autore{#1}}
+\def\titolo#1{\gdef\@titolo{#1}}
+\def\relatore#1#2{\gdef\@relatore{#1}\gdef\@nomi{#2}}
+\def\data#1{\gdef\@data{#1}}
+\def\aa#1{\gdef\@aa{#1}}
+\def\@data{\ifcase\the\month\or
+ Gennaio\or Febbraio \or Marzo\or Aprile\or Maggio\or Giugno\or
+ Luglio\or Agosto\or Settembre\or Ottobre\or Novembre\or Dicembre\fi
+ \space \number\the\year}
+
+\def\titlepage{{
+% pagina da mettere nella copertina di cartoncino
+\def\baselinestretch{1.0}\setcounter{page}{1}
+\thispagestyle{empty}
+\vspace{4cm}
+\begin{center}
+\large\bf\uppercase\expandafter{\@titolo}
+\end{center}
+\normalsize\sf\uppercase\expandafter{\@relatore}:\rm
+\begin{tabular}[t]{l}\@nomi\end{tabular}\hfill
+\sf LAUREANDO: \rm\@autore
+\begin{center}{\sf A.A. \@aa}\end{center}
+%\vspace{5cm}\rm\small
+%[Questa pagina va riportata sul cartoncino distribuito
+%presso la segreteria DEI]
+%
+\newpage\setcounter{page}{1}
+% frontespizio
+\thispagestyle{empty}
+\def\baselinestretch{1.4}
+\vs(30){\begin{center}\sc
+%UNIVERSIT\`A DEGLI STUDI DI PADOVA\\
+CORSO DI LAUREA IN INGEGNERIA ELETTRONICA\\
+DIPARTIMENTO DI ELETTRONICA ED INFORMATICA\\
+\vspace{2cm}
+\large
+TESI DI LAUREA\end{center}}
+\vs(10)
+{\begin{center}{\Huge\bf\expandafter{\@titolo}}\end{center}}
+\vs(5)
+\begin{center}\rm\large\@relatore: Ch.mo%
+ \begin{tabular}[t]{l}\@nomi\end{tabular}
+\end{center}
+\begin{center}\rm\large Laureando: \@autore\end{center}
+\vfill\begin{center}\rm\normalsize Padova, \@data\end{center}
+\vskip.5cm
+\newpage\setcounter{page}{0}\thispagestyle{empty}
+}}
+
+% Ho sostituito "Sommario" con "Introduzione"
+\def\preface{
+ \cleardoublepage \thispagestyle{bfplain} \addcontentsline{toc}{chapter}{Sommario}
+ \markboth{Sommario}{}
+ \addtocontents{lof}{\protect\addvspace{10pt}}
+\addtocontents{lot}{\protect\addvspace{10pt}} \if@twocolumn
+\@topnewpage[\@makeschapterhead{Sommario}] 
+ \else \@makeschapterhead{Sommario}
+ \@afterheading \fi}
+
+\def\bibname{Bibliografia}
+
+\def\thebibliography#1{\chapter*{\bibname%
+     \@mkboth{{\bibname}}%
+             {{\bibname}}}%
+     \addcontentsline{toc}{chapter}{Bibliografia}
+     \def\baselinestretch{1}\@normalsize
+     \list{[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}%
+     \leftmargin\labelwidth \advance\leftmargin\labelsep%
+     \usecounter{enumi}}%
+     \def\newblock{\hskip 0.11em plus 0.33em minus 0.07em}%
+     \sloppy\clubpenalty4000\widowpenalty4000%
+     \sfcode`\.=1000\relax}
+
+\renewcommand{\baselinestretch}{1.2}
+

@@ -1,0 +1,26 @@
+\addvspace {10pt}
+\addvspace {10pt}
+\addvspace {10pt}
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Rappresentazione dello spazio della coordinata ${\it Hue}$}}{17}
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Digital straight line segments}}{29}
+\addvspace {10pt}
+\addvspace {10pt}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces B-spline lineari}}{50}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Curva a B-splines cubiche uniformi}}{53}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces B-spline cubica di riferimento}}{53}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Curva 2D a B-splines }}{57}
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Convex Hull}}{57}
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Omotetia rispetto al centroide dei control points}}{59}
+\addvspace {10pt}
+\addvspace {10pt}
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Attenuazione degli elementi di disturbo: peli}}{78}
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Esempio di binarizzazione}}{81}
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Esempio di applicazione di operatori morfologici}}{81}
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Riparametrizzazione dello snake a B-splines}}{89}
+\contentsline {figure}{\numberline {6.5}{\ignorespaces Energie dello snake}}{91}
+\contentsline {figure}{\numberline {6.6}{\ignorespaces Risultato della segmentazione con inizializzazione manuale}}{94}
+\contentsline {figure}{\numberline {6.7}{\ignorespaces Risultato della segmentazione con inizializzazione semiautomatica}}{95}
+\contentsline {figure}{\numberline {6.8}{\ignorespaces Risultato della segmentazione con l'applicazione di un operatore anisotropo per la riduzione dei disturbi}}{95}
+\addvspace {10pt}
+\addvspace {10pt}
+\addvspace {10pt}

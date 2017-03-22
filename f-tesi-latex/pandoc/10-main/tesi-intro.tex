@@ -1,0 +1,145 @@
+% Introduzione
+\chapter{Introduzione}
+%---------------------------------------------------------------------------------------------
+Uno dei problemi posti in dermatoscopia \e la misura delle caratteristiche delle macchie
+cutanee, per cui \e di interesse sviluppare degli strumenti che permettano di effettuare
+tali misure in modo automatico.
+
+Le misure riguardano generalmente le dimensioni, lo stato del bordo, se \e pi\u o meno
+frastagliato, e le simmetrie sia relativamente alla forma sia rispetto alla pigmentazione
+della superficie del neo.
+
+Per poter effettuare tali misure \e necessario, per prima cosa, individuare la macchia, o neo,
+estraendola dal contesto determinato dalla pelle circostante, tenendo presente gli elementi di
+disturbo tipo i peli, le cui dimensioni non possono essere considerate sempre trascurabili
+relativamente a quelle del neo.
+
+\vs(5)
+
+Due sono quindi gli obiettivi che ci si \e proposti di raggiungere:
+\ben
+\im un problema di {\it segmentazione}: individuare il neo;
+\im rappresentazione semplice e compatta del suo contorno per facilitare le successive misure.
+\een
+
+Per quanto riguarda la segmentazione esiste un'ampia scelta di metodi che si sviluppano a
+partire da due modi equivalenti di interpretare il problema.
+I primi definiscono la soluzione come la partizione dell'immagine in regioni uniformi, ovvero
+la partizione a cardinalit\a massima ottenibile rispetto ad un dato criterio di uniformit\aac,
+che nel nostro caso potrebbe essere il colore (in quanto il neo \e una regione con
+pigmentazione differente, generalmente pi\u scura, rispetto alla pelle circostante).
+La seconda classe di metodi invece considera come obiettivo l'individuazione dei contorni che
+separano le diverse regioni.
+
+Concettualmente le due tecniche sono equivalenti, in pratica, hanno un comportamento
+complementare: nel primo caso si ha una minor sensibilit\a al rumore presente
+nell'intorno dei contorni mentre si ha difficilmente una rappresentazione compatta dei
+segmenti ottenuti; nel secondo caso invece si ha una maggior sensibilit\a al rumore,
+ma al contrario si ha una maggior capacit\a di localizzazione dei bordi \e la possibilit\a
+di ottenere rappresentazioni compatte del contorno dei segmenti, in particolare con l'utilizzo
+di opportuni modelli di {\it contorni attivi} ({\it active contours} o {\it snakes}) che sono
+trattati in questa tesi.
+
+Recentemente sono stati proposti inoltre degli algoritmi con combinano i due
+approcci (\cite{Duncan}, \cite{Yuille} e \cite{Yezzi}) in modo da compensarne i difetti e
+sommarne i vantaggi.
+La prima soluzione \cite{Duncan} prevede l'interazione dei due blocchi distinti attraverso
+una serie di regole che stabiliscono come i due interagiscono fino a raggiungere uno stato di
+equilibrio.
+
+La seconda soluzione, che \e qui considerata, realizza l'obiettivo a partire dalla
+definizione di un nuovo modello di snakes in cui i contorni non sono direttamente
+caratterizzati come le zone ad alto gradiente, ma indirettamente attraverso
+una nuova funzione energia che tiene conto della statistica delle regioni separate dallo
+snake e che \e minima quando questi si dispone lungo il contorno dell'oggetto considerato.
+In particolare l'algoritmo proposto da Yezzi et al. in \cite{Yezzi} presenta delle specifiche
+che lo rendono interessante per la semplicit\a della definizione della funzione energia e 
+per ci\o che ne consegue in termini di implementazione.
+
+L'algoritmo permette infatti di segmentare l'immagine nei suoi diversi elementi non appena
+sia fissata la primitiva, {\it feature}, rispetto alla quale risultano distinti; \e da
+notare che non \e necessario conoscere il valore della primitiva caratteristico di ciascun
+oggetto ma \e sufficiente sapere che per ciascuno \e differente.
+Un'altro vantaggio rilevante \e dato dal fatto che la definizione data permette di considerare
+non una sola feature alla volta, ma contemporaneamente un vettore di features che possono
+essere di natura diversa tra loro.
+Nel caso specifico permette di trattare le immagini a colori che sono matrici $R \times C$ di 
+pixels a ciascuno dei quali \e associato un vettore di tre elementi, nel caso pi\u semplice
+le tre componenti $RGB$.
+
+Accanto alla definizione della funzione energia occorre definire il modello che 
+rappresenta fisicamente la curva chiusa e quindi lo snake: si \e scelta
+una rappresentazione a B-splines cubiche uniformi.
+La curva \e rappresentata perci\o come l'unione di tratti di cubica ({\it spans}) che sono
+combinati secondo dei parametri, i punti di controllo o {\it control points}; l'ordine del
+polinomio definisce il grado di regolarit\a della curva.
+
+In tal modo si \e ottenuta una rappresentazione compatta, come si voleva, 
+interamente rappresentata dai punti di controllo, che sono in numero limitato, e rispetto
+ai quali \e possibile definire le misure delle caratteristiche geometriche del contorno.
+
+Un problema associato alla scelta del metodo di segmentazione riguarda l'inizializzazione
+del contorno attivo: lo snake definito in \cite{Yezzi} concettualmente \e 
+abbastanza insensibile all'inizializzazione (in pratica vi possono essere dei limiti se
+l'immagine non \e considerabile bimodale) a differenza dei modelli di snake precedenti che
+si basano sulla ricerca degli edge nell'intorno della curva e per i quali \e opportuna una
+buona inizializzazione.
+In ogni caso \e opportuna per ridurre i tempi di esecuzione dell'algoritmo.
+
+L'inizializzazione si pu\o intendere come una fase di presegmentazione ed \e data dal
+contorno della regione ricavata binarizzando la componenete principale della
+{\it trasformata di Karhunen-Lo\`eve} (o di {\it Hotelling}) dell'immagine originale, seguita
+da alcune elaborazioni con operatori morfologici per ottenere una regione compatta.
+Inizializzando la curva in prossimit\a del bordo della macchia \e possibile realizzare
+un'implementazione locale dell'algoritmo di Yezzi che permette di ridurre le due regioni
+interna ed esterna a due fascie definite nell'intorno dello snake.
+In tal modo si ha che le due aree possono essere approssimativamente uguali, indipendentemente
+dalle dimensioni della macchia rispetto al piano immagine, ed inoltre \e
+possibile escludere le zone prossime ai bordi del sensore, maggiormente sensibili ai disturbi
+dovuti alla illuminazione non uniforme e agli stessi effetti di bordo dell'ottica.
+
+In questa fase \e possibile inoltre ridurre gli elementi di disturbo come i peli: 
+sfruttando il fatto che questi hanno una elevata correlazione lungo una direzione, che
+\e comunque incognita, \e possibile realizzare un operatore locale che
+elabora l'immagine in funzione della misura di anisotropia rilevata nell'intorno
+del punto considerato. 
+Esistono diverse definizioni per tale misura, nel nostro caso si \e considerata una funzione
+della media dei valori dell'intensit\a della stessa componente principale lungo
+direzioni\footnotemark\, prefissate; quindi in corrispondenza dei punti che
+si considerano appartenenti al pelo, per cui la misura \e superiore ad un valore di soglia,
+si sostituisce il valore dell'intensit\a con un nuovo valore che dipende dai pixels
+circostanti che molto probabilmente appartengono alla cute o al neo.
+
+\footnotetext{Considerando che tali rette-direzioni sono definite in uno spazio non
+ continuo ma discreto (segmenti di rette digitali).}
+
+A partire dalla curva iniziale, definita da un certo numero di control points distribuiti
+nel piano, \e necessario permettere che questa possa adattarsi alla complessit\a 
+dell'oggetto che rileva durante la sua evoluzione.
+Si \e pensato quindi di realizzare una riparametrizzazione della curva, basata su un
+metodo di {\it triangolazione} (o {\it scomposizione simpliciale}), e la definizione
+di un criterio di complessit\a per determinare un nuovo numero di punti di controllo.
+ 
+
+%--------------------------------------------------------------------------------------------
+% Contenuto dei capitoli
+\contcap{Contenuto dei capitoli}
+
+\begin{description}
+\im[\sl Capitolo 2.] Sono descritti alcuni operatori per l'elaborazione digitale delle
+   immagini:
+   \bi
+   	\im {\it trasformata di Karhunen-Lo\`eve}
+   	\im {\it operatori morfologici}
+   	\im {\it rank-order filters}
+   \ei	
+\im[\sl Capitolo 3.] Introduzione al problema della segmentazione e descrizione di alcuni
+   algoritmi di binarizzazione.
+\im[\sl Capitolo 4.] Definizione e propriet\a delle B-splines.
+\im[\sl Capitolo 5.] I modelli dei contorni attivi: l'approccio statistico proposto da
+   Yezzi et al. \cite{Yezzi}.
+\im[\sl Capitolo 6.] Descrizione dell'architettura dell'algoritmo proposto con alcuni
+   risultati.
+\end{description}
+
+\finepar

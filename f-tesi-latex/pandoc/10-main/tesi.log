@@ -1,0 +1,379 @@
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=latex 2015.4.16)  8 JUN 2015 17:32
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**tesi.tex
+(./tesi.tex
+LaTeX2e <2011/06/27>
+Babel <3.9h> and hyphenation patterns for 78 languages loaded.
+(/usr/share/texlive/texmf-dist/tex/latex/base/latex209.def
+File: latex209.def 1998/05/13 v0.52 Standard LaTeX file
+
+
+          Entering LaTeX 2.09 COMPATIBILITY MODE
+ *************************************************************
+    !!WARNING!!    !!WARNING!!    !!WARNING!!    !!WARNING!!   
+ 
+ This mode attempts to provide an emulation of the LaTeX 2.09
+ author environment so that OLD documents can be successfully
+ processed. It should NOT be used for NEW documents!
+ 
+ New documents should use Standard LaTeX conventions and start
+ with the \documentclass command.
+ 
+ Compatibility mode is UNLIKELY TO WORK with LaTeX 2.09 style
+ files that change any internal macros, especially not with
+ those that change the FONT SELECTION or OUTPUT ROUTINES.
+ 
+ Therefore such style files MUST BE UPDATED to use
+          Current Standard LaTeX: LaTeX2e.
+ If you suspect that you may be using such a style file, which
+ is probably very, very old by now, then you should attempt to
+ get it updated by sending a copy of this error message to the
+ author of that file.
+ *************************************************************
+
+\footheight=\dimen102
+\@maxsep=\dimen103
+\@dblmaxsep=\dimen104
+\@cla=\count79
+\@clb=\count80
+\mscount=\count81
+(/usr/share/texlive/texmf-dist/tex/latex/base/tracefnt.sty
+Package: tracefnt 1997/05/29 v3.0j Standard LaTeX package (font tracing)
+\tracingfonts=\count82
+LaTeX Info: Redefining \selectfont on input line 101.
+)
+\symbold=\mathgroup4
+\symsans=\mathgroup5
+\symtypewriter=\mathgroup6
+\symitalic=\mathgroup7
+\symsmallcaps=\mathgroup8
+\symslanted=\mathgroup9
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 293.
+LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 294.
+LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 295.
+LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 301.
+LaTeX Info: Redefining \em on input line 311.
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/latexsym.sty
+Package: latexsym 1998/08/17 v2.2e Standard LaTeX package (lasy symbols)
+\symlasy=\mathgroup10
+LaTeX Font Info:    Overwriting symbol font `lasy' in version `bold'
+(Font)                  U/lasy/m/n --> U/lasy/b/n on input line 47.
+)
+LaTeX Font Info:    Redeclaring math delimiter \lgroup on input line 375.
+LaTeX Font Info:    Redeclaring math delimiter \rgroup on input line 377.
+LaTeX Font Info:    Redeclaring math delimiter \bracevert on input line 379.
+)
+Compatibility mode: loading ../styles/deithesi.sty rather than ../styles/deithe
+si.cls.
+
+(../styles/deithesi.sty
+Document Style `deipdthesis' <30 Jun 92>.
+\descriptionmargin=\dimen105
+\c@part=\count83
+\c@chapter=\count84
+\c@section=\count85
+\c@subsection=\count86
+\c@subsubsection=\count87
+\c@paragraph=\count88
+\c@subparagraph=\count89
+\c@figure=\count90
+\c@table=\count91
+\c@teorema=\count92
+\c@lemma=\count93
+\c@definizione=\count94
+\c@corollario=\count95
+\c@assioma=\count96
+\c@proposizione=\count97
+\c@osservazione=\count98
+\c@algoritmo=\count99
+) (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\@emptytoks=\toks14
+\symAMSa=\mathgroup11
+\symAMSb=\mathgroup12
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+LaTeX Info: Redefining \Bbb on input line 113.
+)
+(../styles/psfig.sty
+\@unused=\write3
+
+psfig/tex 1.9
+\ps@stream=\read1
+\p@intvaluex=\dimen106
+\p@intvaluey=\dimen107
+) (../styles/tesisty.sty) (../styles/appsty.sty) (./hyptesi.tex) (./tesi.aux
+(./tesi-abstract.aux) (./tesi-intro.aux) (./tesi-operators.aux)
+(./tesi-segment.aux) (./tesi-bsplines.aux) (./tesi-activecont.aux)
+(./tesi-algor.aux) (./tesi-final.aux) (./tesi-append1.aux) (./tesi-append2.aux)
+)
+\openout1 = `tesi.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 10.
+LaTeX Font Info:    ... okay on input line 10.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 10.
+LaTeX Font Info:    ... okay on input line 10.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 10.
+LaTeX Font Info:    ... okay on input line 10.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 10.
+LaTeX Font Info:    ... okay on input line 10.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 10.
+LaTeX Font Info:    ... okay on input line 10.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 10.
+LaTeX Font Info:    ... okay on input line 10.
+ (./tesi.toc
+LaTeX Font Info:    Try loading font information for U+lasy on input line 3.
+ (/usr/share/texlive/texmf-dist/tex/latex/base/ulasy.fd
+File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
+)
+LaTeX Font Info:    Try loading font information for U+msa on input line 3.
+
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Try loading font information for U+msb on input line 3.
+
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) [1
+
+
+] [2])
+\tf@toc=\write4
+\openout4 = `tesi.toc'.
+
+ [3]
+[4
+
+] (./tesi.lof)
+\tf@lof=\write5
+\openout5 = `tesi.lof'.
+
+ [5]
+\openout2 = `tesi-abstract.aux'.
+
+ (./tesi-abstract.tex [6
+
+
+] [7]) [8]
+\openout2 = `tesi-intro.aux'.
+
+ (./tesi-intro.tex
+Capitolo 1.
+[9
+
+
+
+] [10] [11] [12]) [13]
+\openout2 = `tesi-operators.aux'.
+
+ (./tesi-operators.tex [14
+
+
+
+]
+Capitolo 2.
+[15] [16]
+(clip)
+psfig: including "./images/hsi.eps" 
+[17] [18] [19] [20]
+Underfull \vbox (badness 5050) has occurred while \output is active []
+
+ [21]
+[22] [23] [24] [25] [26] [27] [28]
+(clip)
+psfig: including "./images/digseg1.eps" 
+(clip)
+psfig: including "./images/digseg2.eps" 
+) [29]
+\openout2 = `tesi-segment.aux'.
+
+ (./tesi-segment.tex [30
+
+
+
+]
+Capitolo 3.
+[31] [32] [33] [34] [35] [36] [37] [38] [39] [40] [41] [42] [43] [44] [45]
+[46]) [47]
+\openout2 = `tesi-bsplines.aux'.
+
+ (./tesi-bsplines.tex [48
+
+
+
+]
+Capitolo 4.
+[49]
+psfig: searching "./images/linearBs.ps" for bounding box
+(clip)
+psfig: including "./images/linearBs.ps" 
+[50] [51]
+psfig: searching "./images/cubicBs.eps" for bounding box
+(clip)
+psfig: including "./images/cubicBs.eps" 
+psfig: searching "./images/Bcubic.eps" for bounding box
+(clip)
+psfig: including "./images/Bcubic.eps" 
+[52] [53] [54] [55]
+psfig: searching "./images/conv_h1.eps" for bounding box
+(clip)
+psfig: including "./images/conv_h1.eps" 
+psfig: searching "./images/conv_h2.eps" for bounding box
+(clip)
+psfig: including "./images/conv_h2.eps" 
+[56] [57] [58]
+psfig: searching "./images/omotetia.eps" for bounding box
+(clip)
+psfig: including "./images/omotetia.eps" 
+[59] [60]
+Underfull \vbox (badness 1215) has occurred while \output is active []
+
+ [61])
+[62]
+\openout2 = `tesi-activecont.aux'.
+
+ (./tesi-activecont.tex
+Capitolo 5.
+
+Underfull \vbox (badness 1675) has occurred while \output is active []
+
+ [63
+
+
+
+]
+[64] [65]
+Underfull \vbox (badness 1028) has occurred while \output is active []
+
+ [66]
+[67] [68] [69] [70] [71] [72]) [73]
+\openout2 = `tesi-algor.aux'.
+
+ (./tesi-algor.tex [74
+
+
+
+]
+Capitolo 6.
+[75] [76]
+psfig: searching "./images/cpeli.eps" for bounding box
+(clip)
+psfig: including "./images/cpeli.eps" 
+psfig: searching "./images/spelio.eps" for bounding box
+(clip)
+psfig: including "./images/spelio.eps" 
+psfig: searching "./images/spelig.eps" for bounding box
+(clip)
+psfig: including "./images/spelig.eps" 
+psfig: searching "./images/spelim.eps" for bounding box
+(clip)
+psfig: including "./images/spelim.eps" 
+[77] [78] [79]
+psfig: searching "./images/neobin2.eps" for bounding box
+(clip)
+psfig: including "./images/neobin2.eps" 
+psfig: searching "./images/neobo2.eps" for bounding box
+(clip)
+psfig: including "./images/neobo2.eps" 
+psfig: searching "./images/neoboc2.eps" for bounding box
+(clip)
+psfig: including "./images/neoboc2.eps" 
+[80] [81] [82] [83] [84] [85] [86]
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no   in font cmr12!
+ [87] [88]
+psfig: searching "./images/reticolo.eps" for bounding box
+(clip)
+psfig: including "./images/reticolo.eps" 
+[89] [90]
+psfig: searching "./images/Ec.eps" for bounding box
+(clip)
+psfig: including "./images/Ec.eps" 
+psfig: searching "./images/Et.eps" for bounding box
+(clip)
+psfig: including "./images/Et.eps" 
+Missing character: There is no Ã in font cmr12!
+Missing character: There is no ¨ in font cmr12!
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [91]
+[92]
+psfig: searching "./images/ris1I1o.eps" for bounding box
+(clip)
+psfig: including "./images/ris1I1o.eps" 
+psfig: searching "./images/ris1I1.eps" for bounding box
+(clip)
+psfig: including "./images/ris1I1.eps" 
+psfig: searching "./images/rI2o.eps" for bounding box
+(clip)
+psfig: including "./images/rI2o.eps" 
+psfig: searching "./images/rI2f.eps" for bounding box
+(clip)
+psfig: including "./images/rI2f.eps" 
+psfig: searching "./images/segfin1.eps" for bounding box
+(clip)
+psfig: including "./images/segfin1.eps" 
+psfig: searching "./images/segfin2.eps" for bounding box
+(clip)
+psfig: including "./images/segfin2.eps" 
+psfig: searching "./images/r3I9.eps" for bounding box
+(clip)
+psfig: including "./images/r3I9.eps" 
+psfig: searching "./images/r2I9.eps" for bounding box
+(clip)
+psfig: including "./images/r2I9.eps" 
+) [93] [94] [95]
+\openout2 = `tesi-final.aux'.
+
+ (./tesi-final.tex [96
+
+
+
+]
+Capitolo 7.
+[97]) [98]
+\openout2 = `tesi-append1.aux'.
+
+ (./tesi-append1.tex
+Appendice A.
+[99
+
+
+
+
+] [100]
+Underfull \vbox (badness 3078) has occurred while \output is active []
+
+ [101])
+[102]
+\openout2 = `tesi-append2.aux'.
+
+ (./tesi-append2.tex
+Appendice B.
+[103
+
+
+
+] [104] [105]) [106] (./tesi.bbl [107
+
+
+] [108]) [109] (./tesi.aux
+(./tesi-abstract.aux) (./tesi-intro.aux) (./tesi-operators.aux)
+(./tesi-segment.aux) (./tesi-bsplines.aux) (./tesi-activecont.aux)
+(./tesi-algor.aux) (./tesi-final.aux) (./tesi-append1.aux) (./tesi-append2.aux)
+) ) 
+Here is how much of TeX's memory you used:
+ 1166 strings out of 493305
+ 12528 string characters out of 6139897
+ 73102 words of memory out of 5000000
+ 4409 multiletter control sequences out of 15000+600000
+ 26609 words of font info for 101 fonts, out of 8000000 for 9000
+ 1046 hyphenation exceptions out of 8191
+ 24i,17n,24p,246b,244s stack positions out of 5000i,500n,10000p,200000b,80000s
+
+Output written on tesi.dvi (109 pages, 243168 bytes).

@@ -1,0 +1,66 @@
+% Documento principale
+
+\documentstyle[amsfonts,../styles/psfig,../styles/tesisty,../styles/appsty]{../styles/deithesi}
+
+% hyptesi.tex: contiene scomposizione in sillabe delle parole 
+\input{hyptesi}
+
+\includeonly{tesi-abstract,tesi-intro,tesi-operators,tesi-segment,tesi-bsplines,tesi-activecont,tesi-algor,tesi-final,tesi-append1,tesi-append2}
+
+\begin{document}
+
+%===================================================================================
+% Indice generale
+\tableofcontents
+
+%===================================================================================
+% Indice delle figure
+\listoffigures
+
+%===================================================================================
+% Sommario (=Abstract)
+\include{tesi-abstract}
+
+%===================================================================================
+% Introduzione
+\include{tesi-intro}
+%===================================================================================
+% Corpo della tesi
+
+% Operatori per l'elaborazione digitale delle immagini
+\include{tesi-operators}
+
+% Segmentazione
+\include{tesi-segment}
+
+% Descrizione a B-splines di un acurva nel piano
+\include{tesi-bsplines}
+
+% Contorni Attivi
+\include{tesi-activecont}
+
+% L'algoritmo
+\include{tesi-algor}
+
+% Conclusioni
+\include{tesi-final}
+
+%===================================================================================
+
+\begin{appendici}
+
+\include{tesi-append1}
+
+\include{tesi-append2}
+
+\end{appendici}
+
+%=================================
+% Bibliografia
+
+\bibliographystyle{plain}
+
+\bibliography{tesibib}
+
+%=================================
+\end{document}

@@ -1,0 +1,170 @@
+\begin{thebibliography}{10}
+
+\bibitem{Bartels}
+R.~Bartels, J.~Beatty, and B.~Barsky.
+\newblock {\em An Introduction to Splines for use in Computer Graphics and
+  Geometric Modeling}.
+\newblock Morgan Kaufmann, 1987.
+
+\bibitem{BlakeAC}
+A.~Blake and M.~Isard.
+\newblock {\em Active Contours}.
+\newblock Cambridge, England: Springer-Verlag, 1998.
+
+\bibitem{Bose}
+N.K. Bose and P.~Liang.
+\newblock {\em Neural Networks Fundamentals with Graphs, Algorithms and
+  Applications}.
+\newblock New York: McGraw-Hill, 1996.
+
+\bibitem{Canny}
+J.F. Canny.
+\newblock {"A computational approach to edge detection"}.
+\newblock {\em IEEE Trans. on Pattern Anal. Machine Intell.}, PAMI-8(6):pp.
+  679--698, 1986.
+
+\bibitem{Duncan}
+A.~Chakraborty and J.S. Duncan.
+\newblock {"Game-theoretic integration for image segmentation"}.
+\newblock {\em IEEE Trans. on Pattern Anal. Machine Intell.}, PAMI-21(1):pp.
+  12--30, 1999.
+
+\bibitem{BlakeAV2}
+R.~Curwen and A.~Blake.
+\newblock {\em Dynamic contours: real-time active splines}.
+\newblock Active Vision, A. Blake and A. Yuille (eds.) Cambridge MA: MIT Press,
+  1992.
+\newblock pp. 39--57.
+
+\bibitem{Wouver}
+G.~Van de~Wouver, P.~Scheunders, S.~Livens, and D.~Van Dyck.
+\newblock {"Wavelet correlation signatures for color texture
+  characterization"}.
+\newblock July 1998.
+
+\bibitem{Fischl}
+B.~Fischl and E.L. Schwartz.
+\newblock {"Adaptive nonlocal filtering: a fast alternative to anisotropic
+  diffusion for image enhancement"}.
+\newblock {\em IEEE Trans. on Pattern Anal. Machine Intell.}, PAMI-21(1):pp.
+  42--48, 1999.
+
+\bibitem{Gevers}
+T.~Gevers, S.~Ghebreab, and A.W.M. Smeulders.
+\newblock {"Color invariant snakes"}.
+\newblock {\em Proc. of the 9th British Machine Vision Conf.}, Vol. 2:pp.
+  578--588, 1998.
+
+\bibitem{Haralick92}
+R.M. Haralick and L.G. Shapiro.
+\newblock {\em Computer Vision, Volume I}.
+\newblock Reading, MA: Addison-Wesley, 1992.
+
+\bibitem{Haralick87}
+R.M. Haralick, S.R. Sternberg, and X.~Zhuang.
+\newblock {"Image analysis using mathematical morphology"}.
+\newblock {\em IEEE Trans. on Pattern Anal. Machine Intell.}, PAMI-9(4):pp.
+  532--550, 1987.
+
+\bibitem{Kass}
+M.~Kass, A.~Witkin, and D.~Terzopoulos.
+\newblock {"Snakes: active contour models"}.
+\newblock {\em Int'l Journal of Computer Vision}, Vol. 1:pp. 321--331, 1988.
+
+\bibitem{Zamperoni}
+R.~Klette and P.~Zamperoni.
+\newblock {\em Handbook of Image processing Operators}.
+\newblock Chichester: Wiley, 1996.
+
+\bibitem{Lee}
+J.H. Lee, B.H. Chang, and S.D. Kim.
+\newblock {"Comparisons of colours transformation for image segmentation"}.
+\newblock {\em Electronics Letters}, 30(20):pp. 1660--1661, Sept. 1994.
+
+\bibitem{Lucchese}
+L.~Lucchese and S.K. Mitra.
+\newblock {"Color image segmentation: a state-of-the-art survey"}.
+
+\bibitem{Malladi}
+R.~Malladi, J.A. Sethian, and B.C. Vemuri.
+\newblock {"Shape modeling with front propagation: a level set approach"}.
+\newblock {\em IEEE Trans. on Pattern Anal. Machine Intell.}, PAMI-17(2):pp.
+  158--175, 1995.
+
+\bibitem{Terzopoulos}
+T.~McInerney and D.~Terzopoulos.
+\newblock {"Topologically adaptable snakes"}.
+\newblock {\em Proc. of the Fifth Int. Conf. on Computer Vision, Cambridge,
+  MA}, ICCV95:pp. 840--845, 1995.
+
+\bibitem{Meer}
+P.~Meer, E.S. Baugher, and A.~Rosenfeld.
+\newblock {"Frequency domain analysis and synthesis of image pyramid generating
+  kernels"}.
+\newblock {\em IEEE Trans. on Pattern Anal. Machine Intell.}, PAMI-9(4):pp.
+  512--522, 1987.
+
+\bibitem{Ohta}
+Y.I. Ohta, T.~Kanade, and T.~Sakai.
+\newblock {"Color information for region segmentation"}.
+\newblock {\em Computer Graphics and Image Processing}, 13:pp. 980--992, 1980.
+
+\bibitem{Otsu}
+N.~Otsu.
+\newblock {"A threshold selection method from gray-level histograms"}.
+\newblock {\em IEEE Trans. on SMC}, SMC-9:pp. 62--66, 1979.
+
+\bibitem{Perona}
+P.~Perona and J.~Malik.
+\newblock {"Scale-space and edge detection using anisotropic diffusion"}.
+\newblock {\em IEEE Trans. on Pattern Anal. Machine Intell.}, PAMI-12(7):pp.
+  629--639, 1990.
+
+\bibitem{Perona90}
+P.~Perona and K.~Malik.
+\newblock {"Detecting and localizing edges composed of steps, peaks and
+  roofs"}.
+\newblock {\em Proc. of the Third Int. Conf. on Computer Vision}, pages pp.
+  52--57, IEEE Coputer Society, Osaka, 1990.
+
+\bibitem{Puzicha}
+J.~Puzicha, J.M. Buhmann, Y.~Rubner, and C.~Tomasi.
+\newblock {"Empirical evaluation of dissimilarity measures for color and
+  texture"}.
+\newblock {\em Proc. of the IEEE Int. Conf. on Computer Vision (ICCV99)}, pages
+  pp. 1165--1173, 1999.
+
+\bibitem{Schmid}
+P.~Schmid.
+\newblock {"Segmentation of digitized dermatoscopic images by two-dimensional
+  color clustering"}.
+\newblock {\em IEEE Trans. on Medical Imaging}, MI-18(2):pp. 164--171, Feb.
+  1999.
+
+\bibitem{BlakeAV1}
+D.~Terzopoulos and R.~Szeliski.
+\newblock {\em Tracking with Kalman snakes}.
+\newblock Active Vision, A. Blake and A. Yuille (eds.) Cambridge MA: MIT Press,
+  1992.
+\newblock pp. 3--20.
+
+\bibitem{Wyszecki}
+G.~Wyszecki and W.S. Stiles.
+\newblock {\em Color Science: Cocepts and Methods, Quantitative Data and
+  Formulae}.
+\newblock New York: Wiley, 1982.
+
+\bibitem{Yezzi}
+A.~Yezzi, A.~Tsai, and A.~Willsky.
+\newblock {"A statistical approach to curve evolution for image segmentation"}.
+\newblock {\em Proc. of the Seventh IEEE Int. Conf. on Computer Vision},
+  Kerkyra, Greece, 1999.
+
+\bibitem{Yuille}
+S.C. Zhu and A.~Yuille.
+\newblock {"Region competition: unifying snakes, region growing, and bayes/MDL
+  for multiband image segmentation"}.
+\newblock {\em IEEE Trans. on Pattern Anal. Machine Intell.},
+  PAMI-18(9):pp.884--900, 1996.
+
+\end{thebibliography}

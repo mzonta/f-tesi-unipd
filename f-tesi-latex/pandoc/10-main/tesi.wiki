@@ -1,0 +1,1024 @@
+In questa tesi ci si pone l’obiettivo di fornire una soluzione al problema della segmentazione di macchie cutanee, i nei, per effettuare successivamente delle misure che possono riguardare lo stato dei bordi, la forma e le simmetrie.
+
+Il problema della segmentazione risolto utilizzando un algoritmo basato su un nuovo modello di contorni attivi, <span>''snakes''</span> o <span>''active contours''</span>, in cui la funzione energia potenziale, o funzione costo, non legata alla definizione del bordo come gradiente di una immagine intensit, ma funzione della distanza fra le intensitinterna ed esterna alla curva chiusa che individua lo snake. Si realizza cosla fusione delle informazioni locali nell’intorno dello snake e quelle globali date dalla media delle intensitnelle due regioni individuate.
+
+Per quanto riguarda il modello del contorno si considerata la sua rappresentazione a B-splines cubiche uniformi, la quale permette di mantenere la curva sufficientemente regolare con una sua descrizione sufficientemente compatta; infatti essa descritta interamente da un insieme limitato di parametri: i suoi <span>''control points''</span>. Per permettere alla curva di adattarsi alla complessitdell’oggetto da segmentare, che per sua natura non nota a priori, necessario rendere flessibile il numero dei control points; stato perciødefinito un metodo di ridistribuzione dei campioni della curva con l’ausilio di un reticolo, che rappresenta una scomposizione simpliciale (triangolazione) del piano immagine. L’associazione tra i nuovi campioni e i nuovi control points realizzata in base ad un opportuno criterio che misura la complessitlocale della curva nei punti campione individuati.
+
+Per migliorare le prestazioni della segmentazione opportuno partire da un contorno iniziale prossimo a quello reale della macchia considerata, intendendo quindi tale procedimento come una fase di presegmentazione. Lo stato iniziale dello snake puøessere dato dal contorno della regione ottenuta a partire dalla binarizzazione della componente principale della <span>''trasformata di Karhunen-Loève''</span> (o di <span>Hotelling</span>) dell’immagine originale, successivamente elaborata con degli operatori morfologici in modo che risulti compatta.
+
+Elaborando la componente principale con un operatore locale anisotropo, il cui comportamento in un punto dell’immagine dipende dalle caratteristiche dei punti in un opportuno intorno, possibile definire una procedura per ridurre l’effetto di disturbo di elementi come i peli.
+
+= Introduzione =
+
+Uno dei problemi posti in dermatoscopia la misura delle caratteristiche delle macchie cutanee, per cui di interesse sviluppare degli strumenti che permettano di effettuare tali misure in modo automatico.
+
+Le misure riguardano generalmente le dimensioni, lo stato del bordo, se piŏ meno frastagliato, e le simmetrie sia relativamente alla forma sia rispetto alla pigmentazione della superficie del neo.
+
+Per poter effettuare tali misure necessario, per prima cosa, individuare la macchia, o neo, estraendola dal contesto determinato dalla pelle circostante, tenendo presente gli elementi di disturbo tipo i peli, le cui dimensioni non possono essere considerate sempre trascurabili relativamente a quelle del neo.
+
+(5)
+
+Due sono quindi gli obiettivi che ci si proposti di raggiungere: un problema di <span>''segmentazione''</span>: individuare il neo; rappresentazione semplice e compatta del suo contorno per facilitare le successive misure.
+
+Per quanto riguarda la segmentazione esiste un’ampia scelta di metodi che si sviluppano a partire da due modi equivalenti di interpretare il problema. I primi definiscono la soluzione come la partizione dell’immagine in regioni uniformi, ovvero la partizione a cardinalitmassima ottenibile rispetto ad un dato criterio di uniformit, che nel nostro caso potrebbe essere il colore (in quanto il neo una regione con pigmentazione differente, generalmente piscura, rispetto alla pelle circostante). La seconda classe di metodi invece considera come obiettivo l’individuazione dei contorni che separano le diverse regioni.
+
+Concettualmente le due tecniche sono equivalenti, in pratica, hanno un comportamento complementare: nel primo caso si ha una minor sensibilital rumore presente nell’intorno dei contorni mentre si ha difficilmente una rappresentazione compatta dei segmenti ottenuti; nel secondo caso invece si ha una maggior sensibilital rumore, ma al contrario si ha una maggior capacitdi localizzazione dei bordi la possibilitdi ottenere rappresentazioni compatte del contorno dei segmenti, in particolare con l’utilizzo di opportuni modelli di <span>''contorni attivi''</span> (<span>''active contours''</span> o <span>''snakes''</span>) che sono trattati in questa tesi.
+
+Recentemente sono stati proposti inoltre degli algoritmi con combinano i due approcci (,  e ) in modo da compensarne i difetti e sommarne i vantaggi. La prima soluzione  prevede l’interazione dei due blocchi distinti attraverso una serie di regole che stabiliscono come i due interagiscono fino a raggiungere uno stato di equilibrio.
+
+La seconda soluzione, che qui considerata, realizza l’obiettivo a partire dalla definizione di un nuovo modello di snakes in cui i contorni non sono direttamente caratterizzati come le zone ad alto gradiente, ma indirettamente attraverso una nuova funzione energia che tiene conto della statistica delle regioni separate dallo snake e che minima quando questi si dispone lungo il contorno dell’oggetto considerato. In particolare l’algoritmo proposto da Yezzi et al. in  presenta delle specifiche che lo rendono interessante per la semplicitdella definizione della funzione energia e per ciøche ne consegue in termini di implementazione.
+
+L’algoritmo permette infatti di segmentare l’immagine nei suoi diversi elementi non appena sia fissata la primitiva, <span>''feature''</span>, rispetto alla quale risultano distinti; da notare che non necessario conoscere il valore della primitiva caratteristico di ciascun oggetto ma sufficiente sapere che per ciascuno differente. Un’altro vantaggio rilevante dato dal fatto che la definizione data permette di considerare non una sola feature alla volta, ma contemporaneamente un vettore di features che possono essere di natura diversa tra loro. Nel caso specifico permette di trattare le immagini a colori che sono matrici <math>R \times C</math> di pixels a ciascuno dei quali associato un vettore di tre elementi, nel caso pisemplice le tre componenti <math>RGB</math>.
+
+Accanto alla definizione della funzione energia occorre definire il modello che rappresenta fisicamente la curva chiusa e quindi lo snake: si scelta una rappresentazione a B-splines cubiche uniformi. La curva rappresentata perciøcome l’unione di tratti di cubica (<span>''spans''</span>) che sono combinati secondo dei parametri, i punti di controllo o <span>''control points''</span>; l’ordine del polinomio definisce il grado di regolaritdella curva.
+
+In tal modo si ottenuta una rappresentazione compatta, come si voleva, interamente rappresentata dai punti di controllo, che sono in numero limitato, e rispetto ai quali possibile definire le misure delle caratteristiche geometriche del contorno.
+
+Un problema associato alla scelta del metodo di segmentazione riguarda l’inizializzazione del contorno attivo: lo snake definito in  concettualmente abbastanza insensibile all’inizializzazione (in pratica vi possono essere dei limiti se l’immagine non considerabile bimodale) a differenza dei modelli di snake precedenti che si basano sulla ricerca degli edge nell’intorno della curva e per i quali opportuna una buona inizializzazione. In ogni caso opportuna per ridurre i tempi di esecuzione dell’algoritmo.
+
+L’inizializzazione si puøintendere come una fase di presegmentazione ed data dal contorno della regione ricavata binarizzando la componenete principale della <span>''trasformata di Karhunen-Loève''</span> (o di <span>''Hotelling''</span>) dell’immagine originale, seguita da alcune elaborazioni con operatori morfologici per ottenere una regione compatta. Inizializzando la curva in prossimitdel bordo della macchia possibile realizzare un’implementazione locale dell’algoritmo di Yezzi che permette di ridurre le due regioni interna ed esterna a due fascie definite nell’intorno dello snake. In tal modo si ha che le due aree possono essere approssimativamente uguali, indipendentemente dalle dimensioni della macchia rispetto al piano immagine, ed inoltre possibile escludere le zone prossime ai bordi del sensore, maggiormente sensibili ai disturbi dovuti alla illuminazione non uniforme e agli stessi effetti di bordo dell’ottica.
+
+In questa fase possibile inoltre ridurre gli elementi di disturbo come i peli: sfruttando il fatto che questi hanno una elevata correlazione lungo una direzione, che comunque incognita, possibile realizzare un operatore locale che elabora l’immagine in funzione della misura di anisotropia rilevata nell’intorno del punto considerato. Esistono diverse definizioni per tale misura, nel nostro caso si considerata una funzione della media dei valori dell’intensitdella stessa componente principale lungo direzioni prefissate; quindi in corrispondenza dei punti che si considerano appartenenti al pelo, per cui la misura superiore ad un valore di soglia, si sostituisce il valore dell’intensitcon un nuovo valore che dipende dai pixels circostanti che molto probabilmente appartengono alla cute o al neo.
+
+A partire dalla curva iniziale, definita da un certo numero di control points distribuiti nel piano, necessario permettere che questa possa adattarsi alla complessitdell’oggetto che rileva durante la sua evoluzione. Si pensato quindi di realizzare una riparametrizzazione della curva, basata su un metodo di <span>''triangolazione''</span> (o <span>''scomposizione simpliciale''</span>), e la definizione di un criterio di complessitper determinare un nuovo numero di punti di controllo.
+
+[''Capitolo 2.] Sono descritti alcuni operatori per l’elaborazione digitale delle immagini: [''Capitolo 3.] Introduzione al problema della segmentazione e descrizione di alcuni algoritmi di binarizzazione. [''Capitolo 4.] Definizione e proprietdelle B-splines. [''Capitolo 5.] I modelli dei contorni attivi: l’approccio statistico proposto da Yezzi et al. . [''Capitolo 6.] Descrizione dell’architettura dell’algoritmo proposto con alcuni risultati. ''''''''''
+
+= Operatori per l’elaborazione digitale delle immagini =
+
+== Cambiamento di risoluzione ==
+
+Le immagini analogiche generate da un sistema ottico per poter essere memorizzate ed elaborate vengono campionate nelle coordinate spaziali e quantizzate nell’intensit. La suddivisione dell’immagine in <math>M</math> righe e <math>N</math> colonne individua un numero finito <math>M \cdot N</math> di elementi d’immagine (<span>''pixel''</span>); <math>M</math> ed <math>N</math> specificano quindi la risoluzione dell’immagine. In alcuni casi un’alta definizione puørisultare non indispensabile e anzi costituire un limite all’efficienza dell’algoritmo in quanto si ha un elevata quantitdi dati da analizzare. Inoltre vi sono applicazioni in cui si sfrutta la possibilitdi analizzare l’immagine a diverse scale di definizione per poter individuare alcune strutture dell’imma-gine che risultano invarianti al variare della risoluzione. In particolare con l’adozione di opportune strutture dati come la piramide di immagini (, ).
+
+=== Riduzione della risoluzione ===
+
+La trasformazione che porta alla riduzione della risoluzione mappa necessariamente diversi punti dell’immagine ad alta risoluzione in un punto di quella a risoluzione inferiore. Il caso pisemplice dato dal campionamento in cui si considerano, ad esempio, i punti dell’immagine ad indici dispari:
+
+(5)
+
+sia <math>f\,(\,x\,,\,y\,)</math> l’immagine di partenza di dimensioni <math>(\,R,C\,)</math>, con <math>R</math> e <math>C</math> pari, allora h(x,y)=f(2x-1,2y-1)
+
+con le due dimensione ridotta di un fattore <math>2</math>.
+
+(5)
+
+A causa della riduzione della risoluzione si puøavere una perdita nella definizione di alcuni dettagli dell’immagine; tale perdita di informazione che puøessere limitata con un’opportuna scelta del nucleo della trasformazione stessa, per esempio considerando la media del valore dei pixel nell’intorno del punto considerato: h(x,y) &amp; = &amp; [f(2x-1,2y-1)+ f(2x-1,2y)+<br />&amp; &amp; +f(2x,2y-1)+ f(2x,2y-1)]
+
+Per un maggior approfondimento sulla scelta del nucleo si puøfar riferimento a quanto riportato in .
+
+== Trasformazioni dello spazio dei colori ==
+
+Generalmente le immagini a colori sono rappresentate per mezzo del modello <math>RGB</math>, dove ad ogni pixel associato un vettore tridimensionale le cui componenti sono proprio i valori di rosso <math>R</math>, verde <math>G</math> e blu <math>B</math> in cui possibile scomporre il colore percepito del pixel.
+
+Una rappresentazione di questo tipo perølegata alle caratteristiche del sensore (CCD) che ha fornito l’immagine per cui spesso si ricorre ad altri spazi in cui rappresentare le proprietintrinseche del colore meno sensibili alle caratteristiche del sensore stesso.
+
+Esiste una vasta gamma di possibili modelli, trasformazioni, metriche che possono essere utilizzate per evidenziare le proprietutili alle diverse applicazioni ; nel nostro caso si sono considerate la trasformazione che permette di ottenere le componenti <math>HSI</math> del colore e la <span>''trasformazione di Karhunen-Loève''</span>.
+
+=== Lo spazio HSI ===
+
+La trasformazione che mappa lo spazio <math>RGB</math> nello spazio <math>HSI</math> (o <math>HSV</math>) non lineare con alcune singolarit:
+
+(<span>''Hue''</span>) <span>''Tonalit''</span>: caratterizza il colore dominante nel punto <span>'''x'''</span> del-l’immagine. Una possibile rappresentazione dello spazio della coordinata puøessere quello di figura.
+
+
+
+E’ puøessere definita formalmente H=((G-B),2R-G-B)
+
+che vale <math>0</math> in presenza della sola componente monocromatica <math>R</math>.
+
+(<span>''Intensity''</span>) <span>''Luminosit''</span>: I=
+
+vale <math>0</math> nel caso del colore nero ed massima per il bianco.
+
+(<span>''Saturation''</span>) <span>''Saturazione''</span> o <span>''Purezza''</span>: misura il rapporto fra la componente monocromatica dominante e quella bianca necessarie ad ottenere il colore del punto. S=1-3 <math>S\,=\,1</math> denota un colore puro, mentre vale <math>S\,=\,0</math> se bianco (<math>R\,=\,G\,=\,B\,=\,1</math>).
+
+Alternativamente alla componente <math>I</math> si puøtrovare la componente <math>V</math> definita
+
+: V={R,G,B}
+
+=== Trasformata di Karhunen-Loève o di Hotelling ===
+
+La <span>''trasformata di Karhunen-Loève o di Hotelling''</span>, con le sue varianti, la trasformazione che permette di ottenere i migliori risultati nei problemi di segmentazione ,  e di analisi della tessitura (<span>''texture''</span>)  rispetto ai diversi modelli di colore. L’effetto della <span>''trasformata di Hotelling''</span> sui vettori di un dato spazio quello di proiettarli in un nuovo spazio con le stesse dimensioni dove perøora le componenti risultano statisticamente scorrelate.
+
+(10)
+
+Di seguito consideriamo la definizione della trasformazione applicata al caso di immagini a colori definite nello spazio <math>RGB</math>:
+
+(5)
+
+dati i pixels <math>{\bf x}</math> dell’immagine <math>I</math>, si considerano il vettore media e la matrice di covarianza
+
+=E[<span>'''x'''</span>] =E[(<span>'''x'''</span>-<span>'''m'''</span>)(<span>'''x'''</span>-<span>'''m'''</span>)<sup>T</sup>]
+
+In pratica si sostituiscono con le rispettive media e covarianza campionaria.
+
+Si procede calcolando gli autovalori <math>\lambda_i</math> e gli autovettori <math>{\bf e}_i</math> della matrice di covarianza <math>{\bf k}</math>; quindi si costruisce la matrice <math>{\bf A}</math> le cui righe sono gli autovettori ordinati secondo autovalori decrescenti. La <span>''trasformazione di Hotelling''</span> ottenuta semplicemente =<span>'''A'''</span>(<span>'''x'''</span>-<span>'''m'''</span>)
+
+Per verificare che le componenti degli <math>{\bf y}</math> sono incorrelate si consideri la matrice di covarianza che in questo caso anche di correlazione in quanto sono vettori a media nulla, infatti =E[<span>'''y'''</span>]=<span>'''A'''</span>(E[<span>'''x'''</span>]-<span>'''m'''</span>)=<span>'''0'''</span> =E[(<span>'''y'''</span>-<span>'''m<sub>y</sub>'''</span>)(<span>'''y'''</span>-<span>'''m<sub>y</sub>'''</span>)<sup>T</sup>] =<span>'''A'''</span><span>'''k'''</span><span>'''A'''</span><sup>T</sup>
+
+Tenendo presente che la matrice di covarianza <math>{\bf k}</math> simmetrica, allora esiste una matrice ortogonale, le cui righe formano una base ortonormale dello spazio <math>RGB</math>, che la diagonalizza. La matrice ortogonale proprio <math>{\bf A}</math>, le cui righe sono gli autovettori di <math>{\bf k}</math>, per cui la matrice diagonale risultante <math>{\bf k_y}</math>; ciøsignifica che le componenti di <math>{\bf y}</math> sono statisticamente scorrelate e con varianza data dagli autovalori, elementi della diagonale della matrice di covarianza.
+
+(5)
+
+Dallo sviluppo della <span>''trasformata di Hotelling''</span> si osserva che essa permette di scomporre l’immagine secondo le sue componenti principali valutate lungo le direzioni a massima varianza. Questo permette sia di limitare le trasformazioni successive alle componenti di maggior rilievo, con un risparmio computazionale, sia di migliorare la qualitdelle trasformazioni successive in quanto possibile scartare le componenti caratterizzate da una minor varianza (autovalori minori) che sono pisensibili al rumore (minore <math>SNR</math>).
+
+A partire dai vettori trasformati <math>{\bf y}</math> possibile riottenere i vettori dello spazio originario <math>{\bf x}</math> applicando la trasformazione inversa
+
+=<span>'''A'''</span><sup>-1</sup><span>'''y'''</span>+<span>'''m'''</span>
+
+con <math>{\bf A}^{-1}\,=\,{\bf A}^T</math> per l’ortogonalit.
+
+Se ora si considerano solo i primi <math>n</math> autovettori e le prime <math>n</math> componenti di <math>{\bf y}</math>, si ricava
+
+=<span>'''A'''</span><sup>T</sup><sub>n</sub><span>'''y'''</span><sub>n</sub>+<span>'''m'''</span>
+
+che rappresenta una approssimazione di <math>{\bf x}</math>.
+
+Rilevante il fatto che possibile stabilire l’errore di approssimazione, ovvero la sua potenza statistica, in modo immediato data l’ortogonalitdelle componenti. Se <math>N</math> il numero totale degli autovalori la potenza dell’errore di stima
+
+P<sub>e</sub>=<sub>i=n+1</sub><sup>N</sup><sub>i</sub>
+
+Tenendo quindi presente che gli autovalori sono ordinati in modo decrescente tale errore risulta minimo fissato <math>n</math>.
+
+La trasformata di Karhunen-Loève dipende, attraverso gli autovettori della matrice di covarianza, dalle caratteristiche dell’immagine in esame; si verificato perø che tali autovettori rimangono pressochinvariati per un vasto insieme di immagini di sogetti reali.
+
+Quindi la trasformata si puøsemplificare nella forma
+
+=
+
+Si osservi che la prima componente definita come l’<span>''Intensit''</span> in <math>HSI</math>.
+
+== Operatori Morfologici ==
+
+Sono una classe importante di operatori locali che operano sulla forma degli elementi che compaiono nell’immagine. Gli operatori morfologici vengono utilizzati per eliminare piccoli oggetti, fessure, buchi, regolarizzare i bordi e per individuare i bordi (<span>''edge-detection''</span>); oppure per estrarre degli oggetti noti da un’immagine (<span>''shape analysis &amp; pattern classification''</span>).
+
+La teoria alla base di tali trasformazioni, da cui mutuano il nome, la <span>''matematica morfologica''</span> che si sviluppa a partire dalla teoria degli insiemi che assumono, in tale contesto, un significato particolare. In questo paragrafo si propone una breve introduzione ai due operatori base, <span>''dilatazione''</span> (<span>''dilation''</span>) ed <span>''erosione''</span> (<span>''erosion''</span>), e le due trasformazioni fondamentali, ottenute dalle precedenti, <span>''apertura''</span> (<span>''opening''</span>) e <span>''chiusura''</span> (<span>''closing''</span>). Per un maggior approfondimento si rimanda ai riferimenti , dello stesso autore in cui si possono trovare, oltre alle dimostrazioni, maggiori argomentazioni sull’importanza di tali operatori e diverse indicazioni sulle possibili applicazioni.
+
+(5)
+
+Di seguito si considerano le definizioni dei diversi operatori e le loro principali proprietin particolare in relazione alla loro implementazione.
+
+=== Dilatazione ed Erosione ===
+
+Siano <math>A</math> e <math>K</math> due sottoinsiemi di <math>\M(E)^N</math>, si definisce <span>'''dilatazione'''</span> di <math>A</math> data <math>K</math> AK={c(E)<sup>N</sup>:c=a+k,aA,kK}
+
+si definisce <span>'''erosione'''</span> di <math>A</math> dato <math>K</math> AK={c(E)<sup>N</sup>:c+kA,kK}
+
+In generale i termini <math>A</math> e <math>K</math> sono due generici sottoinsiemi dello spazio <math>\M(E)^N</math>, in realtil primo operando l’immagine che si sta elaborando mentre il secondo costituisce il nucleo o elemento strutturale (<span>''structuring element''</span>) della trasformazione rappresentante un parametro di forma di un elemento dell’immagine.
+
+Per implementare in modo piĕfficiente i due operatori opportuno esprimerli come combinazioni dell’immagine traslata
+
+Dati <math>A\,\subseteq\,\M(E)^N</math>, <math>x\,\in\,\M(E)^N</math>, si definisce traslazione di <math>A</math> dato <math>x</math> A<sub>x</sub>={c(E)<sup>N</sup>:c=a+x,aA}
+
+AK=<sub>k K</sub>A<sub>k</sub>
+
+AK=<sub>k K</sub>A<sub>-k</sub>
+
+Gli operatori di <span>''dilatazione''</span> ed <span>''erosione''</span> soddisfano le seguenti propriet:
+
+. Vale solo per l’operatore di <span>''dilatazione''</span>. AK=KA
+
+. Sia <math>K\,=\,K_1\,\oplus\,K_2</math> AK &amp; = &amp; A(K<sub>1</sub>K<sub>2</sub>)=(AK<sub>1</sub>)K<sub>2</sub><br />AK &amp; = &amp; A(K<sub>1</sub>K<sub>2</sub>)=(AK<sub>1</sub>)K<sub>2</sub>
+
+.
+
+Fra le possibili combinazioni si considerano in particolare A(BC) &amp; = &amp; (AC)(AC)<br />A(BC) &amp; = &amp; (AC)(AC)
+
+Dalle ([assde]) e ([dist]) si possono ricavare due soluzioni per scomporre il nucleo della tarsformazione (<span>''structuring element''</span>); la differenza che nelle () si ottiene una cascata di operazioni elementari mentre nelle () tali operazioni sono eseguibili in parallelo.
+
+Esiste anche un teorema di dualitche lega i due operatori.
+
+<math>(\,A\,\ominus\,B\,)^c\,=\,A^c\,\oplus\,\check{B}</math>
+
+dove <math>\check{B}\,=\,\{\,x\,:\,\exists\,b\,\in\,B\,:\,x\,=\,-\,b\,\}</math>
+
+e <math>(\,^c\,)</math> l’usuale operazione di complemento rispetto l’insieme <math>\M(E)^N</math>.
+
+Il teorema mette in luce il fatto che le due operazioni non sono l’una l’inversa dell’altra nel senso usuale del termine, ma si possono considerare complementari. Nel senso che se si considera la dilatazione di un insieme <math>A\,\subseteq\,\M(E)^N</math>, possibile in modo duale ottenere lo stesso risultato con un’operazione di erosione sull’insieme complementare. In particolare nel caso in cui il nucleo (<span>''structuring element''</span>) sia simmetrico, per cui <math>\check{K}\,=\,K</math>, si ha che l’erosione di <math>A</math> dato <math>K</math> perfettamente complementare alla dilatazione di <math>A^c</math> dato <math>K</math>.
+
+(5)
+
+Prima di introdurre i due operatori fondamentali della matematica morfologica opportuno considerare il seguente risultato
+
+<math>A\,\oplus\,(\,B\,\ominus\,C\,)\,\subseteq\,(\,A\,\oplus\,B\,)\,\ominus\,C</math>
+
+che evidenzia l’importanza dell’ordine di applicazione dei due operatori <span>''dilatazione''</span> ed <span>''erosione''</span>.
+
+=== Apertura e Chiusura ===
+
+In pratica le due operazioni considerate nella sezione precedente non sono quasi mai utilizzate singolarmente ma combinate per realizzare le due trasformazioni fondamentali di <span>''apertura''</span> (<span>''opening''</span>) e <span>''chiusura''</span> (<span>''closing''</span>).
+
+Si definisce <span>'''apertura'''</span> di <math>A</math> dato <math>K</math>
+
+AK=(AK)K.
+
+Se <math>A\,\circ\,K\,=\,A</math> si dice che <math>A</math> rispetto <math>K</math>.
+
+Si definisce <span>'''chiusura'''</span> di <math>A</math> dato <math>K</math>
+
+AK=(AK)K.
+
+Se <math>A\,\bullet\,K\,=\,A</math> si dice che <math>A</math> chiuso rispetto <math>K</math>.
+
+Una proprietimportante dei due operatori l’idempotenza.
+
+(AK)K &amp; = &amp; AK<br />(AK)K &amp; = &amp; AK
+
+Vale anche una relazione di dualitda intendersi come per i due operatori precedenti.
+
+(AK)<sup>c</sup>=A<sup>c</sup>
+
+Un’interpretazione geometrica dell’azione dei due operatori data dal seguente risultato.
+
+AK={xA:y:xK<sub>y</sub>A} =<sub>{y:K<sub>y</sub>A}</sub>K<sub>y</sub>
+
+Esprime l’operazione di <span>''apertura''</span> come l’unione di tutte le possibili traslazioni di <math>K</math> che sono contenute in <math>A</math>.
+
+Sfruttando la dualitsi ha invece che l’operazione di <span>''chiusura''</span> otenuta come il complemento dell’unione di tutte le traslazioni di <math>\check{K}</math> contenute in <math>A^c</math>.
+
+=== Operatori morfologici per immagini binarie ===
+
+Nel caso particolare di immagini binarie gli operatori morfologici si riducono ad espressioni logiche a cui possibile applicare le regole dell’algebra di Boole.
+
+Si consideri l’operazione di <span>''dilatazione''</span> espressa nella forma () con <math>A</math>, il sottoinsieme che definisce gli oggetti presenti e i cui pixels assumono valore <math>1</math> (<span>''foreground''</span>), e <math>K</math> che assume valori in <math>\{0,1\}</math>; allora
+
+<math>A\,\oplus\,K\,=\,\bigcup_{k\,\in\,K}\,A_k\,=\,\bigcup_{a\,\in\,A}\,K_a</math>
+
+dove nell’ultimo passagio si sfruttata la commutativitdell’operatore ().
+
+La <span>''dilatazione''</span> quindi ottenuta centrando la maschera <math>K</math> su tutti i pixel di <math>A</math> e commutando ad <math>1</math> tutti i pixels vicini che assumono eventualmente il valore <math>0</math> appartenenti a <math>A^c</math> (<span>''background''</span>).
+
+Tale operazione puøessere realizzata considerando gli operatori logici <math>and\,\wedge</math> e <math>or\,\vee</math> tra l’immagine <math>I\,\supseteq\,A</math> e la maschera <math>K</math>. Nell’ipotesi verosimile che quest’ultima sia definita da una finestra-matrice simmetrica di dimensioni <math>(\,2\,n\,+\,1,2\,n\,+\,1\,)</math> si ricava
+
+(r,c)=<sub>i=-n</sub><sup>n</sup><sub>j=-n</sub><sup>n</sup> K(i,j)I(r-i,c-j)
+
+A questo punto possibile ottenere un’espressione anche per l’<span>''erosione''</span> sfruttando la dualite tenedo conto che <math>K</math> simmetrica per cui <math>\check{K}\,=\,K</math> e che il complemento dato dalla negazione
+
+(r,c)=
+
+Definiti questi due operatori possibile ottenere per composizione anche quelli picomplessi.
+
+=== Operatori morfologici per immagini in scala di grigio ===
+
+Anche in questo caso le espressioni viste in generale assumono una forma pisemplice una volta che si stabilito di lavorare con immagini a toni di grigio. Lo spazio considerato <math>\M(E)^N\,=\,\M(E)^3</math> dove le prime due componenti di ciascun vettore sono le coordinate del punto dell’immagine mentre la terza rappresenta il valore dell’intensitdell’immagine nel punto.
+
+Per le immagini in scala di grigio le due operazioni che permettono di definire la <span>''dilatazione''</span> e l’<span>''erosione''</span> sono quelle di <span>''massimo''</span> e <span>''minmo''</span> rispettivamente
+
+Siano <math>F,K\,\subseteq\,\M(E)^2</math>, <math>f\,:\,F\,\rightarrow\,\M(E)</math> e <math>k\,:\,K\,\rightarrow\,\M(E)</math>
+
+(fk)(x) &amp; = &amp; <sub></sub> {f(x-y)+k(y)}<br />(fk)(x) &amp; = &amp; <sub>{yK}</sub> {f(x+y)-k(y)}
+
+Da cui possibile ottenere tutti gli altri operatori applicando le definizioni date precedentemente.
+
+== Rank-order filters - Mediana ==
+
+Rappresentano una classe di operatori locali non lineari che dipendono dal-l’ordinamento dei valori definiti in una finestra <math>K\,(\,n,n\,)</math>, con <math>n</math> dispari, centrata su ogni pixel dell’immagine <math>I\,(\,R,C\,)</math>.
+
+A partire da <math>{\bf v}_K</math>, vettore ordinato con valori crescenti, si possono ottenere <math>n^2</math> possibili risultati associati ai <math>{\bf v}_K\,(i)</math>, con <math>i</math> ordine del filtro, assegnabili al pixel centrale, oggetto dell’elaborazione.
+
+Se <math>i=1</math> si ha il <math>min</math>, con <math>i=n^2</math> il <math>max</math> e con <math>i=(n^2+1)/2</math> la <math>mediana</math> del vettore, che presenta alcune proprietinteressanti  e .
+
+Nella costruzione del vettore <math>{\bf v}_K</math> si considerato anche il pixel centrale della finestra mentre in letteratura si possono trovare anche altre formulazioni che lo escludono. In questi casi bisogna fare attenzione che se <math>n</math> dispari allora <math>n^2-1</math>, il numero di elementi del nuovo vettore <math>{\bf v}_K^\prime</math>, pari e si hanno due possibili valori di mediana per <math>i=(n^2-1)/2</math> e <math>i=(n^2-1)/2+1</math>.
+
+I <span>''rank-order filters''</span> in generale e l’<span>''operatore mediana''</span> in particolare, con le loro varianti, vengono utilizzati sia per ridurre il rumore presente nell’immagi-ne (<span>''image enhancement''</span>) sia come componente per l’estrazione di particolari caratteristiche (<span>''features''</span>) dell’immagine, quali pattern lineari.
+
+== Misura dell’anisotropia locale ==
+
+Bisogna considerare che all’interno di immagini, soprattutto quelle naturali, vi sono particolari con caratteristiche spesso molto diverse tra di loro.
+
+La possibilitdi adattare l’operatore alle proprietlocali dell’immagine permette di soddisfare delle condizioni che potrebbero risultare altrimenti incompatibili, come ridurre il rumore e contemporaneamente conservare o migliorare la definizione dei bordi (<span>''edge sharpness''</span>) e dei dettagli.
+
+Bisogna a questo punto definire uno o piparametri che caratterizzino il comportamento del filtro nei diversi punti dell’immagine. Ciøviene realizzato attraverso una <span>''misura di anisotropia''</span> che rivela la proprietdi interesse come, ad esempio, i punti appartenenti ai bordi (si veda il caso della <span>''diffusione anisotropa''</span> ottenuta variando la forma del filtro gaussiano, che per sua natura isotropo, in funzione del gradiente dell’immagine , ).
+
+(5)
+
+Una semplice definizione di anisotropia data dalla funzione <math>\alpha(p)</math>, misura di anisotropia nel punto <math>p</math>, che stabilisce se il punto <math>p</math> appartiene ad una regione uniforme, <math>\alpha(p)=0</math>, o a una retta (pattern lineare filiforme e ben definito rispetto allo sfondo), <math>\alpha(p)=1</math>.
+
+Definita una finestra <math>K(\,n,n\,)</math>, con <math>n</math> dispari, centrata sul pixel <math>p</math>, possibile individuare <math>T=2\,(n-1)</math> <span>'''digital straight line segments'''</span> passanti per il punto <math>p</math> e che connettono due punti del bordo della finestra <math>K</math> come in figura (). Si consideri <math>M_t</math>, con <math>t=1,\dots,T</math>, la media dell’intensit<math>I(x,y)</math> lungo il segmento <math>t-esimo</math> moltiplicato per <math>n</math> M<sub>t</sub>=<sub>i=-z</sub><sup>z</sup>I(x+dx(t,i),y+dy(t,i)), z=(n-1)/2
+
+dove <math>dx(t,i)</math> e <math>dy(t,i)</math> contengono gli spostamenti relativi tra il punto <math>p(x,y)</math> su cui centrata la finestra e i punti appartenenti alla retta <math>t-esima</math>.
+
+Si definiscono ora <math>m_K(p)</math> e <math>M_K(p)</math> (2) m<sub>K</sub>(p)={M<sub>t</sub>} &amp; M<sub>K</sub>(p)={M<sub>t</sub>}
+
+A questo punto possibile definire la misura <math>\alpha(p)</math> dell’anisotropia locale <math>\alpha(p)=\cases{0 & se $M_K(p)=0$ \cr
+                 {\displaystyle\frac{M_K(p)-m_K(p)}{M_K(p)+m_K(p)}} & altrimenti. \cr}
+\lb{lam}</math>
+
+
+
+
+
+= Segmentazione =
+
+Il processo di segmentazione ha come risultato finale la ripartizione dell’im-magine in unitmorfologiche, segmenti, disgiunte fra loro. Questo puøessere ottenuto determinando i bordi di tali segmenti oppure raggruppando i pixels (unitelementari) in regioni omogenee rispetto ad una particolare propriet(<span>''feature''</span>) fissata che puøessere il colore e/o la tessitura (<span>''texture''</span>).
+
+== Caratterizzazione della segmentazione ==
+
+Formalmente la segmentazione puøessere definita Dati l’insieme <math>I</math>, che definisce nel nostro caso l’immagine da analizzare, e il predicato di omogeneit<math>\cal O</math>, la segmentazione di <math>I</math> dato <math>\cal O</math> una partizione <math>\cal P</math> di <math>I</math> in <math>N</math> sottoinsiemi, o regioni, <math>R_i</math> tali che <math>{\displaystyle \bigcup_{i=1}^{N}\,R_i\,=\,I}
+     \qquad R_i\,\cap\,R_j\,=\,\emptyset \quad \forall\,i\,\neq\,j</math>
+
+<math>{\cal O}(R_i)\,=\,true \quad \forall\,i</math>
+
+<math>{\cal O}(R_i\,\cup\,R_j)\,=\,false \quad \forall\,R_i,R_j \quad adiacenti</math>
+
+La prima propria della definizione di partizione; piĭnteressanti le altre due che stabiliscono che ciascuna regione omogenena rispetto <math>\cal O</math> e soprattutto che a conclusione della segmentazione le regioni adiacenti devono necessariamente essere diverse tra loro, al contrario sarebbe possibile unirle con una ulteriore semplificazione della rappresentazione della stessa immagine <math>I</math>.
+
+== Tecniche di segmentazione ==
+
+Seguendo la classificazione data in  le tecniche di segmentazione possono essere suddivise nel seguente modo Tecniche definite sullo spazio delle primitive (<span>''features''</span>).
+
+(<span>''Feature-Space Based Techniques''</span>) Clustering &amp; Adaptive k-means Clustering Histogram Thresholding Tecniche definite sull’intera morfologia dell’immagine.
+
+(<span>''Image-Domain Based Techniques''</span>) Split &amp; Merge Region Growing Edge Based Neural-Network Based Classification Tecniche che tengono conto della fisica dell’interazione tra la luce e le superfici dei materiali.
+
+(<span>''Physics Based Techniques''</span>)
+
+Anche se la classificazione in  definita in relazione alle tecniche che considerano l’informazione ricavata dal solo <span>''colore''</span> delle superfici, possibile estenderla anche al caso in cui si consideri la tessitura (<span>''texture segmentation''</span>).
+
+=== Feature-Space Based Techniques ===
+
+Nell’ipotesi che ciascun elemento dell’immagine sia omogeneo e definito da una ben nota primitiva (<span>''feature''</span>) possibile raggruppare i pixels che la soddisfano considerandoli come un’unica unit(<span>''cluster''</span>). Alternativamente possibile costruire un particolare istogramma, definito nello spazio delle <span>''features''</span>, e dalla sua analisi determinare uno o pivalori di soglia (<span>''binarization &amp; multilevel thresholding''</span>) che suddividono lo spazio in un certo numero di classi.
+
+Il difetto di tali approcci che non tengono in conto la morfologia dei clusters individuati trascurando le relazioni spaziali di vicinanza fra le features. A causa dei disturbi dovuti alle condizioni di illuminazione probabile che si abbiano i clusters principali non compatti e ben definiti, come dovrebbero risultare, ma interroti da altri clusters piccoli o piccolissimi che possono complicare o falsare i successivi passi di analisi e riconoscimento degli oggetti visualizzati.
+
+=== Image-Domain Based Techniques ===
+
+Per garantire anche quest’ultima condizione di compattezza necessario introdurre delle condizioni che tengano conto della distribuzione spaziale delle features.
+
+==== Tecniche di Split &amp; Merge e Region Growing ====
+
+Le prime suddividono ricorsivamente (<span>''split''</span>) l’immagine in unitsempre pipiccole fino ad ottenere una partizione omogenea; successivamente procedono alla fusione (<span>''merge''</span>) di clusters vicini, appartenenti in generale a due rami differenti della ripartizione, che si possano considerare omogenei fra loro.
+
+Le seconde invece partono dalla definizione di alcuni nuclei iniziali, <span>''semi''</span> e progressivamente li accrescono agglomerando i punti vicini che soddisfano il criterio di prossimità, o omogeneit, fissato.
+
+In entrambe le classi di algoritmi rilevante la scelta del criterio di omogeneit, il predicato <math>\cal O</math>, che generalmente viene definito come funzione che misura la distanza fra le classi in relazione alla <span>''distribuzione delle features al loro interno''</span> . Nello stesso articolo sottolineato il fatto che non possibile stabilire una misura che sembri offrire delle prestazioni superiori alle altre in ogni applicazione, ma che comunque alcune si comportano meglio in determinate ipotesi di lavoro. Nel caso della segmentazione risulta che la scelta mediamente soddisfacente in termini di errore di ripartizione la <math>\chi^2-statistics</math>.
+
+Inoltre nel caso delle tecniche ad accrescimento tipo <span>''region growing''</span> problematica anche la decisione dei punti di aggregazione iniziali i quali possono essere fissati in corrispondenza dei punti di minimo del modulo del gradiente del colore dell’immagine, a cui corrispondono regioni abbastanza uniformi, oppure realizzando una opportuna quantizzazione dei colori presenti, o pisemplicemente distribuendo i semi in modo uniforme.
+
+==== Tecniche basate sulla rilevazione dei bordi (<span>''Edge''</span>) ====
+
+Alla stessa classe di algoritmi appartengono quelli che realizzano la segmentazione individuando i bordi (<span>''edge''</span>), ciol’insieme dei punti di transizione, e quindi a maggior contrasto, fra una regione omogenea e l’altra. Nel caso di immagini scalari, in cui presente la sola componente di intensità, esistono diversi algoritmi ottenuti applicando all’immagine un opportuno operatore, Sobel, Kirsch, pseudo-Laplace, LoG (Mexican-hat), morfologici  o il pinoto filtro di Canny  che rappresenta il filtro lineare ottimo, nel caso unidimensionale e con rumore gaussiano bianco, che soddisfa le seguenti condizioni bassa probabilitdi mancare un buon edge e bassa probabilitdi considerare vero un falso edge; ovvero massimizzare l’<math>SNR</math> in uscita al filtro; corretta localizzazione dell’edge. Il risultato un filtro le cui prestazioni possono essere ottenute, con buona approssimazione, anche dalla derivata prima, <math>G_{\sigma}^{\,\prime}\,(x)</math>, della gaussiana <math>G_\sigma(x)\,=\,\frac{1}{\sigma\,\sqrt{2\,\pi}}\exp\,\Big(\,-\,\frac{x^2}{2\,\sigma^2}\,\Big);</math> e quindi gli edges sono determinati dalla convoluzione <math>C(x)\,=\,G_{\sigma}^{\,\prime}(x) \ast I(x)\,=\,(\,G_{\sigma} (x) \ast I(x)\,)^{\,\prime}</math> per le proprietdel filtro gaussiano.
+
+(5)
+
+L’estensione al caso bidimensionale ottenuta tenendo presente che si deve ora considerare il gradiente di <math>G_\sigma (x,y)</math> <math>C(x,y)\,=\,\nabla G_\sigma \ast I\,=\,\nabla (\,G_\sigma \ast I\,)\,=\,
+ \nabla (\,G_\sigma (x) \ast (\,G_\sigma (y) \ast I\,)\,)</math> dove le ultime due uguaglianze sono valide ancora per le prorpietdella gaussiana.
+
+Noto <math>C</math> possibile determinare l’orientazione dell’<span>''edgel''</span> (edge element) dalle componenti di <math>C\,/\,|C|</math> mentre la sua altezza dal modulo <math>|C|</math>.
+
+E’ possibile che fra gli <span>''edgel''</span> determinati ve ne siamo molti non desiderati dovuti ad esempio alla tessitura delle superfici o ad altri disturbi che non sono eliminati dalla convoluzione col filtro passa basso <math>G_\sigma</math>. Si potrebbe pensare di poter aumentare la scala <math>\sigma</math>, ma ciøvorrebbe dire ridurre la capacitdi localizzazione degli edge; invece si fissa un valore di soglia per la scala utilizzata in modo da scartare gli edge che hanno un’intensitinferiore.
+
+Il problema appena individuato dovuto alla due condizioni strutturali rispetto le quali stato definito il filtro e che non possono essere soddisfatte contemporaneamente; infatti una migliore realizzazione della prima porta un degrado della seconda, e viceversa. La scelta dei parametri quindi frutto di un compromesso (<span>''trade-off''</span>) fra le due.
+
+Esistono inoltre delle situazioni in cui il filtro di Canny puøfallire: nel caso di un’area dell’immagine con un gradiente di intensitche costante ma non nullo il filtro puødecidere per la presenza di edges quando invece non dovrebbero esserci; se si in presenza di edge composito, per esempio gradino pirampa, si ha un errore sistematico nella localizzazione dell’edge stesso; non riesce ad individuare le giunzioni a <math>T</math> che si hanno quando tre regioni distinte e adiacenti l’una all’altra.
+
+Una delle cause dei problemi appena menzionati la natura lineare del filtro; infatti mostrato in  che per ogni famiglia finita di filtri lineari esiste un <span>''edgel''</span> composito per cui le risposte presentano un errore sistematico. Sempre in  fornita la soluzione al problema che data dalla scelta di una diversa classe di filtri ottenuti come combinazione di filtri in quadratura tra loro. Dalla convoluzione tra questi e l’immagine, ed elevando al quadrato il modulo, si ottiene una forma quadratica che individua l’<span>''edgel''</span> nel suo punto di estremo. Tale forma quadratica dipende anche dalla fase e quindi l’estremo determinato permette di definire l’orientazione dell’<span>''edgel''</span> in modo pipreciso rispetto al caso precedente, con una risoluzione che possibile stabilire a priori. Un altro grado di libertdato dalla forma della coppia di filtri che vincolabile fissando un criterio che condizioni gli <span>''edgel''</span> risultanti: un elevato <math>SNR</math>, come nel caso di Canny, minima varianza dell’errore di localizzazione, bassa probabilitdi <span>''edgel''</span> multipli (ciofalsi <span>''edgel''</span> dovuti al ripple del filtro e che si affiancano a quelli veri), etc.
+
+(5)
+
+Nel caso delle immagini a colori si possono applicare gli stessi metodi previa l’estensione della nozione di gradiente nel caso di immagini vettoriali che realizzabile in due modi: calcolare per ciacuna componente il gradiente e quindi combinare opportunamente i risultati parziali; definire l’estensione del calcolo del gradiente per funzioni vettoriali , 
+
+Sia definita l’immagine <math>{\bf \Psi}({\bf x}):\,\M(R)^2\,\longrightarrow\,\M(R)^N</math> la variazione di <math>{\bf \Psi}({\bf x})</math>, <math>d{\bf \Psi}</math>, per uno spostamento infinitesimo <math>d{\bf x}</math> espressa dalla forma differenziale <math>d{\bf \Psi}\,=\,\frac{\,\partial {\bf \Psi}}{\partial x}\,dx\,+
+                  \,\frac{\,\partial {\bf \Psi}}{\partial y}\,dy</math> la cui norma al quadrato risulta <math>d{\bf \Psi}^2\,=\,d{\bf x}^T\,G\,d{\bf x}</math> dove <math>G</math> una matrice <math>(2 \times 2)</math> le cui componenti sono <math>g_{ij}\,=\,\frac{\partial {\bf \Psi}}{\partial x_i}
+             \,\frac{\partial {\bf \Psi}}{\partial x_j}.</math> Le direzioni di estremo della forma quadratica sono definite dagli autovettori di <math>G</math>, mentre gli autovalori associati stabiliscono l’altezza del-l’estremo; quindi riferendoci all’immagine di partenza, gli autovettori indicano le direzioni di massima e minima variazione, mentre gli autovalori l’entitdella variazione rispetto al punto <span>'''x'''</span>.
+
+(5)
+
+<span>''La ripidit(<span>''sharpeness''</span>) dell’immagine nel punto, ovvero il “<span>''gradiente''</span>”, puøessere definito dalla radice quadrata della differenza dei due autovalori; cosfacendo si ottenuto in una sola misura l’informazione sulle variazioni di grandezza vettoriali''</span>.
+
+Rispetto all’immagine originale costituita da tutti i suoi <span>''pixels''</span>, quindi possibile ottenere una rappresentazione picompatta considerando gli <span>''edgels''</span> ricavati con uno degli edge-detector menzionati. Il grado di compressione risulta dipendente dall’immagine considerata in quanto vi possono essere comunque un numero elevato di elementi in base anche alla scelta del valore di soglia fissato; inoltre la rappresentazione non tiene conto della possibile continuitdegli edgels, rendendo difficoltosa l’interpretazione degli oggetti, o di loro parti, individuati.
+
+Per ovviare a questo inconveniente si puøricorrere ad un’altra classe di modelli denominati <span>'''active contours'''</span> o <span>''snakes''</span>, originalmente proposti da Kass  e rielaborati nel caso particolare delle immagini a colori nei <span>''color snakes''</span>  dove si sfrutta la definizione data sopra sul calcolo del gradiente per immagini vettoriali.
+
+(5)
+
+<span>''Tale modello rappresenta uno degli elementi fondamentali dell’algoritmo proposto in questa tesi e sarperciøapprofondito nei prossimi capitoli''</span>.
+
+==== Tecniche di classificazione basate sulle reti Neuronali ====
+
+Una rete neuronale  costituita da uno o pistrati (<span>''multi-layer''</span>), esclusi quello d’ingresso e quello di uscita, di celle elementari, i <span>''neuroni''</span>. Ciascun neurone costituito da due elementi: il primo, denominato <span>''adaptive linear combiner''</span>, riceve in ingresso i segnali provenienti dai neuroni dello strato che lo precede e li combina linearmente secondo dei coefficienti, <span>''pesi sinattici''</span>; mentre il secondo una particolare funzione, <span>''legge di attivazione''</span> che elabora il risulato della combinazione determinando il nuovo stato del neurone, che rappresenta l’uscita che si propaga agli strati successivi. Esempi di leggi di attivazione sono la funzione segno, la rampa lineare, la sigmoide <ref><math>1/(1+\exp(-k\,x))</math>
+</ref>, etc.
+
+Il vantaggio di presentare una struttura intrinsecamente parallela, che puørisultare determinante in termini di tempo di calcolo, oltre ad un buon comportamento nei confronti dei disturbi, controbilanciato dallo svantaggio di richiedere una fase di apprendimento (<span>''learning''</span>) in cui vengono adattati i pesi sinattici in relazione alle caretteristche del <span>''pattern''</span> in esame.
+
+Esistono due tipi principali di apprendimento: : deve essere disponibile una collezione, <span>''training set''</span>, di coppie <math>I/O</math>. Le leggi di apprendimento sono definite in modo che sia minimo l’errore in uscita fra il valore desiderato e quello reale fornito dalla rete, una volta fissati i pesi.
+
+Gli algoritmi si suddividono quindi in <span>''algoritmi a correzione d’errore''</span> (<math>\alpha-LMS</math> o Widrow-Hoff Delta, MRI, MRII) e <span>''algoritmi a discesa lungo il gradiente dell’errore''</span> (<math>\mu-LMS</math>, Back-Propagation) sviluppati in base al tipo di rete (single-layer, AdaLinE o multi-layer, M-AdaLinE). : in questo caso non disponibile un insieme di prova ma la rete che aggiorna il suo comportamento in relazione al tipo di ingressi. Si realizza una struttura basata su rapporti di associazione tra un dato tipo di ingresso una quota di neuroni che risultano particolarmente attivi quando questi si presenta e che fissata incrementando il valore dei rispettivi pesi sinattici. Uno dei modelli di rete che utilizza questo tipo di apprendimento dato dalle reti di Kohonen o <math>SOM</math> (<span>''Self Organizing Map''</span>).
+
+Un’altra importante tipologia di reti data dalle <span>''reti di Hopfield''</span> che presentano carateristiche peculiari: a differenza dei modelli precedenti in cui i segnali si propagano in una sola direzione dall’ingresso verso l’uscita (<span>''feed-forward''</span>), queste presentano anche dei collegamenti in retroazione (<span>''feed-back''</span>) dato che ciascun nodo della rete, il neurone, collegato con tutti gli altri (<span>''fully-connected''</span>); per cui non pipossibile una organizzazione a strati; una volta annullato l’ingresso l’evoluzione dello stato del neurone puøraggiungere una condizione di equilibrio stabile, con l’esaurimento del transitorio, oppure rimanere in uno di stato di instabilitcon oscillazioni permanenti; vengono utilizzate nella risoluzione di problemi di ottimizzazione nella minimizzazione di <span>''funzioni costo''</span> che possono, nel nostro caso, rappresentare dei vincoli per la segmentazione. In particolare i minimi di tali funzioni corrispondono agli stati finali stabili, o attrattori stabili, della rete.
+
+=== Physics Based Techniques ===
+
+Sostanzialmente non differiscono dalle precedenti se non nel fatto che inseriscono dei termini che tengano conto del comportamento fisico delle superfici dei materiali, in termini di riflessione, al variare delle condizioni di illuminazione. Puørisultare infatti che la superficie di uno stesso materiale, caratterizzata da un solo colore, puøapparire invece non uniforme con possibili problemi di sovrasegmentazione in quanto si individuano piregioni di quelle reali. In generale i materiali sono suddivisi in tre categorie: dielettrici otticamente omogenei, dielettrici otticamente non omogenei e metalli; per ciasuna delle quali definibile un modello che rappresenti i fenomeni di riflessione della superficie che determinano il colore percepito. Tali modelli tengono conto della geometria e del tipo di superficie, della posizione relativa sorgente-soggetto, della natura della sorgente (la lunghezza d’onda della luce emessa) ovvero se sia luce bianca o abbia delle componenti monocromatiche prevalenti. In alcuni casi permettono di determinare le diverse componenti di riflessione dovuti anche alle interazioni fra gli oggetti presenti fra cui necessariamente il sensore che effettua la misura.
+
+== Texture segmentation ==
+
+Come accennato precedentemente le tecniche utilizzate nella segmentazione sono valide sia che si consideri il solo colore sia che si consideri la tessitura (<span>''texture''</span>) sia che vengano utilizzate entrambe.
+
+A differenza del colore che una proprietpuntuale, la tessitura da una descrizione locale delle relazioni spaziali fra pixel vicini; inoltre dipende dalla scala utilizzata, ovvero ad un determinato livello di risoluzione alcuni dettagli possono non essere presenti mentre lo sono se la si aumenta, come se si analizzasse la stessa superficie a diversi gradi di ingrandimento.
+
+Per cui gli algoritmi di analisi della tessitura fanno largo utilizzo di metodi a multirisoluzione con strutture tipo <span>''piramide di immagini''</span> a cui sono applicate filtri la cui forma dipende dalla scala del livello.
+
+Vista la caratteristica che devono avere i filtri una delle scelte comunemente adottate data dal filtro gaussiano <math>G_\sigma</math>, il cui fattore di forma dato dalla sua varianza, oppure, per problemi picomplessi, dalla famiglia di filtri complessi che vanno sotto il nome di <span>''filtri di Gabor''</span> <math>G_\sigma({\bf x},{\bf k})\,=\,\frac{1}{\sigma\,\sqrt{2\,\pi}}
+                           \exp\,\Big(\,-\,\frac{{\bf x}^T\,{\bf x}}{2\,\sigma^2}\,\Big)
+                           \exp\,\Big(\,{\mit i}\,{\bf k}^T\,{\bf x}\,\Big)</math> con <math>\sigma</math> funzione di <math>{\bf k}</math>, il pararmetro che caratterizza la feature di interesse. Si considera quindi il modulo della convoluzione tra il filtro e l’immagine data ottenendo, per ogni pixel, ad un dato livello di risoluzione, un vettore <math>n-dimensionale</math> dei coefficienti di Gabor che descrive le relazioni spaziali tra il pixel in esame e quelli prossimi.
+
+Per caratterizzare l’intera tessitura opportuno ora considerare la distribuzione di tali features nell’intorno del pixel sfruttando le considerazioni viste precedentemente nella sezione () oppure quanto suggerito in .
+
+(3)
+
+Il problema appena esposto puøessere visto in una forma piğenerale considerando la matrice delle mutue occorrenze (<span>''co-occurrence matrix''</span>) (si veda a proposito ): .
+
+Dati l’insieme <math>Q</math> delle primitive (features) in cui scomposta l’immagine e l’insieme <math>A</math> degli attributi associati ad ogni primitiva (ad esempio l’intensi-tà) dalla funzione <math>f</math>, si definisca una relazione binaria <math>S\,\subseteq\,Q \times Q</math> che esprima la relazione spaziale che intercorre fra ogni coppia di features <math>(q_i,q_j)</math> (distanza, adiacenza, etc.). Si definisce la matrice delle occorrenze mutue <math>P(a_i,a_j)\,=\frac{\M(\#)\,\{\,(q_i,q_j)\,\in\,S\,:\,f(q_i)=a_i,\,f(q_j)=a_j\,\}}{\M(\#)\,S}</math>
+
+che rappresenta in termini di frequenze relative la distribuzione delle feature in <math>S</math>.
+
+Una volta ottenuta le distribuzioni <math>P_1</math> e <math>P_2</math> di due regioni <math>S_1</math> e <math>S_2</math> e possibile applicare i diversi criteri di omogeneito similarit.
+
+(3)
+
+Altre tecniche per descrivere la tessitura sono basate sull’analisi dell’im-magine nel dominio della frequenza, anche se poco utilizzato, sull’uso di operatori morfologici, attraverso la definizione di edge per regioni a tessitura differente, sulla sintesi di particolari modelli <span>''ARMA''</span> o modellando la tessitura come un processo aleatorio e ricorrendo a un <span>''Discrete Markov Random Field''</span>.
+
+== Binarizzazione ==
+
+Nell’ambito delle <span>''Feature-Space Based Techniques''</span> () si accennato a <span>''binarization &amp; multilevel thresholding''</span> per la determinazione dei valori di soglia che realizzano la ripartizione dello spazio delle <span>''features''</span>.
+
+Si prende ora in considerazione il caso in cui tali <span>''features''</span> siano l’intensito una componente dei modelli per la rappresentazione del colore. Nonostante le limitazioni di tali tecniche segnalate in (), queste possono comunque rappresentare una soluzione all’inizializzazione degli <span>''active contours''</span> ().
+
+=== Binarizzazione come tecnica di segmentazione ===
+
+Nel caso in cui l’immagine si possa ritenere bimodale (<span>''foreground &amp; background''</span>), ad esempio due oggetti di colori diversi, il testo e la pagina su cui scritto, possibile aumentare la discriminazione fra i diversi elementi determinando un opportuno valore di soglia.
+
+La binarizzazione (<span>''binarization''</span> or <span>''spatial thresholding''</span>) rappresenta perciøuna delle prime forme di segmentazione sviluppata per le immagini in scala di grigio e successivamente estesa alle immagini a colori .
+
+Per ridurre i tempi di calcolo possibile calcolare la soglia analizzando l’istogramma dei valori di un’opportuna “intensit”, che puøessere direttamente l’immagine a toni di grigio o una o picomponenti delle possibili rappresentazioni delle immagini a colori (<math>RGB</math>, <math>HSI</math>) e delle loro trasformate (<span>''trasformata di Hotelling''</span>) opportunamente combinate.
+
+(5)
+
+Una volta realizzato l’istogramma questi viene normalizzato ottenendo un vettore di frequenze relative intese come la distribuzione di probabilitper i livelli di intensitdella primitiva considerata.
+
+Se <math>N(i)</math> il numero di pixels con intansit<math>i</math> e <math>N</math> il numero totale di pixels, la frequenza relativa risulta <math>P\,(i)\,=\,\frac{N(i)}{N}</math> La distribuzione ottenuta la descrizione statistica dell’intensitdei punti dell’immagine, per cui possibile applicare un qualsiasi metodo di classificazione supervisionato e non supervisionato (<span>''supervised &amp; unsupervised''</span>) che permetta di costruire una funzione discriminante. Il caso pisemplice prevede che tale funzione sia costante e pari al valore della soglia, oppure si puøintrodurre un’isteresi che permette di ridurre gli effetti delle oscillazioni dell’intensitnell’intorno del valore di soglia, in modo da rendere la binarizzazione pirobusta e ottenere delle regioni piŭniformi.
+
+==== Un algoritmo iterativo ====
+
+A partire da un valore di soglia iniziale, che puøessere il valore medio della scala di intensit, si procede con approssimazioni successive che portano ad una soluzione finale che si arresta quando la differenza fra due stime successive inferiore ad uno scarto <math>\varepsilon</math> fissato.
+
+Il numero di livelli <math>L</math> su cui quantizzata l’intensitsolitamente pari a <math>256</math> che corrisponde ad un’occupazione di memoria di un <math>byte</math> per ciascun pixel e quindi i valori <math>i</math> che puøassumere appartengono alla sequenza <math>\{0,\dots,L-1\}</math>.
+
+Si fissa la soglia iniziale <math>s=(L-1)/2</math>.
+
+<math>s_a\,=\,s</math> (2) Q<sub>0</sub>=<sub>i=0</sub><sup>s </sup>P(i) &amp; <sub>0</sub>=<sub>i=0</sub><sup>s </sup>i<br />&amp;<br />Q<sub>1</sub>=<sub>i=s+1 </sub><sup>L-1</sup>P(i) &amp; <sub>1</sub>=<sub>i=s+1 </sub><sup>L-1</sup>i<br />
+
+Aggiornamento della stima di <math>s</math> s &amp; = &amp; Q<sub>0</sub>Q<sub>1</sub>0<br />s &amp; = &amp; <sub>0</sub> Q<sub>0</sub>0Q<sub>1</sub>=0<br />s &amp; = &amp; <sub>1</sub> Q<sub>0</sub>=0Q<sub>1</sub>0
+
+Se <math>|\,s\,-\,s_a\,|\,\leq\,\varepsilon</math>l’algoritmo termina altrimenti si torna al <span>Passo 1</span>.
+
+Il numero di passi ovviamente funzione della tolleranza <math>\varepsilon</math> fissata, comunque generalmente il procedimento si arresta dopo pochi passi. La soglia ottenuta tale da minimizzare
+
+<math>\sum_{i=0}^{\lfloor s \rfloor}\,(\,i-\mu_0\,)^2\,P(i)\,+\,\sum_{i=\lfloor s+1 \rfloor}^{L-1}\,(\,i-\mu_1\,)^2\,P(i)</math>
+
+che esprime la somma delle varianze dei due gruppi di pixels in cui ripartita l’immagine.
+
+=== Binarizzazione come problema di classificazione ===
+
+Come accennato precedentemente possibile intendere la binarizzazione co-me la soluzione di un problema di classificazione dove la funzione discriminante costante e pari alla soglia. La capacitdel classificatore dipende dalla conoscenza delle caratteristiche dei dati da analizzare e quanto queste informazioni siano descritte dal classificatore stesso. In alcuni casi possibile ritenere che la descrizione statistica dell’intensitdei pixels dell’immagine, descritta attraverso il suo istogramma normalizzato, sia approssimabile alla combinazione di due gaussiane centrate attorno a due valori medi ben distinti e con varianze sufficientemente piccole in modo che non vi sia una eccessiva interferenza, ciosia abbastanza netta la zona di separazione in cui cadrsicuramente il valore di soglia.
+
+Con queste ipotesi risulta semplice considerare, ad esempio, il criterio della minimizzazione della <span>''distanza di Kullback''</span> <math>J</math> definita
+
+<math>J\,=\,\sum_{i=0}^{L-1}\,P(i)\,\log\frac{P(i)}{f(i)}</math>
+
+dove <math>f(i)\,=\,Q_0\,g_0(i)\,+\,Q_1\,g_1(i)</math> la distribuzione di massa ottenuta come combinazione pesata di due distribuzioni gaussiane <math>g_0</math> e <math>g_1</math> i cui pesi sono le probabilitrelative dei due gruppi.
+
+(5)
+
+Un’altra soluzione data dall’algoritmo proposto da Otsu , , Si definisce <math>s</math>, soglia, il valore che minimizza la somma pesata <math>\sigma_W^2</math> (<span>''within-group variance''</span>) delle varianze dei due gruppi <math>\Omega_0</math> e <math>\Omega_1</math> risultati dalla binarizzazione.
+
+Definiti i parametri (2) q<sub>0</sub>(t)=<sub>i=0</sub><sup>t</sup>P(i) &amp; q<sub>1</sub>(t)=<sub>i=t+1</sub><sup>L-1</sup>P(i)<br />&amp;<br /><sub>0</sub>(t)=<sub>i=0</sub><sup>t</sup>i &amp; <sub>1</sub>(t)=<sub>i=t+1</sub><sup>L-1</sup>i<br />&amp;<br /><sub>0</sub><sup>2</sup>(t)=<sub>i=0</sub><sup>t</sup>[i-<sub>0</sub>(t)]<sup>2</sup> &amp; <sub>1</sub><sup>2</sup>(t)=<sub>i=t+1</sub><sup>L-1</sup>[i-<sub>1</sub>(t)]<sup>2</sup>
+
+<sub>W</sub><sup>2</sup>=q<sub>0</sub>(t)<sub>0</sub><sup>2</sup>(t)+q<sub>1</sub>(t)<sub>1</sub><sup>2</sup>(t)
+
+il valore di soglia <math>s</math> puøessere ottenuto s=<sub>t</sub>{<sub>W</sub><sup>2</sup>(t)}
+
+Un’algoritmo piĕfficiente realizzabile rielaborando le espressioni precedenti ottenendo una formulazione duale che consideri il valore di soglia che massimizzi la varianza fra le due classi <math>\Omega_0</math> e <math>\Omega_1</math> (<span>''between-group variance''</span>) <sub>B</sub><sup>2</sup>(t)=q<sub>0</sub>(t)[<sub>0</sub>(t)-]<sup>2</sup>+q<sub>1</sub>(t)[<sub>1</sub>(t)-]<sup>2</sup>
+
+con <math>\ds \mu\,=\,\sum_{i=0}^{L-1}\,i\,P(i)</math> media totale.
+
+Una volta sviluppata l’espressione genarale della varianza totale <math>\ds \sigma^2\,=\,\sum_{i=0}^{L-1}\,[i-\mu]^2\,P(i)</math> possibile scomporre la sommatoria nei due termini di estremi <math>\{0,t\}</math> e <math>\{t+1,L-1\}</math> per ottenere, tenendo conto dei parametri definiti precedentemente, l’equazione <sup>2</sup> &amp; = &amp; q<sub>0</sub>(t)<sub>0</sub><sup>2</sup>(t)+q<sub>1</sub>(t)<sub>1</sub><sup>2</sup>(t)+<br />&amp; &amp; +q<sub>0</sub>(t)[<sub>0</sub>(t)-]<sup>2</sup>+q<sub>1</sub>(t)[<sub>1</sub>(t)-]<sup>2</sup>
+
+nella quale si riconoscono le due componenti <math>\sigma_W^2(t)</math> e <math>\sigma_B^2(t)</math> definite, rispettivamente, dalle () e ().
+
+Dato che <math>\sigma^2</math> indipendente da t, costante una volta fissata <math>P(i)</math>, se <math>\sigma_W^2(t)</math> diminuisce allora <math>\sigma_B^2(t)</math> necessariamente deve aumentare e il risultato che si ottiene la soluzione del problema duale del precedente ()
+
+s=<sub>t</sub>{<sub>B</sub><sup>2</sup>(t)}
+
+Sfruttando le relazioni (2) =q<sub>0</sub>(t)<sub>0</sub>(t)+q<sub>1</sub>(t)<sub>1</sub>(t) &amp; eq<sub>1</sub>(t)=1-q<sub>0</sub>(t)
+
+quest’ultima ricavata da <math>\ds \sum_{i=0}^{L-1}\,P(i)\,=\,1</math>, che vale perche’ <math>P(i)</math> una funzione distribuzione di massa, si ottiene un’ulteriore semplificazione <sub>B</sub><sup>2</sup>(t)=q<sub>0</sub>(t)[1-q<sub>0</sub>(t)][<sub>0</sub>(t)-<sub>1</sub>(t)]<sup>2</sup>
+
+a cui possono essere associate le espressioni ricorsive q<sub>0</sub>(t+1) &amp; = &amp; q<sub>0</sub>(t)+P(t+1)<br />&amp; &amp;<br /><sub>0</sub>(t+1) &amp; = &amp;<br />&amp; &amp;<br /><sub>1</sub>(t+1) &amp; = &amp;
+
+dove <math>\mu</math> viene calcolata una volta per tutte non appena nota la distribuzione <math>P(i)</math>, mentre gli altri termini sono aggiornati ad ogni passo sfruttando i risultati precedenti con una migliorata efficienza dell’algoritmo rispetto alla formulazione originale.
+
+= Descrizione a B-splines di una curva nel piano =
+
+== Introduzione ==
+
+Descrivere la curva <math>{\bf r}(u,t)</math> in termini di spline significa determinare le due funzioni <math>x(u,t)</math> e <math>y(u,t)</math>, componenti di <math>{\bf r}</math>, note appunto come splines, ottenute dalla composizione di segmenti di funzioni polinomiali o <span>''spans''</span>. Le <span>''B-splines''</span> rappresentano una particolare classe di splines in cui la funzione <math>x(u,t)</math> ottenuta come combinazione lineare di <math>N_B</math> funzioni base (da cui B-spline) <math>B_i(u)</math>, e con combinatori i <span>''control points''</span> <math>x_i(t)</math>, <math>i=0,\dots,N_B-1</math> x(u,t)=<sub>i=0</sub><sup>N<sub>B</sub>-1</sup>B<sub>i</sub>(u)x<sub>i</sub>(t).
+
+Ciascuna base <math>B_i</math> definita dall’unione di <math>d</math> segmenti di polinomio di ordine <math>d</math> o di grado <math>d-1</math> a supporto finito dato dall’intervallo <math>[u_i,u_{i+d}[</math> dove ciascun <math>u_i</math> rappresenta il <span>''nodo''</span> o <span>''knot''</span> <math>i-esimo</math> della splines. Nel caso particolare delle <span>''B-splines uniformi''</span> la sequenza di nodi <math>\{u_i\}</math> equispaziata per cui si considera <math>{\bf r}(s,t)</math> per ciascun span, con <math>s=\frac{u-u_i}{u_{i+1}-u_i}\in [0,1[ \quad e \quad u\,\in\,[\,u_i,u_{i+1}\,[.</math>
+
+Si fissa inoltre che ciascuna base presenti anche delle condizioni di regolarit, in particolare che siano continue le prime <math>d-2</math> derivate su tutto il supporto; in questo modo anche la curva <math>{\bf r}(u,t)</math> una funzione <math>C^{d-2}</math> su tutto il dominio.
+
+== B-splines lineari ==
+
+
+
+Per comprendere il significato e le proprietdei control points e delle basi conveniente considerare dapprima il caso di <math>d=2</math>, il pisemplice rispetto alle condizioni di regolaritfissate, che corrisponde alle <span>''B-splines lineari''</span> (Figura ). Il risultato l’interpolazione lineare degli stessi punti di controllo <math>x_i</math> dove le basi <math>B_i</math> sono definite su un intervallo di ampiezza pari a <math>2</math> e hanno forma triangolare. Fissati quindi <math>m</math> punti o vertici di controllo si hanno <math>m-1</math> segmenti di retta le cui equazioni sono esprimibili rispetto al parametro <math>s</math> x<sub>i-1</sub>(s) &amp; = &amp; (1-s)x<sub>i-2</sub>+sx<sub>i-1</sub><br />x<sub>i</sub>(s) &amp; = &amp; (1-s)x<sub>i-1</sub>+sx<sub>i</sub><br />x<sub>i+1</sub>(s) &amp; = &amp; (1-s)x<sub>i</sub>+sx<sub>i+1</sub><br />x<sub>i+2</sub>(s) &amp; = &amp; (1-s)x<sub>i+1</sub>+sx<sub>i+2</sub> <math>con \quad s=\frac{u-u_i}{u_{i+1}-u_i} \quad e \quad u\,\in\,[\,u_i,u_{i+1}\,[</math> per cui ai due estremi per <math>s=0</math> e <math>s=1</math> corrispondono a <math>x(0)=x_{i-1}</math> e <math>x(1)=x_i</math> rispettivamente.
+
+In Figura sono stati tracciati i contributi di <math>x_{i-1}</math> e <math>x_i</math> ricavati dalle equazioni () dove si vede che ciascun control points interviene nella definizione dei due spans adiacenti che lo condividono. Le due funzioni tratteggiate hanno la stessa forma e altezza che varia con la posizione dei control points che possibile pensarle come le basi <math>B_i</math> di altezza unitaria scalate dai punti di controllo <math>x_i</math>. Ne risulta che modificando la posizione di un solo vertice si hanno delle variazioni locali della curva complessiva, per cui si parla di <span>''controllabilitlocale''</span>, che rappresenta una delle proprietfondamentali delle splines.
+
+E’ possibile allora esprimere l’equazione del segmento o span () che collega i due vertici <math>x_{i-1}</math> e <math>x_i</math> come la combinazione lineare di due basi <math>B_{i-1}</math> e <math>B_i</math> x<sub>i</sub>(u)=x<sub>i-1</sub>B<sub>i-1</sub>(u)+x<sub>i</sub>B<sub>i</sub>(u) l’imitatamente all’intervallo <math>u_i \leq u \leq u_{i+1}</math> in cui definito lo span, con <math>B_i(u)\,=\,\cases{
+           {\ds\frac{u-u_i}{u_{i+1}-u_i}} & $u_i \leq u \leq u_{i+1}$ \cr
+              &   \cr                                                    
+           {\ds\frac{u_{i+2}-u}{u_{i+2}-u_{i+1}}} & $u_{i+1} \leq u \leq u_{i+2}$. \cr}</math>
+
+(5)
+
+Quanto appena visto puøessere esteso all’intera funzione <math>x(u)</math> (o <math>x(s)</math> nel caso di B-splines uniformi) e quindi anche a <math>y(s)</math>; per cui l’intera curva <math>{\bf r}(u,t)</math> risulta (u,t)=<sub>i=0</sub><sup>N<sub>B</sub>-1</sup><span>'''x'''</span><sub>i</sub>(t)B<sub>i</sub>(u) <sub>i</sub>=(x<sub>i</sub>,y<sub>i</sub>) oppure (s,t)=<sub>i=0</sub><sup>N<sub>B</sub>-1</sup><span>'''x'''</span><sub>i</sub>(t)B(s-i) nel caso di B-splines uniformi dove la base <math>B_i</math> ottenuta semplicemente traslando la base di riferimento <math>B</math>.
+
+== B-splines cubiche uniformi ==
+
+Consideriamo ora il caso delle <span>''B-spline cubiche''</span> ovvero splines ottenute dalla combinazione di funzioni base che sono costituite da tratti di polinomi cubici (<math>d=4</math>). Inoltre si assuma definitivamente l’ipotesi di splines uniformi per cui i nodi o knots <math>u_i</math> sono equispaziati; in particolare possibile considerarli posti a distanza unitaria e quindi possono essere sostituiti con una sequenza di interi come in Figura (). Ciascuna base perciøottenuta come traslazione di una base di riferimento, come accennato precedentemente.
+
+
+
+A differenza del caso delle B-spline lineari, quelle cubiche non passano necessariamente per i control points ma al pipossono avvicinarsi; tutto dipende dal numero dei punti di controllo e dalla loro disposizione (nel caso in cui questi siano allineati la spline deve necessariamente attraversarli).
+
+
+
+Dalla Figura si possono individuare alcune caratteristiche della curva ottenuta dalla combinazione delle B-splines cubiche in particolare, ma che possibile estendere all’intera famiglia delle B-splines:
+
+fissati <math>m</math> <span>''control points''</span>, con indice <math>i=0,\dots,m-1</math> si hanno <math>m</math> basi <math>B_i</math>; la curva scomponibile in <math>m-3</math> <span>''spans''</span> che si appoggiano su <math>m-2</math> nodi; la spline generata si sviluppa quindi a partire dal quarto nodo <math>u_3</math> e termina in corrispondenza del nodo <math>u_m</math>.
+
+In Figura rappresentata la base <math>B(s)</math> di riferimento menzionata nella quale sono indicati con diverso tratto i quattro segmenti di polinomio cubico a<sub>j</sub>s<sup>3</sup>+b<sub>j</sub>s<sup>2</sup>+c<sub>j</sub>s+d<sub>j</sub> 0 j 3. Ne risultano quindi <math>16</math> incognite date dai coefficienti dei polinomi che possono essere individuati in modo univoco considerando i vincoli che derivano dalla regolaritimposta precedentemente alle curve a B-spline, ovvero che siano <math>C^2</math> su tutto il dominio: (3) 0=b<sub>0</sub>(0) &amp; 0=b<sub>0</sub><sup>(1)</sup>(0) &amp; 0=b<sub>0</sub><sup>(2)</sup>(0)<br />b<sub>0</sub>(1)=b<sub>1</sub>(0) &amp; b<sub>0</sub><sup>(1)</sup>(1)=b<sub>1</sub><sup>(1)</sup>(0) &amp; b<sub>0</sub><sup>(2)</sup>(1)=b<sub>1</sub><sup>(2)</sup>(0)<br />b<sub>1</sub>(1)=b<sub>2</sub>(0) &amp; b<sub>1</sub><sup>(1)</sup>(1)=b<sub>2</sub><sup>(1)</sup>(0) &amp; b<sub>1</sub><sup>(2)</sup>(1)=b<sub>2</sub><sup>(2)</sup>(0)<br />b<sub>2</sub>(1)=b<sub>3</sub>(0) &amp; b<sub>2</sub><sup>(1)</sup>(1)=b<sub>3</sub><sup>(1)</sup>(0) &amp; b<sub>2</sub><sup>(2)</sup>(1)=b<sub>3</sub><sup>(2)</sup>(0)<br />b<sub>3</sub>(1)=0 &amp; b<sub>3</sub><sup>(1)</sup>(1)=0 &amp; b<sub>3</sub><sup>(2)</sup>(1)=0 che come si nota impongono la continuitfino alla derivata seconda (<math>d-2</math>) compresa nei punti di raccordo o <span>''breakpoints''</span> tra le curve polinomiali valutati per <math>s=0</math> e <math>s=1</math>.
+
+Un’ultima condizione fissata imponendo che <math>b_0(0)\,+\,b_1(0)\,+\,b_2(0)\,+\,b_3(0)\,=\,1</math> che si riduce a <math>b_1(0)\,+\,b_2(0)\,+\,b_3(0)\,=\,1</math> dato che gistato fissato <math>b_0(0)=0</math>.
+
+Risolvendo le equazioni nei coefficienti incogniti <math>a_j</math>, <math>b_j</math>, <math>c_j</math>, <math>d_j</math> per i quattro segmenti che compongono <math>B</math> si ricava b<sub>0</sub>(s) &amp; = &amp; s<sup>3</sup><br />&amp;<br />b<sub>1</sub>(s) &amp; = &amp; (-3s<sup>3</sup>+3s<sup>2</sup>+3s+1)<br />&amp;<br />b<sub>2</sub>(s) &amp; = &amp; (3s<sup>3</sup>-6s<sup>2</sup>+4)<br />&amp;<br />b<sub>3</sub>(s) &amp; = &amp; (-s<sup>3</sup>+3s<sup>2</sup>-3s+1)
+
+Da queste possibile ottenere un’interessante espressione per lo <span>''span''</span> <math>i-esimo</math> definito sull’intervallo <math>[u_i,u_{i+1}[</math>. A partire dalla (), trascurando per semplicitla variabile temporale, (u)=<sub>i=0</sub><sup>N<sub>B</sub>-1</sup><span>'''x'''</span><sub>i</sub>B<sub>i</sub>(u); e tenendo presente che la base <math>B_i</math> e non nulla solo su <math>[u_i,u_{i+d}[</math>, allora nell’inter-vallo <math>[u_i,u_{i+1}[</math> intervengono solo un numero finito, pari a <math>d</math>, di basi <sub>i</sub>(u) &amp; = &amp; <sub>j=0</sub><sup>3</sup><span>'''x'''</span><sub>i-j</sub>B<sub>i-j</sub>(u)=<br />&amp; &amp;<br />&amp; = &amp; <span>'''x'''</span><sub>i</sub>B<sub>i</sub>(u)+<span>'''x'''</span><sub>i-1</sub>B<sub>i-1</sub>(u)+ <span>'''x'''</span><sub>i-2</sub>B<sub>i-2</sub>(u)+<span>'''x'''</span><sub>i-3</sub>B<sub>i-3</sub>(u)
+
+Inoltre, limitatamente all’intervallo considerato, la <math>B_i</math> contribuisce con il tratto di polinomio <math>b_i</math> per cui l’espressione si semplifica ulteriormente nella <sub>i</sub>(s) &amp; = &amp; <sub>j=0</sub><sup>3</sup><span>'''x'''</span><sub>i-j</sub>b<sub>j</sub>(s)=<br />&amp; &amp;<br />&amp; = &amp; <span>'''x'''</span><sub>i</sub>b<sub>0</sub>(s)+<span>'''x'''</span><sub>i-1</sub>b<sub>1</sub>(s)+ <span>'''x'''</span><sub>i-2</sub>b<sub>2</sub>(s)+<span>'''x'''</span><sub>i-3</sub>b<sub>3</sub>(s) per ogni quaterna <math>[\,{\bf x}_i,{\bf x}_{i-1},{\bf x}_{i-2},{\bf x}_{i-3}\,]</math> di <span>''control points''</span>.
+
+Il vantaggio di quest’ultima espressione che puøessere convenientemente espressa in forma matriciale. Riordinando i termini della () nella forma <sub>i</sub>(s)=<span>'''x'''</span><sub>i-3</sub>b<sub>3</sub>(s)+<span>'''x'''</span><sub>i-2</sub>b<sub>2</sub>(s)+ <span>'''x'''</span><sub>i-1</sub>b<sub>1</sub>(s)+<span>'''x'''</span><sub>i</sub>b<sub>0</sub>(s) la si puøscrivere come prodotto di vettori <sub>i</sub>(s)=<span>'''b'''</span>(s)<span>'''x'''</span><sub>i</sub>= . Espandendo i termini <math>b_j</math> il primo vettore risulta (s)=<span>'''s'''</span><sup>T</sup><span>'''M'''</span>= e quindi concludendo
+
+<sub>i</sub>(s)=<span>'''s'''</span><sup>T</sup><span>'''M'''</span><span>'''x'''</span><sub>i</sub>
+
+
+
+== Alcune proprietdelle B-splines ==
+
+=== Convex hull ===
+
+
+
+In figura () rappresentato la <span>''convex hull''</span> dell’insieme <math>Q</math> dei <span>''control points''</span> definita come il pipiccolo poligono convesso tale per cui tutti i punti di <math>Q</math> o sono interni o al piăppartengono al bordo.
+
+(5)
+
+Dalla definizione di insieme convesso
+
+Si dice che un sottoinsieme <math>A</math> di uno spazio vettoriale convesso quando verifica la condizione: <span>'''x'''</span><sub>1</sub>+(1-)(<span>'''x'''</span><sub>2</sub>-<span>'''x'''</span><sub>1</sub>)A <span>'''x'''</span><sub>1</sub>,<span>'''x'''</span><sub>2</sub>A (Nel nostro caso lo spazio considerato <math>\M(R)^2</math> e l’insieme <math>A</math> la convex hull).
+
+possibile ricavare la condizione che caratterizza la convex hull in funzione dei control points, ovvero
+
+Ciascun punto <span>'''p'''</span> della convex hull puøessere espresso come combinazione lineare convessa dei control points <math>[{\bf x}_0,\dots,{\bf x}_{m-1}]</math> =<sub>i=0</sub><sup>m-1</sup>w<sub>i</sub><span>'''x'''</span><sub>i</sub> ,w<sub>i</sub> 0i e <sub>i=0</sub><sup>m-1</sup>w<sub>i</sub>=1
+
+Si consideri lo span definito dai control points <math>[{\bf x}_0,{\bf x}_1,{\bf x}_2,{\bf x}_3]</math> di Figura ; questi risulta contenuto nella convex hull definita dai suoi <math>4</math> control points nell’ordine, antiorario, <math>\{{\bf x}_0,{\bf x}_2,{\bf x}_3,{\bf x}_1\}</math>. Infatti vale la proposizione precedente in quanto si verifica dalle () che <sub>j=0</sub><sup>3</sup>b<sub>j</sub>(s)=1 s [0,1[ ed inoltre <math>b_j(s)</math> non negativa, quindi i nostri <math>w_i</math> sono proprio i <math>b_j</math>.
+
+In base a questi risultati, noto il poligono dei control points, possibile conoscere lo spazio in cui si trova la curva a B-splines. In particolare la B-spline approssima in modo regolare le variazioni del poligono dei control points.
+
+=== Invarianza alle traslazioni ===
+
+Con tale proprietsi vuole indicare che anche se i <span>''control points''</span> <math>{\bf x}_i</math> vengono traslati della stessa quntit<math>{\bf v}</math> la nuova curva descritta <math>{\bf r_v}</math> ottenuta applicando la stessa traslazione a tutti i punti della curva originaria <math>{\bf r}</math>.
+
+(u)=<sub>i=0</sub><sup>m-1</sup>B<sub>i</sub>(u)(<span>'''x'''</span><sub>i</sub>+<span>'''v'''</span>)= <sub>i=0</sub><sup>m-1</sup>B<sub>i</sub>(u)<span>'''x'''</span><sub>i</sub>+ <span>'''v'''</span><sub>i=0</sub><sup>m-1</sup>B<sub>i</sub>(u)
+
+Per la proprietprecedente () la seconda sommatoria pari a <math>1</math> per cui risulta (u)=<sub>i=0</sub><sup>m-1</sup>B<sub>i</sub>(u)<span>'''x'''</span><sub>i</sub>+<span>'''v'''</span>= <span>'''r'''</span>(u)+<span>'''v'''</span> u
+
+=== Invarianza alle rotazioni e alle omotetie ===
+
+
+
+E’ possibile verificare la stessa invarianza sia per le rotazioni sia per le omotetie (dilatazioni o contrazioni).
+
+. La rotazione di un angolo <math>\theta</math> ()= (u)=<sub>i=0</sub><sup>m-1</sup>B<sub>i</sub>(u)<span>'''R()'''</span><span>'''x'''</span><sub>i</sub>= <span>'''R()'''</span><sub>i=0</sub><sup>m-1</sup>B<sub>i</sub>(u)<span>'''x'''</span><sub>i</sub>= <span>'''R()'''</span><span>'''r'''</span>(u)
+
+. Si considera in particolare il cambiamento di scala di fattore <math>\gamma</math> definito rispetto al centroide <math>{\bf c}</math> dei punti di controllo come in Figura (u) &amp; = &amp; <sub>i=0</sub><sup>m-1</sup>B<sub>i</sub>(u)[(<span>'''x'''</span><sub>i</sub>-<span>'''c'''</span>)+<span>'''c'''</span>]<br />&amp; = &amp; <sub>i=0</sub><sup>m-1</sup>B<sub>i</sub>(u)<span>'''x'''</span><sub>i</sub>+ (1-)<span>'''c'''</span><sub>i=0</sub><sup>m-1</sup>B<sub>i</sub>(u)=<br />&amp; = &amp; <span>'''r'''</span>(u)+(1-)<span>'''c'''</span> in quanto la seconda sommatoria pari a <math>1</math> per la proprietdi <span>''convex hull''</span> definita precedentemente, e dove =<sub>i=0</sub><sup>m-1</sup><span>'''x'''</span><sub>i</sub> La trasformazione esposta puøessere espressa in una forma picompatta come prodotto di matrici (a tal proposito si veda l’Appendice ).
+
+== Condizioni per gli estremi delle curve a B-splines ==
+
+Considerando la Figura si puønotare che gli estremi della curva, composta di due spans, non sono vincolati a dei punti particolari, ma le loro coordinate sono comunque note valutando la () per <math>s=0</math> e <math>s=1</math> con le rispettive quaterne di control points. In generale quindi se <math>[{\bf x}_0,\dots,{\bf x}_{m-1}]</math> il vettore dei control points le coordinate dei punti di “inizio” <math>{\bf p}_s</math> e di “fine” <math>{\bf p}_e</math> della curva risultano <sub>s</sub> &amp; = &amp; <span>'''r'''</span><sub>3</sub>(0)=<br />&amp; &amp;<br /><span>'''p'''</span><sub>e</sub> &amp; = &amp; <span>'''r'''</span><sub>m-1</sub>(1)=
+
+Per ottenere un comportamento diverso per gli estremi, quale puøessere la condizione che li vuole coincidenti con il primo e l’ultimo control points, si puøprocedere in due modi: nel caso particolare delle B-splines uniformi si realizzano i <span>''multiple vertices''</span> ottenuti raddoppiando o triplicando i due vertici estremi; oppure inserendo altri punti di controllo noti come <span>''phantom vertices''</span> () un’altra soluzione quella di prevedere per gli estremi delle basi differenti (si parla in tal caso di B-splines <span>''aperiodiche''</span>) ottenute moltiplicando i <span>''nodi''</span> e non i punti di controllo. In questo modo si riducono i vincoli sulla regolaritdella base e quindi possibile utilizzare i gradi di liber-tin piper condizionare la posizione degli estremi, senza introdurre altri control points ().
+
+=== Curve a B-splines chiuse ===
+
+Un caso particolarmente interessante per l’applicazione considerata in queta tesi dato dalle a curve a B-splines chiuse, ovvero in cui i due punti <math>{\bf p}_s</math> e <math>{\bf p}_e</math> coincidono (si veda la Figura ). E’ realizzata semplicemente ponendo uguali i primi e gli ultimi <math>3</math> <span>''control points''</span>, ovvero assegnato il vettore <math>{\bf X}=[{\bf x}_0,\dots,{\bf x}_{m-1}]</math> si considera il nuovo vettore <math>\hat{\bf X}=[{\bf x}_0,\dots,{\bf x}_{m-1},{\bf x}_0,{\bf x}_1,{\bf x}_2,]</math>.
+
+== Punti singolari delle curve a B-splines ==
+
+Le osservazioni fatte precedentemente sui vincoli per gli estremi delle curve a B-spline valgono anche nel momento in cui si conceda che la curva abbia delle singolaritnelle derivate, per cui non risulta piu<math>C^{(d-2)}</math>, come nel caso tipico di punti angolosi o <span>''hinge''</span>.
+
+Nel caso delle B-spline uniformi ciøpuøessere ottenuto in due modi: con l’inserimento di control points interni multipli, oppure, piŏpportunamente, introducendo la singolaritnelle basi delle B-splines.
+
+(5)
+
+Per ulteriori considerazioni si rimanda ai riferimenti ,  in cui possibile trovare anche gli algoritmi per il calcolo ricorsivo delle basi nel caso piğenerale.
+
+= Contorni attivi =
+
+Nel Capitolo si accennato all’utilizzo di alcuni operatori locali che permettono di individuare nell’immagine delle opportune primitive (<span>''features''</span>) il cui insieme costituisce una nuova immagine o mappa delle primitive (<span>''features map''</span>) la cui interpretazione puøpermettere di individuare gli elementi (oggetti) che compongono l’immagine.
+
+Il problema che, tranne in casi molto fortunati in cui si hanno immagini costituite da elementi distinti, prive di particolari disturbi e con superfici dei materiali ripresi sostanzialmente uniformi, vi possono essere diverse false <span>''features''</span>. Occorre pertanto definire un criterio che permetta di estrarre solo quelle vere. Nel caso pisemplice si puøconsiderare una funzione costante che coincide con un valore di soglia, valore che perøpuønon essere semplice individuare e che inoltre puøgenerare il problema opposto, ovvero portare ad eliminare anche alcune <span>''features''</span> buone che perøsono “deboli”, per cui si ottiene una descrizione frammentaria della <span>''features map''</span> dell’immagine che ne complica la successiva elaborazione.
+
+Come giaccennato precedentemente, una soluzione di notevole interesse data dagli <span>''active contours''</span>, chiamati comunemente <span>''snakes''</span>.
+
+.
+
+== Snakes ==
+
+Con <span>''snake''</span> si intende una curva deformabile <math>{\bf r}(s)</math>, <math>0 \leq s \leq 1</math>, che sotto l’azione di opportune “forze” definite nello spazio delle primitive dell’immagine tende a deformarsi in modo da minimizzare una “energia” o “funzione costo”. Nel caso particolare della soluzione di problemi di segmentazione tale funzione definita in modo che la condizione di minimo porti la curva ad adagiarsi lungo i contorni degli oggetti, per cui lo spazio delle primitive dato generalmente dalla mappa degli <span>''edgles''</span>.
+
+Determinare la mappa delle features completa puørichiedere tempi eccessivi per l’applicazione considereta, ed inoltre non detto sia necessario; per cui tali primitive possono essere individuate limitatamente all’intorno della curva analizzando l’immagine lungo direzioni particolari, tipicamente lungo la normale alla curva .
+
+L’energia totale <math>{\cal E}({\bf r})</math>, lungo tutta la curva, che individua lo stato dello snake composta di due termini (<span>'''r'''</span>)=<span>E</span><sub>s</sub>(<span>'''r'''</span>)+<span>P</span>(<span>'''r'''</span>). Il primo rappresenta l’<span>''energia interna''</span> che controlla la regolaritdella curva e quindi un vincolo sulla classe delle forme che puøsegmentare: <sub>s</sub>(<span>'''r'''</span>)=<sub>0</sub><sup>1</sup>w<sub>1</sub>(s)|<span>'''r'''</span><sub>s</sub>|<sup>2</sup>+ w<sub>2</sub>(s)|<span>'''r'''</span><sub>ss</sub>|<sup>2</sup>ds,()
+
+dove <math>w_1(s)</math> controlla l’“elasticit” rispetto alle sollecitazioni che tendono a dilatare o comprimere lo snake (trazione e compressione) e <math>w_2(s)</math> la “rigidezza” rispetto alle deformazioni trasversali allo snake (flessione).
+
+Infatti se si aumentasse solo <math>w_1(s)</math>, minimizzare l’energia corrisponderebbe ad accorciare la lunghezza della curva fino, caso limite, a ridurla ad un punto; nel caso di <math>w_2(s)</math> invece si avrebbe la tendenza ad aumentare la regolaritdella curva fino ad approssimare una linea retta. Al contrario riducendo i due termini, al limite ponendoli a zero, possibile ottenere una curva che presenti dei punti angolosi o addidrittura delle discontinuit.
+
+Il secondo termine della () rappresenta l’<span>''energia potenziale''</span> dello <span>''snake''</span> rispetto allo spazio delle primitive; per cui se <math>\cal P</math> definita in modo tale che i suoi punti di minimo siano in corrispondenza delle <span>''features''</span>, allora la minimizzazione della () spinge lo snake ad approssimarle. L’energia potenziale lungo tutta la curva puøessere definita come l’integrale curvilineo di una funzione potenziale (<span>'''r'''</span>)=<sub>0</sub><sup>1</sup>P(<span>'''r'''</span>(s))ds dove <math>P({\bf r})</math> una funzione che mappa i punti dell’immagine nello spazio delle primitive. Alcuni esempi tipici delle definizioni di <math>P({\bf r})</math> sono <math>P({\bf r})\,=\,\pm\,c\,\bigg(\,G_\sigma \ast I\,({\bf r})\,\bigg)</math> se si considera come primitiva i picchi di intensit: bassa o alta intensit, chiaro o scuro, a seconda del segno; <math>P({\bf r})\,=\,-\,c\,\Big|\,\nabla\bigg(\,G_\sigma \ast I\,({\bf r})\,\bigg)\,\Big|</math> in questo caso si considerano gli <span>''edgels''</span>. Per entrambi i casi si sono considerati solo i punti della curva, <math>{\bf r}(s)</math>, in base all’osservazione .
+
+Come accennato nel caso degli <span>''edge-detector''</span>, l’azione della convoluzione con la gaussiana <math>G_\sigma(x,y)</math> rivolto sia alla riduzione dell’<math>SNR</math> all’uscita del filtro <math>P(x,y)</math> sia a migliorare il grado di localizzazione degli <span>''edgels''</span>. Nel caso degli <span>''snakes''</span> questo puøessere visto come una trasformazione della superficie su cui esso si muove, l’immagine, che possa da un lato facilitare l’avvicinamento ai punti del contorno (<math>\sigma</math> grande) e dall’altro fare in modo che l’errore di approssimazione ammesso (in termini di localizzazione del bordo) sia piccolo (<math>\sigma</math> piccola). Anche in questo caso le due condizioni lavorano in direzioni opposte, per cui risulta non sempre facile fissare un valore per tutte le zone dell’immagine; eventualmente si potrebbe considerare <math>\sigma</math> variabile in base alle caratteristiche locali dell’immagine stessa come nel caso degli operatori anisotropi.
+
+== Un approccio Lagrangiano ==
+
+La soluzione al problema della minimizzazione dell’energia <math>\cal E</math> puøessere determinata in modo statico calcolando direttamente i punti di estremo; in realt, anche in considerazione del modo in cui vengono determinate le primitive, conveniente considerare lo <span>''snake''</span> come una curva che si muove sul piano immagine (<span>''dynamic snake''</span>) la cui posizione e forma variano ad ogni passo in relazione alle misure effettuate; ne deriva che la condizione di minimo dell’energia coincide perciøcon lo stato di equilibrio del sistema dinamico.
+
+Il nuovo modello ottenuto ridefinendo la carta <math>{\bf r}(s,t)</math> per tener conto della variazione nel tempo <math>t</math> e considerando che la curva abbia una densitdi massa <math>\mu (s)</math>, per cui presente anche una componente di energia cinetica (<span>'''r'''</span>)=<sub>0</sub><sup>1</sup>(s)|<span>'''r'''</span><sub>t</sub>|<sup>2</sup>ds A causa dell’inerzia introdotta da <math>\mu (s)</math>, affinché il sistema raggiunga uno stato stabile necessario introdurre un termine a cui sia affidata la dissipazione dell’energia cinetica immagazzinata. A tal scopo si puøconsiderare la funzione <span>''dissipazione di Rayleigh''</span> definita (<span>'''r'''</span><sub>t</sub>)=<sub>0</sub><sup>1</sup>|<span>'''r'''</span><sub>t</sub>|<sup>2</sup>ds. Applicando il <span>''principio di Hamilton''</span> si perviene alle <span>''equazioni di Lagrange''</span>  <sub>tt</sub>+<sub>t</sub>-(w<sub>1</sub><span>'''r'''</span><sub>s</sub>)+ (w<sub>2</sub><span>'''r'''</span><sub>ss</sub>)=-P(<span>'''r'''</span>(s,t)) in cui si sono considerate <math>\mu (s)=\mu</math> e <math>\gamma (s)=\gamma</math> costanti lungo tutta la curva.
+
+==== Kalman-snakes ====
+
+Tenendo conto della dinamica dello snake possibile risolvere problemi picomplessi in cui la mappa delle <span>''features''</span> varia nel tempo a cusa del moto relativo tra il sensore e l’oggetto da inseguire: si parla perciødi <span>''data tracking''</span>. In questo caso l’equilibrio raggiunto dinamico in quanto lo snake tende ad approssimare dei dati che non sono costanti nel tempo. Le prestazioni del sistema migliorano sensibilmente se si integrano nel tempo le misure delle primitive con il modello dinamico dello snake utilizzando il <span>''filtro di Kalman''</span>, il cui passo di predizione permette di stabilire come potressere l’evoluzione dello snake al passo successivo individuando la regione di confidenza entro cui sarprobabile trovarlo nell’immagine succesiva. La posizione reale verrindividuata dalle misure effettuate nel passo di aggiornamento.
+
+L’introduzione del filtro, il cui peso computazionale generalmente trascurabile, permette di ridurre la regione dell’immagine su cui effettuare le misure, che la componente critica per la quantitdi dati considerati, e quindi migliorare l’efficienza generale dell’algoritmo.
+
+== Contorni dinamici ==
+
+Nel modello utilizzato finora gli unici vincoli sulle deformazioni a cui soggetto lo snake sono dati dai termini di energia interna associati ai coefficienti <math>w_1(s)</math> e <math>w_2(s)</math>.
+
+Esiste la possibilitdi vincolare la curva in modo che assuma delle forme che si discostino relativamente da un modello prefissato (<span>''template''</span>). La curva quindi definita da una carta <math>{\bf r}(s;{\bf X})</math>  che funzione di un vettore di parametri che tengono conto delle possibili trasformazioni che questa puøsubire (rotazioni, traslazioni, dilatazioni, etc.); ovvero a partire da una forma di riferimento si applicano le trasformazioni, scelte fra quelle accettabili, che permettono di sovrapporla all’oggetto corrispondente che si trova sul piano immagine: si parla perciødi <span>''deformable templates''</span>.
+
+Considerando quindi il modello dinamico definito dai <span>''Kalman snakes''</span> proiettato nello spazio delle forme (<span>''deformable templates''</span>) si ottengono i <span>'''contorni dinamici'''</span> o <span>'''dynamic contours'''</span>.
+
+== Discretizzazione dello snake ==
+
+Le soluzioni dell’equazione () sono curve continue nello spazio <math>\M(R)^2</math>, mentre per poterle elaborare numericamente necessario discretizzarle. Il modo pisemplice dato dal campionamento della curva con un passo di campionamento <math>h=1/(N-1)</math> nello spazio del parametro <math>s\in[0,1]</math> per cui i campioni della curva sono <math>{\bf r}(i\,h)</math> con <math>i=1,\dots,N</math>. L’equazione differenziale si trasforma perciøin un’equazione alle differenze sostituendo le derivate prima e seconda con le espressioni <sub>s</sub>(s<sub>i</sub>)= e <sub>ss</sub>(s<sub>i</sub>)= Analogamente per le derivate rispetto la variabile temporale <math>t</math>.
+
+L’equazione di Lagrange () viene espressa da una equazione differenziale del secondo ordine  +<span>'''C'''</span>+<span>'''Ku'''</span>=<span>'''f'''</span> con ={<span>'''u'''</span><sub>i</sub>}<sub>i=1,…,N</sub>=<span>'''r'''</span>(ih) dove <math>{\bf M}</math> la matrice delle masse, <math>{\bf C}</math> tiene conto dei fenomeni di dissipazione, <math>{\bf K}</math> della rigidezza dello snake e <math>{\bf f}</math> dipende da <math>\nabla P</math>.
+
+Effetto del campionamento della curva la perdita della proprietdi continuite quindi dell’informazione sulla forma individuata dallo <span>''snake''</span> stesso, per cui, sia nel caso particolarmente interessante dei contorni dinamici accennati precedentemente sia nel caso dei semplici <span>''snake''</span> nella forma data dall’equazione (), si ricorre ad approssimazioni con metodi agli “<span>''elementi finiti''</span>” in cui la curva <math>{\bf r}</math> definita dalla combinazione lineare di particolari funzioni <math>B_i</math>, elementi della base di un opportuno spazio vettoriale, pesate dai <span>''nodi''</span> <math>{\bf q_i}(t)</math> (s,t)=<sub>i=1</sub><sup>N</sup>B<sub>i</sub>(s)<span>'''q'''</span><sub>i</sub>(t) Un modello particolarmente interessante, che sarconsiderato nel nostro caso, dato dall’approssimazione a <span>'''splines'''</span> in cui la curva approssimata da funzioni polinomiali a tratti parametrizzate dai nodi <math>{\bf q_i}(t)</math> che prendono il nome di <span>''control points''</span>  .
+
+== Un approccio statistico ==
+
+L’introduzione degli <span>''snakes''</span> ha permesso di risolvere alcuni problemi che affliggono i metodi di segmentazione che si basano sulla sola <span>''edge-detection''</span> fornendo un modello che permette di mantenere le informazioni sulla forma degli oggetti a cui appartengono gli <span>''edgels''</span>.
+
+Si quindi posto il problema come la minimizzazione di una particolare funzione energia, dove il termine legato all’immagine definito da un potenziale, che minimo in corrispondenza dei bordi dei segmenti.
+
+Finora si considerato il potenziale definito in funzione delle proprietlocali nell’intorno della curva (<span>''feautures''</span>) e in particolare considerando il gradiente dell’immagine opportunamente filtrata; ma, a causa dell’operatore differenziale, tali misure sono molto sensibili ai disturbi di diversa natura che possono essere presenti nell’immagine stessa, ovvero tale sensibilitpuøessere ridotta con un aumento dell’azione filtrante ma a scapito della capacitdi localizzazione.
+
+Per ovviare a tale limite sono state proposte soluzioni alternative che tengono conto anche delle proprietdi omogeneita dei segmenti. Si possono individuare due strade: si identificano i bordi in modo indiretto, senza utilizzare operatori differenziali, ridefinendo un’opportuna energia che tenga conto anche della statistica dei segmenti e forzando i contorni attivi a disporsi in modo da massimizzare la differenza fra i segmenti separati dai contorni stessi , ; considerando i due approcci distinti che interagiscono fra di loro in base ad opportune regole  che stabiliscono come il risultato di uno venga valutato dall’altro e quindi la possibile contromossa piconveniente in termini di “costo”, fino a giungere ad una condizione di equilibrio.
+
+=== L’algoritmo di Yezzi, Tsai e Willsky ===
+
+Nell’ambito delle soluzioni del primo tipo vi l’algoritmo proposto da A. Yezzi, A. Tsai e A. Willsky in  che permette di incorporare in un nuovo modello di <span>''snake''</span> sia informazioni locali sia globali attraverso una funzione energia diversa da quelle considerate finora. Il vincolo principale nell’utilizza-re il modello proposto che siano note a priori come le primitive scelte per la segmentazione descrivono i diversi elementi dell’insieme da segmentare, per cui ad ogni oggetto sia associabile un valore per ogni feature. Il valore non deve essere necessariamente noto ma ,se esiste, si deve poter dire che allora esso contraddistingue quell’oggetto rispetto agli altri. Per esempio si possono avere diversi oggetti che sono contraddistinti da colori diversi, da tessitura diversa, etc. Anche se i colori non sono noti si sa che comunque sono differenti.
+
+In particolare si considera l’algoritmo nel caso di immagini bimodali o binarie, ciocostituite da due regioni (<span>''foreground''</span> e <span>''background''</span>) rispetto alla primitiva considerata: il <span>''colore''</span>.
+
+Sia <math>I(x,y)</math> l’immagine e <math>F \in I</math> (<span>''foreground''</span>) la regione obiettivo della segmentazione, per cui <math>B=F^c</math> (<span>''background''</span>) il suo complementare; lo scopo quindi deformare la <span>''curva chiusa''</span> iniziale <math>\Gamma (t)</math> definita su <math>I</math> in modo che tenda ad abbracciare la regione <math>F</math> e quindi coincida con il bordo <math>\partial F</math>.
+
+Definiamo <math>P</math> la funzione <math>N</math> dimensionale che definisce il vettore di primitive scelta fra quelle che meglio discriminano le due regioni; si considerino quindi le medie <math>m^{int}</math> e <math>m^{est}</math> dei valori di <math>P</math> nelle due regioni rispettivamente interna <math>R^{int}</math> ed esterna <math>R^{est}</math> rispetto alla curva: m<sub>j</sub><sup>int</sup>()= j=1,…,N () <math>S_j^{int}\,=\,{\ds\int_{R^{int}}}\,P_j({\bf x})\,d{\bf x} \qquad\qquad
+A^{int}\,=\,{\ds\int_{R^{int}}}\,d{\bf x}</math>
+
+Analogamente per <math>m_e(\Gamma)</math>.
+
+La nuova funzione energia definita in funzione della distanza fra <math>m^{int}</math> e <math>m^{est}</math> =-m<sup>int</sup>-m<sup>est2</sup>
+
+<span>''in cui si considerata la norma in quanto in generale <math>P</math> una funzione vettoriale; questo molto importante perchpermette di combinare in modo semplice caratteristiche dell’immagine diverse tra loro''</span>.
+
+Tale energia minima quando la differenza fra le due medie massima, ovvero quando la curva coincide col bordo.
+
+La curva iniziale potressere prossima al bordo di <math>F</math> ma non coincidere e quindi o intersecare le due regioni o essere contenuta in una delle due regioni, per cui la distanza fra i due vettori di media sarinferiore al valore finale.
+
+L’evoluzione della curva puøessere ricavata considerando &amp; = &amp; - ()<br />&amp; = &amp; <sub>j=1</sub><sup>N</sup>(m<sub>j</sub><sup>int</sup>-m<sub>j</sub><sup>est</sup>)
+
+dove dalla definizione data per <math>m^{int}</math> e <math>m^{est}</math> nella () si ricava m<sub>j</sub><sup>int</sup> &amp; = &amp; =<br />m<sub>j</sub><sup>est</sup> &amp; = &amp; con S<sub>j</sub><sup>int</sup>=P<sub>j</sub><span>'''n'''</span> A<sup>int</sup>=<span>'''n'''</span> in cui <span>'''n'''</span> la normale esterna alla curva <math>\Gamma</math> (si veda l’Appendice ).
+
+Allora risulta m<sub>j</sub><sup>int</sup> &amp; = &amp; <span>'''n'''</span><br />m<sub>j</sub><sup>est</sup> &amp; = &amp; -<span>'''n'''</span> Il segno meno nell’ultima equazione deriva dal fatto che la normale esterna alla curva vista rispetto <math>R^{int}</math> la normale interna rispetto <math>R^{est}</math>.
+
+Quindi riassumendo =<sub>j=1</sub><sup>N</sup>(m<sub>j</sub><sup>int</sup>-m<sub>j</sub><sup>est</sup>)
+
+Data la definizione (), nel caso particolare di una sola regione <math>F</math> connessa, l’energia <math>{\cal E}</math> puøassumere un solo valore di minimo e un certo numero di massimi che coincidono con <math>{\cal E}=0</math> e che corrisponde a <math>m^{int}=m^{est}=(P(F)+P(B))/2</math> e che si verifica se la <span>''curva iniziale''</span> tale per cui suddivide le due regioni <math>F</math> e <math>B</math> in due parti con aree uguali. Dalla () si conclude che questa condizione non permette l’evoluzione dello snake che rimane nella configurazione iniziale; per evitare una tale situazione si puøverificare all’inizio dell’evoluzione se <math>m^{int}=m^{est}</math> ed eventualmente introdurre una qualsiasi perturbazione su <math>\Gamma</math>.
+
+= Architettura dell’algoritmo di segmentazione =
+
+In questo capitolo presentato l’algoritmo di segmentazione sviluppato che permette di individuare la macchia attraverso una descrizione compatta del suo contorno, in vista delle successive misure di dimensioni, forma, simmetrie, etc.
+
+==== La struttura dell’algoritmo ====
+
+L’algoritmo composto di due blocchi principali
+
+== Algoritmo: Fase 1 ==
+
+In questa prima fase l’immagine viene elaborata in modo da migliorare la qualitdella primitiva che si considera ai fini della segmentazione (nel nostro caso il colore) eliminando gli elementi di disturbo che possono compromettere la localizzazione dei contorni che in questa applicazione sono soprattutto i peli i quali possono intersecare la macchia o peggio essere vicini al contorno tanto da coprirlo. Rientra in questa fase anche il problema dell’inizializzazione del controrno attivo che poi evolverfino a descrivere l’oggetto della segmentazione: la macchia cutanea.
+
+=== Condizionamento dell’immagine ===
+
+Nel Capitolo si sono introdotte alcune rappresentazioni dello spazio dei colori che presentano delle proprietche le rendono preferibili al modello <math>RGB</math> come lo spazio <math>HSI</math> (o <math>HSV</math>) e la <span>''trasformata di Karhunen-Loève''</span> (o di <span>''Hotelling''</span>). Vista la natura del problema, per cui si considera un solo elemento connesso e uniforme (rispetto al colore) circondato da una zona anch’essa uniforme, sembrerebbe sufficiente considerare la componente di <math>Hue</math>. La sola tonalitperøsoddisfacente nel caso in cui si abbia una illuminazione sufficientemente uniforme e non vi siano eccessivi effetti di riflessione. Risultati migliori si ottengono invece elaborando le componenti della <span>''trasformata di Karhunen-Loève''</span>  .
+
+==== Attenuazione degli elementi di disturbo ====
+
+Utilizzzando quest’ultima trasformata possibile predisporre una strategia per eliminare alcuni disturbi presenti quali i peli, che generalmente appaiono come strutture con una elevata correlazione lungo una direzione e il cui spessore non sempre trascurabile in relazione alle dimensioni della macchia.
+
+Si puøutilizzare un filtro passa-basso, ad esempio gaussiano, o un filtro a mediana che rispetto al precedente permette di ottenere un’immagine con una maggior definizione dei contrasti.
+
+Ma a causa delle dimensioni trasversali dei peli e del fatto che non nota la direzione lungo la quale si sviluppano anche nel secondo caso necessario considerare per il filtro una finestra <math>n \times n</math> di pixels abbastanza grande (<math>n</math> dell’ordine di <math>10 \div 15</math>) con dei risultati comunque non soddisfacenti (Figura ).
+
+Altre soluzioni picomplesse considerano l’impiego degli operatori morfologici  combinando opportunamente le operazioni di chiusura e apertura (vedi Capitolo ) con un’opportuna scelta del nucleo (o <span>''structuring element''</span>).
+
+
+
+
+
+Si considerato invece di utilizzare un operatore locale, come la stessa mediana, applicato perønon su tutta l’immagine ma solo in corrispondenza del disturbo individuato attraverso la misura di anisotropia definita dalla (). La misura effettuata sulla prima componente della <span>''trasformata di K.-L.''</span> e la mappa che se ne ottiene in scala di grigio con i valori massimi in corrispondenza dei punti che appartengono a zone dell’immagine ad alta correlazione lungo una direzione. Comunque fra i punti individuati non tutti appartengono ai peli, per cui necessario introdurre un valore di soglia per selezionare quelli aventi una misura sufficientemente elevata.
+
+Ai punti individuati dalla sogliatura possibile quindi applicare un operatore locale, ad esempio un filtro a mediana come in Figura .
+
+=== Inizializzazione del contorno attivo - snake ===
+
+==== Motivazione ====
+
+Tenendo presente che l’immagine su cui si lavora non perfettamente binaria opportuno, anche in relazione ai problemi di tempi di calcolo dell’evoluzione dello snake, definire un contorno iniziale che sia il pipossibile prossimo a quello reale.
+
+Una possibilitquella di richiedere all’utente di definire alcuni punti e, ad esempio, considerarli come i control points di una curva a B-splines e quindi costruire la curva che li approssima; oppure procedere ad una grossolana pre-segmentazione utilizzando delle tecniche di binarizzazione.
+
+Si considera in particolare quest’ultimo caso che comunque richiede un minimo apporto da parte dell’utente che deve preselezionare sull’immagine originale un’opportuna finestra che contenga il neo.
+
+==== Processo di inizializzazione semiautomatica ====
+
+A partire dalla componente principale della <span>''trasformata di K.-L.''</span>, si effettua una riduzione della risoluzione applicando la () ottenendo una consistente diminuzione dei dati da analizzare e quindi del carico computazionale dei passi successivi, sempre nell’ipotesi di approssimazione a cui si fatto riferimento.
+
+Si procede quindi alla binarizzazione dell’immagine ottenuta con i metodi indicati in (). Occorre tener presente che gli algoritmi indicati, per ragioni di efficienza, considerano come oggetto di indagine l’istogramma del-l’immagine e non l’immagine completa, per cui se l’area occupata dalla macchia circa uguale a quella circostante allora l’istogramma normalizzato risulta abbastanza bimodale approssimando il meglio possibile le ipotesi di validitsu cui si basano gli algoritmi di binarizzazione. Tale condizione puøessere condizionata dalla scelta dell’area da analizzare fatta dall’utente.
+
+Per quanto riguarda i due metodi presentati si preferito quello iterativo in quanto, fissata la tolleranza sull’approssimazione del valore di soglia in modo che non sia eccessivamente restrittiva, si ottengono gli stessi risultati del caso dell’algoritmo di classificazione ma in tempi inferiori.
+
+Il risultato del tipo di Figura in cui si puønotare come non vi sia un unico elemento connesso e con contorni ben definiti, per cui si procede applicando in due passi successivi due operatori morfologici per ottenere una sola regione compatta: con una prima operazione di <span>''apertura''</span> si eliminano piccoli disturbi isolati e l’eccessiva frastagliatura del contorno dell’elemento principale (Figura .a); successivamente con un’operazione di <span>''chiusura''</span> si ottiene un unico elemento compatto e, adottando un nucleo (o <span>''structuring element''</span>) circolare, con i bordi “regolari (<span>''smooth''</span>)” (Figura .b).
+
+
+
+
+
+Il contorno attivo o <span>''snake''</span> iniziale ottenuto a partire dal bordo della regione appena individuata ricorrendo ancora ad opportuni operatori morfologici: Sia B l’immagine binaria e K lo <span>''stucturing element''</span> scelto fra i due seguenti <math>K\,=\,\qmatrix{1 & 1 & 1 \cr
+               1 & 1 & 1 \cr
+               1 & 1 & 1 \cr} \qquad o \qquad
+K\,=\,\qmatrix{0 & 1 & 0 \cr
+               1 & 1 & 1 \cr
+               0 & 1 & 0 \cr}</math> noti come <math>8-neighborhood</math> e <math>4-neighborhood</math> rispettivamente; allora l’insie-me dei punti o pixel della matrice B che definiscono il contorno <math>\Gamma</math> definito <math>\Gamma\,=\,B\,/\,(B \ominus K)\,=\,B\,\cap\,\overline{(B \ominus K)}\,=\,
+B\,\cap\,(\overline{B} \oplus K)</math>
+
+Una volta individuato il contorno si determina la curva a <span>''B-spline cubiche uniformi''</span> che la approssima. Di seguito sono indicati i passi del procedimento: l’insieme <math>\Gamma</math> definito dai pixel <math>p(r,c)</math>, <math>r \in \{1,\dots,R\}</math> e <math>c \in \{1,\dots,C\}</math>, le cui coordinate sono espresse in termini di coppie riga-colonna; per cui le si trasforma nel sistema di riferimento cartesiano <math>X-Y</math>; i punti, nel nuovo sistema di riferiemnto, vengono ordinati in senso antiorario <ref>Oppure si parte da una descrizione del contorno in pixel gidefinita in senso antiorario utilizzando ad esempio una rappresentazione tipo <span>''chain code''</span>.
+
+Il senso antiorario considerato il verso di percorrenza positivo della curva; risulta determinante nella relazione fra il versore tangente alla curva e la normale esterna.
+</ref>; definendo un opportuno criterio di complessitpossibile stabilire il numero di <span>''spans''</span> e quindi di <span>''control points''</span> (si veda il Capitolo ) con cui descrivere una curva a B-splines che approssimi la curva di cui tali punti si considerano dei campioni. Per determinare i <span>''control points''</span> si procede alla soluzione di un sistema di equazioni lineari caratterizzato da un numero di incognite (i <span>''control points''</span>) inferiore ai valori noti (i punti campioni della curva) risolvendo un problema ai minimi quadrati; considerando che la curva ottenuta dall’immagine originale ad una risoluzione ridotta occorre effettuare un cambiamento di scala opposto per riportarla nell’immagine originale tenendo presente che va aggiornata la componente di traslazione della trasformazione che lega i due sistemi di riferimento adottati: quello immagine e quello della curva.
+
+La definizione del criterio di complessite il problema della determinazione dei <span>''control points''</span> saresposto nei paragrafi successivi.
+
+== Algoritmo: Fase 2 ==
+
+La seconda fase caratterizzata dall’evoluzione del contorno definito nella fase precedente fino a raggiungere una condizione di equilibrio. Si considera come modello dello snake la curva a B-splines cubiche uniformi la cui legge di evoluzione nel tempo definita dall’algoritmo di <span>''Yezzi, Tsai e Willsky''</span> trattato in (). È proposto inoltre un criterio per misurare la complessitdel contorno della regione da segmentare per ridefinire il numero e la distribuzione dei <span>''control points''</span>.
+
+A partire dal vettore dei control points <math>{\bf Q}</math> e fissato il numero di campioni <math>N(i)</math> per lo span <math>i-esimo</math>, con <math>i=1,\dots,N_s</math> con <math>N_s</math> numero di spans della curva chiusa pari al numero di punti di controlllo, si puøcalcolare il vettore <math>{\bf X}</math> dei campioni della curva. Successivamente si calcolano i versori tangenti <math>{\bf X}_s</math> e normali <math>{\bf X}_n</math> alla curva nei punti <math>{\bf X}</math> e la curvatura <math>k</math> della curva in <math>{\bf X}</math>. Calcolo di aree e medie interne ed esterne e dalla () lo stato energetico dello snake. Se si raggiunta la condizione di minima energia, rispetto alle condizioni fissate, allora il processo di segmentazione concluso, altrimenti si continua con l’aggiornamento della curva. Con il passo di aggiornamento si determina il nuovo vettore di punti <math>{\bf Y}</math> ottenuto da <math>{\bf X}</math> secondo la legge di evoluzione definita dalla discretizzazione della (). Ogni <math>T</math> passi possibile aumentare il numero dei punti di controllo <math>N_s</math> e ridistribuire i campioni <math>{\bf Y}</math> della curva secondo il criterio di complessitfissato. A partire da <math>{\bf Y}</math> e <math>N_s</math> (o eventualmente i loro aggiornamenti) si determina il nuovo vettore <math>{\bf Q}</math> dei punti di controllo che definisce la curva a B-splines che meglio approssima, ai minimi quadrati, la curva i cui campioni sono dati da <math>{\bf Y}</math>. Si ritorna al passo .
+
+Vediamo ora in dettaglio i singoli passi.
+
+=== Passo 1: calcolo di <math>{\bf X}</math>, <math>{\bf X}_s</math>, <math>{\bf X}_n</math>, <math>k</math> ===
+
+È possibile esprimere tali vettori in funzione dei punti di controllo definendo opportune matrici <math>{\bf A}</math>, <math>{\bf A}_s</math> e <math>{\bf A}_{ss}</math> (si veda l’Appendice ).
+
+Considerata la curva chiusa <math>\Gamma</math> descritta per mezzo delle B-splines cubiche e uniformi dalla carta <math>{\bf r}(s,t)</math> e discretizzandola rispetto alla variabile <math>s</math> possibile ottenere il vettore dei campioni =<span>'''A'''</span><span>'''Q'''</span> I versori <math>{\bf \tau}</math> tangenti alla curva sono definiti, nel continuo, dalla (<span>'''r'''</span>(s,t))= che applicata ai punti di <math>{\bf X}(i)</math>, <math>i=1,\dots,N_p</math> risulta (<span>'''X'''</span>(i))= con <sub>s</sub>=<span>'''A'''</span><sub>s</sub><span>'''Q'''</span>. Considerato che <math>{\bf \tau}</math> definisce l’orientamento positivo di percorrenza della curva, che qui considerato antiorario, possibile calcolare la normale esterna <math>{\bf n}</math> non appena si fissi l’orientamento positivo del piano che considerato dal versore <math>{\bf e}_3</math>; per cui risulta (<span>'''r'''</span>(s,t))=<span>''''''</span><sub>3</sub>(<span>'''r'''</span>)=(<sub>y</sub>,-<sub>x</sub>,0) e che si riduce alla coppia <math>(\tau_y,-\tau_x)</math>; quindi esprimibile dalla (<span>'''r'''</span>(s,t))= Riferito ai campioni della curva vale <sub>n</sub>(i)=(X(i)).
+
+Per quanto riguarda la curvatura si considera la definizione k(<span>'''r'''</span>(s,t))= che rappresenta la curvatura con segno della curva <math>{\bf r}(s,t)</math>; che si semplifica nella k(<span>'''X'''</span>(i))= dove <math>{\bf X}_{ss}={\bf A}_{ss}\,{\bf Q}</math>. È possibile definire anche il vettore curvatura diretto lungo la normale esterna <math>{\bf k}\,=\,k\,{\bf n}</math>.
+
+=== Passo 2: calcolo delle medie e aree interne ed esterne alla curva ===
+
+La funzione energia definita da Yezzi et al.  e la relativa legge di aggiornamento prevedono il calcolo del vettore delle medie e delle aree delle regioni interna ed esterna rispetto alla curva chiusa.
+
+Considerando che dalla Fase 1 si ottiene una curva iniziale che abbastanza prossima al contorno finale conveniente applicare la versione locale suggerita nello stesso articolo: ovvero la regione interna compresa fra la curva <math>\Gamma</math> e la curva interna <math>\Gamma^{int}</math> e la regione esterna fra <math>\Gamma</math> e <math>\Gamma^{est}</math>.
+
+Le due nuove curve possono essere ottenute sfruttando quanto visto a proposito dell’invarianza delle curve a B-splines nei confronti delle omotetie (Figura ).
+
+Sfruttando la versione locale si evita di dover considerare la zona vicine ai bordi dell’immagine maggiormente soggetta ai disturbi dovuti agli effetti di bordo dell’ottica del sensore e ad una illuminazione non uniforme.
+
+=== Passo 3: la condizione di equilibrio ===
+
+L’evoluzione dello snake termina quando la funzione energia ha raggiunto il punto di minimo ovvero, come punto di estremo, ha gradiente nullo. Fra le due condizioni, teoricamente equivalenti, si scelta la prima in quanto pisemplice da determinare una volta note le due medie; la seconda infatti richiede di verificare che l’incremento fra due istanti successivi trascurabile per ogni campione della curva.
+
+In condizioni ideali la funzione <math>{\cal E}(t)</math>, che descrive l’andamento dell’energia durante l’evoluzione dello snake, monotona decrescente fino alla condizione di equilibrio, e poi rimane costante, per cui il minimo individuato nel momento in cui vale <math>{\cal E}(t^\ast)={\cal E}(t^\ast +1)</math> per i due istanti successivi <math>t^\ast</math> e <math>t^\ast +1</math>.
+
+Nelle condizioni reali invece ciønon vale a causa delle approssimazioni introdotte e quindi per stabilire il raggiungimento della condizione di equilibrio piŏpportuno valutare l’andamento dell’energia negli ultimi <math>T_e</math> passi di calcolo; in particolare si considera la funzione (t)= <sub>t-T<sub>e</sub>+1</sub><sup>t</sup>|<span>E</span>(t)-<span>E</span>(t-1)|
+
+che rappresenta la media dei valori assoluti delle variazioni dell’energia totale degli ultimi <math>T_e</math> passi di calcolo relativa all’energia all’istante <math>t</math>.
+
+Si considera <math>{\cal E}(t)</math> “costante” quando <math>\epsilon(t)</math> inferiore ad un valore prefissato che essendo espresso in termini relativi indipendente dal valore di <math>{\cal E}(t)</math>.
+
+=== Passo 4: aggiornamento della curva in base alla legge di evoluzione ===
+
+Come detto si considera il modello di <span>''snake''</span> la cui legge di evoluzione data dalla () =<sub>j=1</sub><sup>N</sup>(m<sub>j</sub><sup>int</sup>-m<sub>j</sub><sup>est</sup>) . Per poterla applicare necessario discretizzarla sia nella variabile spaziale sia in quella temporale; per quanto riguarda la prima si procede come sopra considerando i campioni della curva dati da <math>{\bf r}_i</math>, mentre per la variabile temporale si approssima la derivata con il rapporto incrementale (un’approssimazione del primo ordine): = da cui si ottiene (t + t)=(t)+t ovvero (i)=<span>'''X'''</span>(i,t + 1)=<span>'''X'''</span>(i,t)+g(k<sub>i</sub>)(<span>'''X'''</span>(i))
+
+Le coordinate dei campioni <math>{\bf X}</math> sono definite in <math>[0,C]\times[0,R]\subset\M(R)^2</math>, mentre le primitive <math>P_j</math> sono definite per i pixels di coordinate <math>(r,c)</math> appartenenti a <math>\{1,R\}\times\{1,C\}\subset\M(N)^2</math>, con <math>R</math> e <math>C</math> numero di righe e di colonne, quindi necessario poter stabilire l’intensitdella primitiva da associare al campione della curva. Il punto <math>X(i)=(x_i,y_i)</math> puøessere associato al pixel di riga <math>r=\lceil y_i \rceil</math> e colonna <math>c=\lceil x_i \rceil</math>( ), per cui l’intensitdella primitiva <math>P(r,c)</math>.
+
+Per tener conto che il punto non necessariamente al centro del pixel e del fatto che il valore del pixel stesso potrebbe essere affetto da rumore opportuno considerare <math>P</math> su una finestra di pixel nell’intorno di quello fissato; ad esempio considerando la media pesata o la mediana dei valori dei pixel della finestra.
+
+==== La funzione guadagno g(k) ====
+
+Si noti che l’“incremento temporale” <math>\Delta t</math> stato conglobato nella funzione <math>g(k)</math> che definisce un opportuno guadagno che dipende dalla curvatura nel punto <math>i-esimo</math> <math>X(i)</math>. La dipendenza del guadagno dalla curvatura permette di modulare l’incremento in funzione delle caratteristiche locali della curva riducendo il peso delle misure effettuate in tratti ad elevata curvatura che potrebbero determinare la formazione di cappi.
+
+Tenendo presente che <math>k</math> la curvatura con segno, la funzione guadagno deve essere pari, per cui una possibile scelta data dalla gaussiana g(k)=g<sub>0</sub>(- k<sup>2</sup>) dove <math>g_0</math> il guadagno massimo e il fattore <math>\alpha</math> definisce la forma del filtro.
+
+La scelta di <math>g_0</math> va fatta tenendo conto che se da un lato puøaumentare la velocità dello <span>''snake''</span>, ovvero ridurre i tempi di convergenza, dall’altro puørenderlo instabile o fare in modo che l’evoluzione si arresti su minimi relativi non corrispondenti al bordo dell’oggetto che si vorrebbe identificare.
+
+==== Gli insiemi di livello ====
+
+Nell’articolo  gli autori utilizzano gli <span>''insiemi di livello''</span> (<span>''level set''</span>)  come soluzione per l’implementazione della legge di evoluzione; tale metodo permette inoltre di realizzare in modo efficiente e automatico le operazioni topologiche di divisione e fusione di <span>''snakes''</span> per poter individuare piŏggetti presenti nell’immagine a partire da una sola curva oppure da picurve (<span>''semi''</span>) disseminate sull’immagine.
+
+La possibilitdi realizzare tali trasformazioni non presente negli altri modelli di snake se non con l’aggiunta di procedure supplementari (come nel caso proposto in ).
+
+Nel nostro caso comunque si scelto di adottare la legge espressa nella sua forma originale e procedere a semplici discretizzazioni.
+
+=== Passo 5: il criterio di complessitdella curva ===
+
+Nella fase di inizializzazione dello <span>''snake''</span> vengono individuati un certo numero di control points che si ritiene sufficiente a descrivere il contorno dell’oggetto individuato dalla binarizzazione, numero che potrebbe non essere comunque sufficiente in relazione alla complessiteffettiva dell’elemento da segmentare.
+
+Durante l’evoluzione inoltre si puøtrovare che un certo numero di campioni maggiormente concentrato in un tratto della curva non eccessivamente complesso, e con essi anche un maggior numero di control points, con conseguenze negative per la regolaritdella curva stessa (si veda ). Si deciso perciødi ricostruire una nuova sequenza di campioni da ridistribuire ad un nuovo insieme di punti di controllo di dimensioni diverse dal precedente; in questo modo si scorrela l’evoluzione della curva dai passi precedenti accelerando la convergenza al risultato finale.
+
+==== Ricampionamento della curva ====
+
+Dato il vettore di punti <math>{\bf Y}</math> ottenuto nel passo precedente, si considera la poligonale i cui vertici sono proprio gli elementi di <math>{\bf Y}</math> e a questa si sovrappone un particolare reticolo e si determinano le intersezioni <math>{\bf \Upsilon}(i)</math> fra la poligonale e il reticolo: quest’ultime costituiscono i nuovi campioni della curva (Figura ).
+
+
+
+Il reticolo introdotto rappresenta un esempio di <span>''reticolazione simpliciale''</span> o <span>''triangolazione''</span> del piano che risulta scomposto nella somma di <span>''simplessi''</span> topologici, che nel caso in esame sono i singoli triangoli , che offre i seguenti vantaggi:
+
+una rappresentazione univoca della curva; variando la densitdel reticolo possibile controllare il grado di approssimazione del contorno e di conseguenza anche la velocitdi convergenza al risultato finale.
+
+Si osserva che la scelta della riparametrizzazione con l’uso della triangolazione simpliciale utilizzata in  per implementare le trasformazioni topologiche.
+
+==== Definizione del criterio di complessit ====
+
+I nuovi campioni vengono successivamente distribuiti ai nuovi spans in modo che la complessitdi ciascun span sia entro un limite massimo prefissato <math>{\cal M}</math> interpretabile come la “massa” totale dello span.
+
+Per ciascun punto <math>{\bf \Upsilon}(i)</math> si considerano i due vettori <math>{\bf u}(i)</math> e <math>{\bf v}(i)</math> <math>{\bf u}(i)=\frac{{\bf \Upsilon}(i-1)-{\bf \Upsilon}(i)}{L} \qquad
+{\bf v}(i)=\frac{{\bf \Upsilon}(i+1)-{\bf \Upsilon}(i)}{L},</math> normalizzati rispetto la lunghezza <math>L</math> della poligonale di vertici <math>{\bf \Upsilon}(i)</math>, e le due funzioni <math>d(i)\,=\,d({\bf u}(i),{\bf v}(i))\,=\,\|{\bf u}(i)\|+\|{\bf v}(i)\|</math> <math>c(i)\,=\,c({\bf u}(i),{\bf v}(i))\,=\,\|{\bf u}(i)+{\bf v}(i)\|</math> che descrivono i due contributi della complessitdella “curva” nel punto: il primo tiene conto della distanza fra i due vertici precedente e successivo, in senso antiorario, mentre il secondo del grado di allineamento fra i tre punti (una sorta di curvatura). Entrambi sono normalizzati rispetto alla lunghezza (perimetro) della poligonale in modo da rendere il procedimento indipendente dalle dimensioni.
+
+La complessittotale definita dalla combinazione dei due termini secondo i pesi <math>w_d</math> e <math>w_c</math>: (i)=w<sub>d</sub>d(i)+w<sub>c</sub>c(i)
+
+Nell’applicazione considerata, si sono ottenuti migliori risultati con <math>w_d > w_c</math>.
+
+Quindi nota la “densit” <math>\mu(i)</math> si suddivide il vettore <math>\Upsilon</math> in <span>''spans''</span> aventi “massa” minore o al piŭguale a <math>{\cal M}</math>; in tal modo si determina la nuova lunghezza del vettore dei control points <math>N_s^{\,\prime}</math> per i quali vanno aggiornate le matrici <math>{\bf A}</math>, <math>{\bf A}_s</math> e <math>{\bf A}_{ss}</math> che saranno utilizzate all’inizio del successivo passo di evoluzione dello snake.
+
+
+
+In Figura .a mostra è rappresentato l’andamento dell’energia dei campioni della funzione <math>(d \Gamma / dt)({\bf X}(i))</math>, ovvero la norma <math>L_2</math> dello stesso vettore, che si puøpensare indicativa delle “forze” deformanti che agiscono sullo <span>''snake''</span>; la .b mostra invece il modulo dell’energia dello snake valutata secondo la ().
+
+Man mano che si procede verso lo stato di equilibrio finale si ha mediamente una diminuzione della prima in quanto si sempre pivicini all’o-biettivo finale (come se agisse una forza elastica) mentre la seconda aumenta, ovvero l’energia con segno del sistema diminuisce, coerentemente con le ipotesi fatte sullo stato di equilibrio a minima energia potenziale.
+
+=== Passo 6: la rappresentazione a B-splines della curva aggiornata ===
+
+Ad ogni ciclo sia che si abbia una ridistribuzione dei punti <math>{\bf \Upsilon}</math> sia che si considerino direttamente i punti ottenuti dal processo di aggiornamento <math>\bf Y</math>, si procede alla determinazione della rappresentazione della curva a <span>''B-splines cubiche uniformi''</span> che approssima i campioni ottenuti calcolando il nuovo vettore di control points <math>\hat{\bf Q}</math>.
+
+A partire dall’espressione definita precedentemente <math>{\bf X}={\bf A}\,{\bf Q}</math>, che lega i control points ai campioni della curva, possibile ricavare una soluzione al problema inverso ovvero ottenere i control points dai campioni <math>{\bf \Upsilon}</math>.
+
+Per il sistema di equazioni lineari <span>'''Q'''</span>=<span>''''''</span>, dove il numero di vincoli (equazioni) superiore al numero di incognite (<math>{\bf Q}</math>), si considera il problema in termini di approssimazione ai minimi quadrati, ovvero si considera come soluzione il vettore <math>\hat{\bf Q}</math> per cui minima la norma <math>\|\,{\bf \Upsilon}\,-\,{\bf A}\,\hat{\bf Q}\|</math>.
+
+La soluzione unica ed data da =<span>'''A'''</span><sup></sup><span>''''''</span> dove <math>{\bf A}^{\dagger}=({\bf A}^{T}{\bf A})^{-1}){\bf A}^{T}</math> la <span>''pseudo-inversa sinistra''</span> di <math>{\bf A}</math>.
+
+== Risultati ==
+
+Nelle Figure , e sono visualizzati alcuni esempi di risultati dell’ap-plicazione dell’algoritmo di segmentazione sviluppato.
+
+Dalle Figure e si puønotare che l’algoritmo abbastanza insensibile alla condizione iniziale fissata per il contorno attivo, in funzione comunque della qualitdell’immagine elaborata: nel primo caso infatti vi sono dei disturbi dovuti a fenomeni di riflessione in prossimitdei bordi. Nel secondo caso invece le due soluzioni sono abbastanza simili, la differenza tra le due inizializzazioni soprattutto in relazione al tempo di calcolo necessario per raggiungere l’equilibrio finale.
+
+In Figura evidenziato il problema della presenza dei peli in prossimitdei bordi e il miglioramento del risultato se si fa precedere una fase di preelaborazione con un operatore locale anisotropo basato sulla misura di anisotropia definita dalla ().
+
+
+
+
+
+
+
+
+
+= Conclusioni =
+
+In questa tesi proposto un algoritmo si segmentazione per l’individuazione dei contorni di macchie cutanee il cui nucleo costituito dal metodo di segmentazione basato su un interessante modello di contorno attivo o <span>''snake''</span> proposto da Yezzi et al. in . Esso infatti combina i vantaggi dei due approcci con cui vengono affrontati i problemi di segmentazione: quello basato sulla proprietdi omogeneitdei segmenti e quello che realizza la segmentazione individuando i bordi che separano i segmenti.
+
+Per ottenere inoltre una rappresentazione compatta dello stesso contorno, in vista delle successive misure, si scelta la sua rappresentazione a B-splines cubiche uniformi. Visto perøche la forma dell’oggetto da segmentare non nota a priori vi la necessitdi definire un metodo per permettere allo snake di adattarsi alla diversa complessitdella macchia da individuare. Si perciøconsiderato un metodo che sfrutta la riparametrizzazione della curva a partire dai campioni ottenuti dall’intersezione con un reticolo, che la scomposizione simpliciale (o triangolazione) del piano immagine, e la successiva ripartizione di tali punti fra i nuovi <span>''control points''</span>, in funzione di un criterio di complessitche tiene conto della distanza e del grado di allineamento, o “curvatura”, fra i campioni.
+
+Dai test effettuati si visto che l’algoritmo poco sensibile all’inizia-lizzazione del contorno attivo, comunque per ridurre i tempi di calcolo opportuno che la curva iniziale sia prossima al bordo dell’oggetto da segmentare. Per questo si definita una procedura di inizializzazione basata sul contorno della regione compatta ottenuta dalla binarizzazione, e successiva elaborazione morfologica, della componente principale della <span>''trasformata di Karhunen-Loève''</span> dell’immagine originale.
+
+In relazione ai tempi di esecuzione si puødire che il punto critico dato dal calcolo delle medie interne ed esterne alla curva, quindi opportuno considerare con attenzione una possibile approssimazione della funzione intensitdelle primitive.
+
+È stato definito inoltre un operatore locale basato su una particolare misura di anisotropia per ridurre l’effetto di disturbo dei peli, non sempre trascurabile nel momento in cui tali elementi si trovano in prossimitdel bordo e quindi possono influenzare la dinamica dello <span>''snake''</span>.
+
+L’algoritmo stato sviluppato per la segmentazione di macchie cutanee, ma come strutturato e per la natura del modello di snake potenzialmente applicabile ad altri oggetti non appena siano caratterizzabili con un opportuno vettore di primitive (<span>''features''</span>).
+
+== Matrice di omotetia ==
+
+Dato il vettore dei <span>''control points''</span> <math>{\bf X}=[{\bf x}_i]</math> che descrivono la curva, e il centroide <math>{\bf c}</math> definito da =<sub>i=0</sub><sup>m-1</sup><span>'''x'''</span><sub>i</sub>. si considerino <math>{\bf z}_i={\bf x}_i-{\bf c}</math> i raggi vettore uscenti da <math>{\bf c}</math> verso gli <math>{\bf x}_i</math>.
+
+Applicando l’omotetia di fattore <math>\gamma</math> i nuovi raggi vettore <math>\hat{\bf z}_i</math> risultano <sub>i</sub>=<span>'''z'''</span><sub>i</sub> per cui i nuovi control points si ottengono da <sub>i</sub> &amp; = &amp; <sub>i</sub>+<span>'''c'''</span> =(<span>'''x'''</span><sub>i</sub>-<span>'''c'''</span>)+<span>'''c'''</span>=<br />&amp; = &amp; <span>'''x'''</span><sub>i</sub>+(1-)<span>'''c'''</span> =<span>'''x'''</span><sub>i</sub>+<span>'''1'''</span><sub>1 m</sub><span>'''X'''</span> Quindi il nuovo vettore di <span>''control points''</span> risulta &amp; = &amp; <span>'''X'''</span>+ <span>'''X'''</span><br />&amp; &amp;<br />&amp; = &amp; <span>'''X'''</span>= <span>'''R'''</span>()<span>'''X'''</span> con <math>{\bf I}_m</math> matrice identica di ordine <math>m</math> e <math>{\bf 1}_m</math> matrice <math>m \times m</math> di “<math>1</math>”.
+
+Esprimendo la rappresentazione a B-spline della curva nella forma (u)=<sub>i=0</sub><sup>m-1</sup>B<sub>i</sub>(u)<span>'''x'''</span><sub>i</sub>=<span>'''B'''</span>(u)<span>'''X'''</span> dove <math>{\bf B}(u)</math> e <math>{\bf X}</math> sono rispettivamente i vettori delle basi <math>B_i</math> e dei control points, la curva trasformata risulta (u)=<span>'''B'''</span>(u)<span>'''R'''</span>()<span>'''X'''</span>.
+
+== Matrici per la rappresentate a B-splines di curve ==
+
+A partire dalla (), possibile rappresentare in termini di prodotto di matrici la carta a B-splines che descrive lo span <math>i-esimo</math>, <math>i=0,\dots,N_s-1</math>, della curva <math>\Gamma</math> <sub>i</sub>(s)=<span>'''s'''</span><sup>T</sup><span>'''M'''</span><span>'''Q'''</span><sub>i</sub> dove <math>{\bf s}=[s^3,s^2,s,1]^T</math>, <math>s\in[0,1]</math>, <math>M</math> la matrice <math>(4 \times 4)</math> che descrive la forma della B-spline <math>B</math> di riferimento, e <math>{\bf Q}_i</math> la quaterna di <span>''control points''</span> che definiscono come si combinano i quattro tratti di cubica (Capitolo ).
+
+Si proceda quindi alla discretizzazione di <math>s</math> a cui corrispondono i campioni <math>{\bf r}_i(s_j)</math> per <math>s_j=j/N_c</math> con <math>j=0,\dots,N_c-1</math> e <math>N_c</math> il numero di campioni per span; si ottiene quindi, per il singolo campione, <math>X_i(j)\,=\,\frac{1}{6}\,{\bf s}_j^T\,{\bf M}\,{\bf Q}_i</math> e incolonnando per tutti i campioni dello span <sub>i</sub>=<sub>i</sub><span>'''Q'''</span><sub>i</sub> <math>\hat{\bf A}_i=\frac{1}{6}\,\qmatrix{{\bf s}_0^T \cr
+                                         \vdots \cr 
+                                    {\bf s}_j^T \cr
+                                         \vdots \cr
+                                    {\bf s}_{N_c-1}^T \cr}\,{\bf M}\,=\,
+              {\bf S}_i\,{\bf M} \qquad (N_c \times 4)</math>
+
+Un’ulteriore passo nella semplificazione dell’espressione fatto considerando <math>{\bf Q}_i={\bf G}_i{\bf Q}</math>, con <math>{\bf Q}</math> vettore completo dei control points; quindi riassumendo si ottiene == =<span>'''A'''</span><span>'''Q'''</span> con <math>{\bf X}\,(N_s\,N_c \times 2)</math>, <math>{\bf A}\,(N_s\,N_c \times N_s)</math> e <math>{\bf Q}\,(N_s \times 2)</math>.
+
+Le matrici <math>{\bf G}_i\,(4 \times N_s)</math> legano lo span <math>i-esimo</math> con i relativi <span>''control points''</span> in <math>{\bf Q}</math>. Si noti che rispetto a quanto detto nel Capitolo possibile rappresentare un circuito senza aggiungere i primi tre <span>''control points''</span> alla fine del vettore ma direttamente attraverso la matrice <math>{\bf A}</math>.
+
+(5)
+
+Per chiarire la struttura delle <math>{\bf G}_i</math> si considera l’esempio in cui <math>N_s=5</math>: <math>{\bf G}_0\,=\,\qmatrix{ 1 & 0 & 0 & 0 & 0 \cr
+                        0 & 1 & 0 & 0 & 0 \cr
+                        0 & 0 & 1 & 0 & 0 \cr
+                        0 & 0 & 0 & 1 & 0 \cr}, \quad
+{\bf G}_1\,=\,\qmatrix{ 0 & 1 & 0 & 0 & 0 \cr
+                        0 & 0 & 1 & 0 & 0 \cr
+                        0 & 0 & 0 & 1 & 0 \cr
+                        0 & 0 & 0 & 0 & 1 \cr}, \quad \dots</math> Come si puønotare la seconda matrice ottenuta traslando verso destra la diagonale di <math>1</math>, ovvero moltiplicando la matrice <math>{\bf G}_0</math> per una matrice <math>{\bf K}</math> quadrata <math>(N_s \times N_s)</math> <math>{\bf K}\,=\,\qmatrix{ 0 & 1 & 0 & 0 & 0 \cr
+                      0 & 0 & 1 & 0 & 0 \cr
+                      0 & 0 & 0 & 1 & 0 \cr
+                      0 & 0 & 0 & 0 & 1 \cr
+                      1 & 0 & 0 & 0 & 0 \cr}</math> Il risultato puøessere esteso anche alle altre matrici <math>{\bf G}_i</math> per cui vale <math>{\bf G}_{i+1}\,=\,{\bf G}_i\,{\bf K} \qquad i=0,\dots,N_s-2</math> e dove <math>{\bf G}_0</math> ha una struttura nota <math>{\bf G}_0\,=\,\qmatrix{{\bf I}_4 & | &{\bf O}_{4,N_s-4} \cr}.</math>
+
+(5)
+
+Per ottenere le matrici <math>{\bf A}_s</math> e <math>{\bf A}_{ss}</math> sufficiente considerare che derivando rispetto a <math>s</math> la <math>{\bf r}_i(s)</math> si ottiene <sub>i<sub>s</sub></sub>(s)=<span>'''s'''</span><sub>s</sub><sup>T</sup><span>'''M'''</span><span>'''Q'''</span><sub>i</sub> con <math>{\bf s}_s=[3s^3,2s,1,0]</math>; per cui sufficiente modificare le singole <math>{\bf S}_i</math>.
+
+Analogamente per la derivata seconda rispetto <math>s</math>.
+
+Data <math>{\bf A}</math>, matrice quadrata <math>(n \times n)</math>, <math>{\bf x}</math> e <math>{\bf y}</math> due vettori colonna <math>n-dim</math> allora vale <span>'''x'''</span>-<span>'''A'''</span><span>'''y'''</span>= <span>'''x'''</span><span>'''y'''</span>.
+
+Dalla definizione di prodotto scalare <math>(\cdot)</math> <math>{\bf A}\,{\bf x}\cdot{\bf y}\,=\,({\bf A}\,{\bf x})^T\,{\bf y}</math> e dalla commutativitsi ha che <math>{\bf A}\,{\bf x}\cdot{\bf y}\,-\,{\bf A}\,{\bf y}\cdot{\bf x}\,=\,
+ {\bf x}^T\,{\bf A}^T\,{\bf y}\,-\,{\bf x}^T\,{\bf A}\,{\bf y}\,=\,</math> <math>{\bf x}^T\,\Big[{\bf A}^T-{\bf A}\Big]\,{\bf y}\,=\,
+ {\bf x}\cdot\Big[{\bf A}^T-{\bf A}\Big]\,{\bf y}.</math>
+
+Sia h(t)=<sub>R(t)</sub>f(x,y)dxdy con <math>R(t)</math> la regione racchiusa dalla curva chiusa <math>\Gamma(t)</math> e <math>f:\M(R)^2 \longrightarrow \M(R)</math> una funzione continua.
+
+Definita la funzione vettoriale <span>'''g'''</span>(x,y) con g<sub>1</sub>(x,y)=-<sub>0</sub><sup>y</sup>f(x,)dg<sub>2</sub>(x,y)=<sub>0</sub><sup>x</sup>f(,y)dpossibile scrivere h(t)=<sub>R(t)</sub> dxdy
+
+Dal <span>''teorema di Stokes''</span>, che nel caso in esame di curve piane si riduce alle <span>''formule di Green''</span>, si ottiene h(t)=<sub>(t)</sub><span>'''g'''</span>dl. Considerando che <math>\Gamma(t)</math> rappresentata dalla carta <math>{\bf r}(s,t)=[x(s,t),y(s,t)]</math>, con <math>s \in [0,1]</math>, e che il vettore tangente alla curva esprimibile in funzione della parametrizzazione (s,t)= risulta h(t)=<sub>0</sub><sup>1</sup><span>'''g'''</span> <span>(s,t)</span>ds= <sub>0</sub><sup>1</sup><span>'''g'''</span><sub>s</sub>(s,t)
+
+Calcolare <math>\nabla h</math> lungo la curva regolare <math>\Gamma</math> equivalente a massimizzare la variazione <math>h^{\,\prime}(t)</math> h<sup></sup>(t)=<sub>0</sub><sup>1</sup>ds.
+
+Integrando per parti rispetto a <math>s</math> il secondo termine dell’integranda risulta <sub>0</sub><sup>1</sup><span>'''g'''</span><sub>s,t</sub>(s,t) &amp; = &amp; <span>'''g'''</span><sub>ts=0</sub><sup>s=1</sup> -<sub>0</sub><sup>1</sup><span>'''g'''</span><sub>st</sub>(s,t)ds=<br />&amp; = &amp; -<sub>0</sub><sup>1</sup><span>'''g'''</span><sub>st</sub>(s,t)ds in quanto il primo addendo nullo dato che la curva chiusa e quindi <math>{\bf r}(0)={\bf r}(1)</math> per cui <math>{\bf g}({\bf r}(0))={\bf g}({\bf r}(1))</math> e cospure <math>{\bf r}_t(0)={\bf r}_t(1)</math>.
+
+Considerando inoltre che il differenziale di funzioni composte <sub>s</sub> &amp; = &amp; <span>'''g'''</span><sub>s</sub>(<span>'''r'''</span>(s,t))=J<span>'''g'''</span>(x,y)<span>'''r'''</span><sub>s</sub>(s,t)<br />&amp; &amp;<br /><span>'''g'''</span><sub>t</sub> &amp; = &amp; <span>'''g'''</span><sub>t</sub>(<span>'''r'''</span>(s,t))=J<span>'''g'''</span>(x,y)<span>'''r'''</span><sub>t</sub>(s,t), con <math>J{\bf g}(x,y)\,=\,
+\smatrix{2}{{\ds\frac{\partial g_1}{\partial x}} & {\ds\frac{\partial g_1}{\partial y}} \cr
+        {\ds\frac{\partial g_2}{\partial x}} & {\ds\frac{\partial g_2}{\partial y}}}(x,y)\,=\,
+\smatrix{2}{ 0 & -f \cr
+             f &  0 }(x,y)\,=\,</math> =f(x,y), assieme alle precedenti si ottiene l’espressione per <math>h^{\,\prime}(t)</math> h<sup></sup>(t)=<sub>0</sub><sup>1</sup>ds.
+
+Applicando il Lemma con <math>{\bf x}={\bf r}_t</math>, <math>{\bf A}=J{\bf g}</math> e <math>{\bf y}={\bf r}_s</math> h<sup></sup>(t)=<sub>0</sub><sup>1</sup> ds
+
+Dalla () si vede che lo <span>''Jacobiano''</span> antisimmetrico, per cui lo pure la differenza <math>(J{\bf g})^T-J{\bf g}</math> che infatti vale <math>2\,f(x,y)\,\smatrix{2}{  0 & 1 \cr
+                        -1 & 0 },</math> dato che per la proprietdi antisimmetria <math>(J{\bf g})^T=-J{\bf g}</math>.
+
+Sostituendo nella () h<sup></sup>(t)= <sub>0</sub><sup>1</sup>ds
+
+Nell’ipotesi per cui l’orientamento positivo di percorrenza di <math>\Gamma</math> sia quello antiorario e che l’orientamento positivo della regione <math>R</math> sia <math>{\bf e}_3</math> allora sussiste la relazione fra il versore tangente e quello normale alla curva <math>{\bf n}\,=\,\smatrix{2}{  0 & 1 \cr
+                         -1 & 0 }\,{\bf \tau};</math> considerando inoltre l’espressione () si ha <sub>s</sub><span>'''n'''</span>=<span>'''r'''</span><sub>s</sub>.
+
+Quest’ultimo uno dei termini del prodotto scalare dell’integranda in () e quindi h<sup></sup>(t)= <sub>0</sub><sup>1</sup><sub>s</sub>ds= <sub>(t)</sub><span>'''r'''</span><sub>t</sub>f<span>'''n'''</span>dl per cui la direzione lungo la quale deformare la curva <math>\Gamma</math> in modo che sia massima <math>h^{\,\prime}</math> data dal flusso <math>{\bf r}_t\,=\,f\,{\bf n}.</math>
+
+<references />

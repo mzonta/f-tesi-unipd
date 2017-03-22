@@ -1,0 +1,383 @@
+\chapter{Contorni attivi}\lb{CA}
+
+Nel Capitolo \r{SGM} si \e accennato all'utilizzo di alcuni operatori locali che permettono di
+individuare nell'immagine delle opportune primitive ({\it features}) il cui insieme costituisce una nuova
+immagine o mappa delle primitive ({\it features map}) la cui interpretazione pu\o permettere di
+individuare gli elementi (oggetti) che compongono l'immagine.
+
+Il problema \e che, tranne in casi molto fortunati in cui si hanno immagini costituite da
+elementi distinti, prive di particolari disturbi e con superfici dei materiali ripresi sostanzialmente uniformi,
+vi possono essere diverse false {\it features}.
+Occorre pertanto definire un criterio che permetta di estrarre solo quelle vere.
+Nel caso pi\u semplice si pu\o considerare una funzione costante che coincide con un
+valore di soglia, valore che per\o pu\o non essere semplice individuare e che inoltre pu\o generare
+il problema opposto, ovvero portare ad eliminare anche alcune {\it features} buone che per\o
+sono "deboli", per cui si ottiene una descrizione frammentaria della {\it features map} 
+dell'immagine che ne complica la successiva elaborazione.
+
+Come gi\a accennato precedentemente, una soluzione di notevole interesse 
+\e data dagli {\it active contours}, chiamati comunemente {\it snakes}\footnotemark \cite{Kass}.
+
+\footnotetext{La famiglia degli {\it active contours} \e costituita oltre che da {\it snakes},
+che ne solo la forma pi\u semplice, anche da {\it deformable template} e {\it dynamic contours}\cite{BlakeAC}}.
+
+
+%======================================================================================
+\section{Snakes}
+
+Con {\it snake} si intende una curva deformabile ${\bf r}(s)$, $0 \leq s \leq 1$,
+che sotto l'azione di opportune "forze" definite nello spazio delle primitive 
+dell'immagine tende a deformarsi in modo da minimizzare una "energia" o
+"funzione costo".
+Nel caso particolare della soluzione di problemi di segmentazione tale funzione
+\e definita in modo che la condizione di minimo porti la curva ad adagiarsi lungo
+i contorni degli oggetti, per cui lo spazio delle primitive \e dato generalmente dalla 
+mappa degli {\it edgles}.
+
+\boss
+Determinare la mappa delle features completa pu\o richiedere tempi eccessivi per
+l'applicazione considereta, ed inoltre non \e detto sia necessario; per cui tali
+primitive possono essere individuate limitatamente all'intorno della curva analizzando
+l'immagine lungo direzioni particolari, tipicamente lungo la normale alla curva
+\cite{BlakeAC}.
+\lb{ossploc}
+\eoss
+
+L'energia totale ${\cal E}({\bf r})$, lungo tutta la curva, che individua lo stato dello
+snake \e composta di due termini
+\be
+{\cal E}({\bf r})\,=\,{\cal E}_s({\bf r})\,+\,{\cal P}({\bf r}).
+\lb{ergtot}
+\ee
+\ben
+\im
+Il primo rappresenta l'{\it energia interna} che controlla la regolarit\a della curva
+e quindi un vincolo sulla classe delle forme che pu\o segmentare:
+\be
+{\cal E}_s({\bf r})\,=\,\int_0^1\,w_1(s)|{\bf r}_s|^2\,+
+                                \,w_2(s)|{\bf r}_{ss}|^2\,ds,\quad (\footnotemark)
+\ee 
+
+\footnotetext{Con $f_x$ si denota la derivata di $f$ rispetto alla variabile $x$.}
+
+dove $w_1(s)$ controlla l'"elasticit\a" rispetto alle sollecitazioni che tendono a dilatare
+o comprimere lo snake (trazione e compressione) e $w_2(s)$ la "rigidezza" rispetto alle 
+deformazioni trasversali allo snake (flessione).
+
+Infatti se si aumentasse solo $w_1(s)$, minimizzare l'energia corrisponderebbe ad accorciare
+la lunghezza della curva fino, caso limite, a ridurla ad un punto; nel caso di $w_2(s)$
+invece si avrebbe la tendenza ad aumentare la regolarit\a della curva fino ad approssimare
+una linea retta. Al contrario riducendo i due termini, al limite ponendoli a zero\footnotemark,
+\e possibile ottenere una curva che presenti dei punti angolosi o addidrittura delle
+discontinuit\a.
+
+\footnotetext{I coefficienti $w_1(s)$ e $w_2(s)$ sono non negativi.}
+
+\im
+Il secondo termine della (\r{ergtot}) rappresenta l'{\it energia potenziale} dello {\it snake}
+rispetto allo spazio delle primitive; per cui se $\cal P$ \e definita in modo tale
+che i suoi punti di minimo siano in corrispondenza delle {\it features}, allora la minimizzazione
+della (\r{ergtot}) spinge lo snake ad approssimarle.
+L'energia potenziale lungo tutta la curva pu\o essere definita come l'integrale curvilineo
+di una funzione potenziale 
+\be
+{\cal P}({\bf r})\,=\,\int_0^1\,P({\bf r}(s))\,ds
+\ee
+dove $P({\bf r})$ \e una funzione che mappa i punti dell'immagine nello spazio delle primitive.
+Alcuni esempi tipici delle definizioni di $P({\bf r})$ sono
+ \ben
+ \im $P({\bf r})\,=\,\pm\,c\,\bigg(\,G_\sigma \ast I\,({\bf r})\,\bigg)$
+     se si considera come primitiva i picchi di intensit\aac: bassa o alta intensit\aac, chiaro o
+     scuro, a seconda del segno;
+ \im $P({\bf r})\,=\,-\,c\,\Big|\,\nabla\bigg(\,G_\sigma \ast I\,({\bf r})\,\bigg)\,\Big|$
+     in questo caso si considerano gli {\it edgels}.
+ \een
+Per entrambi i casi si sono considerati solo i punti della curva, ${\bf r}(s)$, in base
+all'osservazione \r{ossploc}.
+
+Come accennato nel caso degli {\it edge-detector}, l'azione della convoluzione con la gaussiana 
+$G_\sigma(x,y)$ \e rivolto sia alla riduzione dell'$SNR$ all'uscita del filtro $P(x,y)$
+sia a migliorare il grado di localizzazione degli {\it edgels}.
+Nel caso degli {\it snakes} questo pu\o essere visto come una trasformazione della superficie
+su cui esso si muove, l'immagine, che possa da un lato facilitare l'avvicinamento ai punti
+del contorno ($\sigma$ grande) e dall'altro fare in modo che l'errore di approssimazione
+ammesso (in termini di localizzazione del bordo) sia piccolo ($\sigma$ piccola).
+Anche in questo caso le due condizioni lavorano in direzioni opposte, per cui
+risulta non sempre facile fissare un valore per tutte le zone dell'immagine;
+eventualmente si potrebbe considerare $\sigma$ variabile in base alle caratteristiche
+locali dell'immagine stessa come nel caso degli operatori anisotropi.
+\een
+
+%-------------------------------------------------------------------------------------
+\section{Un approccio Lagrangiano}
+
+La soluzione al problema della minimizzazione dell'energia $\cal E$ pu\o essere determinata
+in modo statico calcolando direttamente i punti di estremo; in realt\aac, anche in considerazione
+del modo in cui vengono determinate le primitive, \e conveniente considerare lo {\it snake}
+come una curva che si muove sul piano immagine ({\it dynamic snake}) la cui posizione e forma
+variano ad ogni passo in relazione alle misure effettuate; ne deriva che la 
+condizione di minimo dell'energia coincide perci\o con lo stato di equilibrio del sistema
+dinamico.
+
+Il nuovo modello \e ottenuto ridefinendo la carta ${\bf r}(s,t)$ per tener conto della 
+variazione nel tempo $t$ e considerando che la curva abbia una densit\a di massa $\mu (s)$,
+per cui \e presente anche una componente di energia cinetica
+\be
+{\cal T}({\bf r})\,=\,\frac{1}{2}\int_0^1\,\mu (s)|{\bf r}_t|^2\,ds
+\ee
+A causa dell'inerzia introdotta da $\mu (s)$, affinch\'e il sistema raggiunga uno stato
+stabile \e necessario introdurre un termine a cui sia affidata la dissipazione dell'energia
+cinetica immagazzinata.
+A tal scopo si pu\o considerare la funzione {\it dissipazione di Rayleigh} definita
+\be
+{\cal D}({\bf r}_t)\,=\,\frac{1}{2}\int_0^1\,\gamma |{\bf r}_t|^2\,ds.
+\ee
+Applicando il {\it principio di Hamilton} si perviene alle {\it equazioni di Lagrange}
+\cite{BlakeAV1}
+\be
+\mu {\bf r}_{tt}\,+\,\gamma {\bf r}_t\,-\,\frac{\partial}{\partial s}\,(w_1{\bf r}_s)\,+
+ \,\frac{\partial^2}{\partial s^2}\,(w_2{\bf r}_{ss})\,=\,-\nabla P({\bf r}(s,t))
+\lb{eqlagr}
+\ee
+in cui si sono considerate $\mu (s)=\mu$ e $\gamma (s)=\gamma$ costanti lungo tutta
+la curva.
+     
+%....................................................................................
+\subsubsection{Kalman-snakes}
+
+Tenendo conto della dinamica dello snake \e possibile risolvere problemi pi\u complessi
+in cui la mappa delle {\it features} varia nel tempo a cusa del moto relativo tra il sensore
+e l'oggetto da inseguire: si parla perci\o di {\it data tracking}.
+In questo caso l'equilibrio raggiunto \e dinamico in quanto lo snake tende ad approssimare
+dei dati che non sono costanti nel tempo.
+Le prestazioni del sistema migliorano sensibilmente se si integrano nel tempo le misure
+delle primitive con il modello dinamico dello snake utilizzando il {\it filtro di Kalman},
+il cui passo di predizione permette di stabilire come potr\a essere l'evoluzione dello
+snake al passo successivo individuando la regione di confidenza entro cui sar\a probabile
+trovarlo nell'immagine succesiva.
+La posizione reale verr\a individuata dalle misure effettuate nel passo di aggiornamento.
+
+L'introduzione del filtro, il cui peso computazionale \e generalmente trascurabile,
+permette di ridurre la regione dell'immagine su cui effettuare le misure, che \e la
+componente critica per la quantit\a di dati considerati, e quindi migliorare l'efficienza
+generale dell'algoritmo.
+
+%---------------------------------------------------------------------------------------
+\section{Contorni dinamici}
+
+Nel modello utilizzato finora gli unici vincoli sulle deformazioni a cui \e soggetto lo snake
+sono dati dai termini di energia interna associati ai coefficienti $w_1(s)$ e $w_2(s)$.
+
+Esiste la possibilit\a di vincolare la curva in modo che assuma delle forme che si discostino
+relativamente da un modello prefissato ({\it template}).
+La curva \e quindi definita da una carta ${\bf r}(s;{\bf X})$ \cite{BlakeAC}
+che \e funzione di un vettore di parametri che tengono
+conto delle possibili trasformazioni che questa pu\o subire (rotazioni, traslazioni,
+dilatazioni, etc.); ovvero a partire da una forma di
+riferimento si applicano le trasformazioni, scelte fra quelle accettabili, che permettono 
+di sovrapporla all'oggetto corrispondente che si trova sul piano immagine:
+si parla perci\o di {\it deformable templates}.
+
+Considerando quindi il modello dinamico definito dai {\it Kalman snakes} proiettato
+nello spazio delle forme ({\it deformable templates}) si ottengono i {\bf contorni dinamici}
+o {\bf dynamic contours}.
+
+%========================================================================================
+\section{Discretizzazione dello snake}
+
+Le soluzioni dell'equazione (\r{eqlagr}) sono curve continue nello spazio $\M(R)^2$, mentre
+per poterle elaborare numericamente \e necessario discretizzarle.
+Il modo pi\u semplice \e dato dal campionamento della curva con un passo di campionamento
+$h=1/(N-1)$ nello spazio del parametro $s\in[0,1]$ per cui i campioni della curva sono 
+${\bf r}(i\,h)$ con $i=1,\dots,N$.
+L'equazione differenziale si trasforma perci\o in un'equazione alle differenze sostituendo
+le derivate prima e seconda con le espressioni \footnotemark
+\be
+{\bf r}_s(s_i)\,=\,\frac{{\bf r}(s_i)\,-\,{\bf r}(s_{i-1})}{h} \quad e \quad
+{\bf r}_{ss}(s_i)\,=\,\frac{{\bf r}(s_{i+1})\,-2\,{\bf r}(s_i)\,+\,{\bf r}(s_{i-1})}{h^2}
+\ee
+Analogamente per le derivate rispetto la variabile temporale $t$.
+
+\footnotetext{Discretizzazione con metodo di Eulero implicito.}
+
+L'equazione di Lagrange (\r{eqlagr}) viene espressa da una equazione differenziale
+del secondo ordine \cite{BlakeAV1}
+\be
+{\bf M\,\ddot{u}}\,+\,{\bf C\,\dot{u}}\,+\,{\bf K\,u}\,=\,{\bf f} \quad con \quad
+{\bf u}=\{{\bf u}_i\}_{i=1,\dots,N}={\bf r}(i\,h)
+\ee
+dove ${\bf M}$ \e la matrice delle masse, ${\bf C}$ tiene conto dei fenomeni di dissipazione,
+${\bf K}$ della rigidezza dello snake e ${\bf f}$ dipende da $\nabla P$.
+
+Effetto del campionamento della curva \e la perdita della propriet\a di continuit\a 
+e quindi dell'informazione sulla forma individuata dallo {\it snake} stesso, per cui,
+sia nel caso particolarmente interessante dei contorni dinamici accennati precedentemente
+sia nel caso dei semplici {\it snake} nella forma data dall'equazione (\r{ergtot}), si ricorre
+ad approssimazioni con metodi agli "{\it elementi finiti}" in cui la curva ${\bf r}$ \e
+definita dalla combinazione lineare di particolari funzioni $B_i$, elementi della base di un
+opportuno spazio vettoriale, pesate dai {\it nodi} ${\bf q_i}(t)$
+\be
+{\bf r}(s,t)\,=\,\sum_{i=1}^N\,B_i(s)\,{\bf q}_i(t)
+\ee
+Un modello particolarmente interessante, che sar\a considerato nel nostro caso, \e dato
+dall'approssimazione a {\bf splines} in cui la curva \e approssimata da funzioni polinomiali
+a tratti parametrizzate dai nodi ${\bf q_i}(t)$ che prendono il nome di {\it control points} \cite{BlakeAV2} \footnotemark. 
+
+\footnotetext{Altre descrizioni parametriche del contorno possono essere ricavate utilizzando i coefficienti
+di Fourier.}
+
+%========================================================================================
+\section{Un approccio statistico}
+
+L'introduzione degli {\it snakes} ha permesso di risolvere alcuni problemi che affliggono i metodi
+di segmentazione che si basano sulla sola {\it edge-detection} fornendo un modello che permette
+di mantenere le informazioni sulla forma degli oggetti a cui appartengono gli {\it edgels}.
+
+Si \e quindi posto il problema come la minimizzazione di una particolare funzione
+energia, dove il termine legato all'immagine \e definito da un potenziale, che \e minimo
+in corrispondenza dei bordi dei segmenti.
+
+Finora si \e considerato il potenziale definito in funzione delle propriet\a locali 
+nell'intorno della curva ({\it feautures}) e in particolare considerando il gradiente dell'immagine
+opportunamente filtrata; ma, a causa dell'operatore differenziale, 
+tali misure sono molto sensibili ai disturbi di diversa natura
+che possono essere presenti nell'immagine stessa, ovvero
+tale sensibilit\a pu\o essere ridotta con un aumento
+dell'azione filtrante ma a scapito della capacit\a di localizzazione.
+
+Per ovviare a tale limite sono state proposte soluzioni alternative che 
+tengono conto anche delle propriet\a di omogeneita dei segmenti.
+Si possono individuare due strade:
+\ben
+\im si identificano i bordi in modo indiretto, senza utilizzare operatori differenziali,
+    ridefinendo un'opportuna energia che tenga conto anche della statistica dei segmenti
+    e forzando i contorni attivi a disporsi in modo da massimizzare la differenza fra
+    i segmenti separati dai contorni stessi \cite{Yezzi}, \cite{Yuille};
+\im considerando i due approcci distinti che interagiscono fra di loro in base ad opportune
+    regole \cite{Duncan} che stabiliscono come il risultato di uno venga valutato
+    dall'altro e quindi la possibile contromossa pi\u conveniente in termini di "costo",
+    fino a giungere ad una condizione di equilibrio.
+\een
+
+%---------------------------------------------------------------------------------------
+\subsection{L'algoritmo di Yezzi, Tsai e Willsky}\lb{AYTW}
+
+Nell'ambito delle soluzioni del primo tipo vi \e l'algoritmo proposto da A. Yezzi, A. Tsai
+e A. Willsky in \cite{Yezzi} che permette di incorporare in un nuovo modello di {\it snake}
+sia informazioni locali sia globali attraverso una funzione energia diversa da quelle
+considerate finora.
+Il vincolo principale nell'utilizza-re il modello proposto \e che siano note a priori 
+come le primitive scelte per la segmentazione descrivono i diversi elementi dell'insieme
+da segmentare, per cui ad ogni oggetto sia associabile un valore per ogni feature.
+\boss
+Il valore non deve essere necessariamente noto ma ,se esiste, si deve poter dire che
+allora esso contraddistingue quell'oggetto rispetto agli altri.
+\eoss
+Per esempio si possono avere diversi oggetti che sono contraddistinti da colori diversi,
+da tessitura diversa, etc.
+Anche se i colori non sono noti si sa che comunque sono differenti.
+
+In particolare si considera l'algoritmo nel caso di immagini bimodali o
+binarie, cio\e costituite da due regioni ({\it foreground} e {\it background}) rispetto alla
+primitiva considerata: il {\it colore}.
+
+\balg {\bf Flusso per immagini binarie.}\par
+Sia $I(x,y)$ l'immagine e $F \in I$ ({\it foreground}) la regione obiettivo della 
+segmentazione, per cui $B=F^c$ ({\it background}) \e il suo complementare; lo scopo
+\e quindi deformare la {\it curva chiusa} iniziale $\Gamma (t)$ definita su $I$ in modo che
+tenda ad abbracciare la regione $F$ e quindi coincida con
+il bordo $\partial F$.
+
+Definiamo $P$ la funzione $N$ dimensionale che definisce il vettore di primitive scelta fra
+quelle che meglio discriminano le due regioni; si considerino quindi le medie $m^{int}$ e $m^{est}$
+dei valori di $P$ nelle due regioni rispettivamente interna $R^{int}$ ed esterna $R^{est}$
+rispetto alla curva:
+\be
+m_j^{int}(\Gamma)\,=\,\frac{S_j^{int}(\Gamma)}{A^{int}(\Gamma)} \quad 
+                     j\,=\,1,\dots,N \quad (\footnotemark)
+\lb{med_int}
+\ee   
+\footnotetext{Il pedice $j$ indica la componenete del vettore delle primitive considerate;
+si noti che $A$ \e comunque fissa in quanto dipende solo da $\Gamma$.}
+$$
+S_j^{int}\,=\,{\ds\int_{R^{int}}}\,P_j({\bf x})\,d{\bf x} \qquad\qquad
+A^{int}\,=\,{\ds\int_{R^{int}}}\,d{\bf x}
+$$
+
+Analogamente per $m_e(\Gamma)$.
+
+La nuova funzione energia \e definita in funzione della distanza fra $m^{int}$ e $m^{est}$
+\be
+{\cal E}\,=\,-\,\frac{1}{2}\,\|m^{int}-m^{est}\|^2 
+\lb{EYezzi}
+\ee
+
+{\sl in cui si \e considerata la norma in quanto in generale $P$ \e una funzione vettoriale;
+questo \e molto importante perch\e permette di combinare in modo semplice caratteristiche
+dell'immagine diverse tra loro}.
+
+Tale energia \e minima quando la differenza fra le due medie \e massima, ovvero quando
+la curva coincide col bordo\footnotemark.
+\footnotetext{In pratica non si arriva ad una perfetta separazione, se non in casi particolari,
+per cui si intende che il gradiente di variazione dell'energia \e inferiore ad un certo limite
+o, equivalemtemente, che si possa ritenere costante.}
+
+La curva iniziale potr\a essere prossima al bordo di $F$ ma non coincidere e quindi o
+intersecare le due regioni o essere contenuta in una delle due regioni, per cui la distanza
+fra i due vettori di media sar\a inferiore al valore finale.
+
+L'evoluzione della curva pu\o essere ricavata considerando 
+\beqa
+\frac{d\Gamma}{dt} & = & -\,\nabla {\cal E} \quad (\,\footnotemark\,)\\
+                   & = & \sum_{j=1}^N\,(m_j^{int}-m_j^{est})\,
+                                       \bigg[\nabla m_j^{int}-\nabla m_j^{est}\bigg] \nonumber
+\eeqa
+\footnotetext{Con $\nabla {\cal F}$ si intende la direzione del gradiente di ${\cal F}$ 
+ definito sullo spazio della curva $\Gamma$; ovvero la direzione lungo la quale una 
+ deformazione della curva $\Gamma$ massimizza la variazione di ${\cal F}$}
+
+dove dalla definizione data per $m^{int}$ e $m^{est}$ nella (\r{med_int}) si ricava
+\beqa
+\nabla m_j^{int} & = & \frac{A^{int} \nabla S_j^{int}-S_j^{int} \nabla A^{int}}{{A^{int}}^2}\,=\,
+                 \frac{\nabla S_j^{int}-m_j^{int} \nabla A^{int}}{A^{int}} \\
+\nabla m_j^{est} & = & \frac{\nabla S_j^{est}-m_j^{est} \nabla A^{est}}{A^{est}} \nonumber
+\eeqa
+con
+\be
+\nabla S_j^{int}\,=\,P_j\,{\bf n} \qquad \qquad 
+\nabla A^{int}\,=\,{\bf n}
+\ee
+in cui {\bf n} \e la normale esterna alla curva $\Gamma$ (si veda l'Appendice \r{B}).
+
+Allora risulta
+\beqa
+\nabla m_j^{int} & = & \frac{P_j-m_j^{int}}{A^{int}}\,{\bf n} \\
+\nabla m_j^{est} & = & -\,\frac{P_j-m_j^{est}}{A^{est}}\,{\bf n} \nonumber
+\eeqa
+Il segno meno nell'ultima equazione deriva dal fatto che la normale esterna alla curva
+vista rispetto $R^{int}$ \e la normale interna rispetto $R^{est}$.
+
+Quindi riassumendo
+\be
+\frac{d \Gamma}{dt}\,=\,\sum_{j=1}^{N}\,(m_j^{int}-m_j^{est})\,
+                 \bigg[\frac{P_j-m_j^{int}}{A^{int}}\,+\,\frac{P_j-m_j^{est}}{A^{est}}\bigg]
+\lb{flow}
+\ee
+\ealg
+ 
+\boss
+Data la definizione (\r{EYezzi}), nel caso particolare di una sola regione $F$ connessa, 
+l'energia ${\cal E}$ pu\o assumere un solo valore di minimo e un certo numero di massimi
+che coincidono con ${\cal E}=0$ e che corrisponde a $m^{int}=m^{est}=(P(F)+P(B))/2$ e che
+si verifica se la {\it curva iniziale} \e tale per cui suddivide le due regioni $F$ e $B$
+in due parti con aree uguali. 
+Dalla (\r{flow}) si conclude che questa condizione non permette l'evoluzione dello snake che
+rimane nella configurazione iniziale; per evitare una tale situazione si pu\o verificare 
+all'inizio dell'evoluzione se $m^{int}=m^{est}$ ed eventualmente introdurre una qualsiasi 
+perturbazione su $\Gamma$.
+\eoss
+
+\finepar
+
+
+

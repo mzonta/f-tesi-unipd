@@ -1,0 +1,75 @@
+\contentsline {chapter}{Sommario}{7}
+\contentsline {chapter}{\numberline {1}Introduzione}{9}
+\contentsline {section}{Contenuto dei capitoli}{12}
+\contentsline {chapter}{\numberline {2}Operatori per l'elaborazione digitale delle immagini}{15}
+\contentsline {section}{\numberline {2.1}Cambiamento di risoluzione}{15}
+\contentsline {subsection}{\numberline {2.1.1}Riduzione della risoluzione}{15}
+\contentsline {section}{\numberline {2.2}Trasformazioni dello spazio dei colori}{16}
+\contentsline {subsection}{\numberline {2.2.1}Lo spazio HSI}{17}
+\contentsline {subsection}{\numberline {2.2.2}Trasformata di Karhunen-Lo\`eve o di Hotelling}{18}
+\contentsline {section}{\numberline {2.3}Operatori Morfologici}{21}
+\contentsline {subsection}{\numberline {2.3.1}Dilatazione ed Erosione}{22}
+\contentsline {subsection}{\numberline {2.3.2}Apertura e Chiusura}{24}
+\contentsline {subsection}{\numberline {2.3.3}Operatori morfologici per immagini binarie}{25}
+\contentsline {subsection}{\numberline {2.3.4}Operatori morfologici per immagini in scala di grigio}{26}
+\contentsline {section}{\numberline {2.4}Rank-order filters - Mediana}{27}
+\contentsline {section}{\numberline {2.5}Misura dell'anisotropia locale}{27}
+\contentsline {chapter}{\numberline {3}Segmentazione}{31}
+\contentsline {section}{\numberline {3.1}Caratterizzazione della segmentazione}{31}
+\contentsline {section}{\numberline {3.2}Tecniche di segmentazione}{32}
+\contentsline {subsection}{\numberline {3.2.1}Feature-Space Based Techniques}{33}
+\contentsline {subsection}{\numberline {3.2.2}Image-Domain Based Techniques}{33}
+\contentsline {subsubsection}{Tecniche di Split \& Merge e Region Growing}{33}
+\contentsline {subsubsection}{Tecniche basate sulla rilevazione dei bordi ({\it Edge})}{34}
+\contentsline {subsubsection}{Tecniche di classificazione basate sulle reti Neuronali}{38}
+\contentsline {subsection}{\numberline {3.2.3}Physics Based Techniques}{40}
+\contentsline {section}{\numberline {3.3}Texture segmentation}{40}
+\contentsline {section}{\numberline {3.4}Binarizzazione}{42}
+\contentsline {subsection}{\numberline {3.4.1}Binarizzazione come tecnica di segmentazione}{42}
+\contentsline {subsubsection}{Un algoritmo iterativo}{43}
+\contentsline {subsection}{\numberline {3.4.2}Binarizzazione come problema di classificazione}{45}
+\contentsline {chapter}{\numberline {4}Descrizione a B-splines di una curva nel piano}{49}
+\contentsline {section}{\numberline {4.1}Introduzione}{49}
+\contentsline {section}{\numberline {4.2}B-splines lineari}{50}
+\contentsline {section}{\numberline {4.3}B-splines cubiche uniformi}{52}
+\contentsline {section}{\numberline {4.4}Alcune propriet\`{a }delle B-splines}{56}
+\contentsline {subsection}{\numberline {4.4.1}Convex hull}{56}
+\contentsline {subsection}{\numberline {4.4.2}Invarianza alle traslazioni}{58}
+\contentsline {subsection}{\numberline {4.4.3}Invarianza alle rotazioni e alle omotetie}{59}
+\contentsline {section}{\numberline {4.5}Condizioni per gli estremi delle curve a B-splines}{60}
+\contentsline {subsection}{\numberline {4.5.1}Curve a B-splines chiuse}{61}
+\contentsline {section}{\numberline {4.6}Punti singolari delle curve a B-splines}{62}
+\contentsline {chapter}{\numberline {5}Contorni attivi}{63}
+\contentsline {section}{\numberline {5.1}Snakes}{64}
+\contentsline {section}{\numberline {5.2}Un approccio Lagrangiano}{66}
+\contentsline {subsubsection}{Kalman-snakes}{67}
+\contentsline {section}{\numberline {5.3}Contorni dinamici}{67}
+\contentsline {section}{\numberline {5.4}Discretizzazione dello snake}{68}
+\contentsline {section}{\numberline {5.5}Un approccio statistico}{69}
+\contentsline {subsection}{\numberline {5.5.1}L'algoritmo di Yezzi, Tsai e Willsky}{70}
+\contentsline {chapter}{\numberline {6}Architettura dell'algoritmo di segmentazione}{75}
+\contentsline {subsubsection}{La struttura dell'algoritmo}{75}
+\contentsline {section}{\numberline {6.1}Algoritmo: Fase 1}{75}
+\contentsline {subsection}{\numberline {6.1.1}Condizionamento dell'immagine}{76}
+\contentsline {subsubsection}{Attenuazione degli elementi di disturbo}{76}
+\contentsline {subsection}{\numberline {6.1.2}Inizializzazione del contorno attivo - snake}{77}
+\contentsline {subsubsection}{Motivazione}{77}
+\contentsline {subsubsection}{Processo di inizializzazione semiautomatica}{79}
+\contentsline {section}{\numberline {6.2}Algoritmo: Fase 2}{82}
+\contentsline {subsection}{\numberline {6.2.1}Passo 1: calcolo di ${\bf X}$, ${\bf X}_s$, ${\bf X}_n$, $k$}{83}
+\contentsline {subsection}{\numberline {6.2.2}Passo 2: calcolo delle medie e aree interne ed esterne alla curva}{85}
+\contentsline {subsection}{\numberline {6.2.3}Passo 3: la condizione di equilibrio}{85}
+\contentsline {subsection}{\numberline {6.2.4}Passo 4: aggiornamento della curva in base alla legge di evoluzione}{86}
+\contentsline {subsubsection}{La funzione guadagno g(k)}{87}
+\contentsline {subsubsection}{Gli insiemi di livello}{88}
+\contentsline {subsection}{\numberline {6.2.5}Passo 5: il criterio di complessit\`{a }della curva}{88}
+\contentsline {subsubsection}{Ricampionamento della curva}{89}
+\contentsline {subsubsection}{Definizione del criterio di complessit\`{a }}{90}
+\contentsline {subsection}{\numberline {6.2.6}Passo 6: la rappresentazione a B-splines della curva aggiornata}{92}
+\contentsline {section}{\numberline {6.3}Risultati}{92}
+\contentsline {chapter}{\numberline {7}Conclusioni}{97}
+\contentsline {chapter}{\numberline {A}Matrici per B-splines cubiche uniformi}{99}
+\contentsline {section}{\numberline {A.1}Matrice di omotetia}{99}
+\contentsline {section}{\numberline {A.2}Matrici per la rappresentate a B-splines di curve}{100}
+\contentsline {chapter}{\numberline {B}Funzionali definiti su regioni regolari}{103}
+\contentsline {chapter}{Bibliografia}{107}

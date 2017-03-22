@@ -1,0 +1,84 @@
+\def\chaptername{Capitolo}
+
+\def\hy{\hyphenation}
+
+\def\a{\`{a }}
+\def\e{\`{e }}
+\def\o{\`{o }}
+\def\u{\`{u }}
+
+\def\vs(#1){\vspace{#1mm}}
+\def\os(#1){\hspace{#1mm}}
+
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+
+% Attenzione! L'etichetta \label va posta subito dopo l'equazione a cui \e associato il
+% contatore. Se la si mette dopo \nonumber crea confusione con i riferiemnti successivi.
+\newcommand{\lb}{\label}
+\newcommand{\r}{\ref}
+\newcommand{\pgr}{\pageref}
+
+\newcommand{\beqa}{\begin{eqnarray}}
+\newcommand{\eeqa}{\end{eqnarray}}
+
+\def\bary(#1){$$\begin{array}{*{#1}{l}}}
+\def\eary{\end{array}$$}
+
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\im}{\item}
+\newcommand{\ei}{\end{itemize}}
+
+\newcommand{\ben}{\begin{enumerate}}
+\newcommand{\een}{\end{enumerate}}
+
+\newcommand{\bt}{\begin{tabular}}
+\newcommand{\et}{\end{tabular}}
+
+\newcommand{\bp}{\begin{picture}}
+\newcommand{\ep}{\end{picture}}
+
+\newcommand{\bass}{\begin{assioma}}
+\newcommand{\eass}{\end{assioma}}
+
+\newcommand{\bdf}{\begin{definizione}}
+\newcommand{\edf}{\end{definizione}}
+
+\newcommand{\blem}{\begin{lemma}}
+\newcommand{\elem}{\end{lemma}}
+
+\newcommand{\bth}{\begin{teorema}}
+\newcommand{\eth}{\end{teorema}}
+
+\newcommand{\bdim}{\bf Dimostrazione}
+\newcommand{\edim}{\hfill$\Box$}
+
+\newcommand{\bcor}{\begin{corollario}}
+\newcommand{\ecor}{\end{corollario}}
+
+\newcommand{\bpr}{\begin{proposizione}}
+\newcommand{\epr}{\end{proposizione}}
+
+\newcommand{\boss}{\begin{osservazione}}
+\newcommand{\eoss}{\end{osservazione}}
+
+\newcommand{\balg}{\begin{algoritmo}}
+\newcommand{\ealg}{\end{algoritmo}}
+
+\newcommand{\bdsc}{\begin{description}}
+\newcommand{\edsc}{\end{description}}
+
+\newcommand{\ds}{\displaystyle}
+
+\def\finepar{\vs(20)\centerline{${\scriptstyle\Box} \qquad\qquad \Box \qquad\qquad {\scriptstyle\Box}$}}
+
+\def\M(#1){{\mathbb #1\relax}\relax}
+
+\def\qmatrix#1{\left[ \matrix{#1} \right]}
+
+\def\smatrix#1#2{\left[ \begin{array}{*{#1}{r}} #2 \end{array} \right]}
+
+\def\contcap{
+\section*{Contenuto dei capitoli}
+\addcontentsline{toc}{section}{Contenuto dei capitoli}}
+

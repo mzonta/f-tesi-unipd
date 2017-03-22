@@ -1,0 +1,42 @@
+\chapter{Conclusioni}
+
+In questa tesi \e proposto un algoritmo si segmentazione per l'individuazione dei contorni
+di macchie cutanee il cui nucleo \e costituito dal metodo di segmentazione basato su un
+interessante modello di contorno attivo o {\it snake} proposto da Yezzi et al. in \cite{Yezzi}.
+Esso infatti combina i vantaggi dei due approcci con cui vengono affrontati i problemi di
+segmentazione: quello basato sulla propriet\a di omogeneit\a dei segmenti e quello che
+realizza la segmentazione individuando i bordi che separano i segmenti.
+
+Per ottenere inoltre una rappresentazione compatta dello stesso contorno, in vista delle
+successive misure, si \e scelta la sua rappresentazione a B-splines cubiche uniformi.
+Visto per\o che la forma dell'oggetto da segmentare non \e nota a priori vi \e la necessit\a
+di definire un metodo per permettere allo snake di adattarsi alla diversa complessit\a
+della macchia da individuare.
+Si \e perci\o considerato un metodo che sfrutta la riparametrizzazione della curva a partire
+dai campioni ottenuti dall'intersezione con un reticolo, che \e la scomposizione simpliciale 
+(o triangolazione) del piano immagine, e la successiva ripartizione di tali punti fra
+i nuovi {\it control points}, in funzione di un criterio di complessit\a che tiene conto della
+distanza e del grado di allineamento, o "curvatura", fra i campioni.
+
+Dai test effettuati si \e visto che l'algoritmo \e poco sensibile
+all'inizia-lizzazione del contorno attivo, comunque per ridurre i tempi di calcolo \e opportuno
+che la curva iniziale sia prossima al bordo dell'oggetto da segmentare.
+Per questo si \e
+definita una procedura di inizializzazione basata sul contorno della regione compatta ottenuta
+dalla binarizzazione, e successiva elaborazione morfologica, della componente principale della
+{\it trasformata di Karhunen-Lo\`eve} dell'immagine originale.
+
+In relazione ai tempi di esecuzione si pu\o dire che il punto critico \e dato dal calcolo delle
+medie interne ed esterne alla curva, \e quindi opportuno considerare con attenzione una 
+possibile approssimazione della funzione intensit\a delle primitive.
+
+\`E stato definito inoltre un operatore locale basato su una particolare misura di anisotropia
+per ridurre l'effetto di disturbo dei peli, non sempre 
+trascurabile nel momento in cui tali elementi si trovano in prossimit\a del bordo e quindi
+possono influenzare la dinamica dello {\it snake}.
+
+L'algoritmo \e stato sviluppato per la segmentazione di macchie cutanee, ma come \e
+strutturato e per la natura del modello di snake \e potenzialmente applicabile ad altri
+oggetti non appena siano caratterizzabili con un opportuno vettore di primitive ({\it features}).
+
+\finepar

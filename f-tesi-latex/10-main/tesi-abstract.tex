@@ -1,0 +1,41 @@
+% Sommario
+\preface
+
+%--------------------------------------------------------------------------------------------
+In questa tesi ci si pone l'obiettivo di fornire una soluzione al problema della segmentazione
+di macchie cutanee, i nei, per effettuare successivamente delle misure che possono riguardare
+lo stato dei bordi, la forma e le simmetrie.
+
+Il problema della segmentazione \e risolto utilizzando un algoritmo basato su un nuovo modello
+di contorni attivi, {\it snakes} o {\it active contours}, in cui la funzione energia
+potenziale, o funzione costo, non \e legata alla definizione del bordo come gradiente di una
+immagine intensit\aac, ma \e funzione della distanza fra le intensit\a interna ed esterna
+alla curva chiusa che individua lo snake.
+Si realizza cos\iac\,\,la fusione delle informazioni locali nell'intorno dello snake e quelle
+globali date dalla media delle intensit\aac\,\,nelle due regioni individuate.
+
+Per quanto riguarda il modello del contorno si \e considerata la sua rappresentazione a
+B-splines cubiche uniformi, la quale permette di mantenere la curva sufficientemente regolare
+con una sua descrizione sufficientemente compatta; infatti essa \e descritta interamente da
+un insieme limitato di parametri: i suoi {\it control points}.
+Per permettere alla curva di adattarsi alla complessit\a dell'oggetto da segmentare, che per
+sua natura non \e nota a priori, \e necessario rendere flessibile il numero dei control points;
+\e stato perci\o definito un metodo di ridistribuzione dei campioni della curva con l'ausilio
+di un reticolo, che rappresenta una scomposizione simpliciale (triangolazione) del piano
+immagine.
+L'associazione tra i nuovi campioni e i nuovi control points \e realizzata in base ad un
+opportuno criterio che misura la complessit\a locale della curva nei punti campione
+individuati.
+
+Per migliorare le prestazioni della segmentazione \e opportuno partire da un contorno
+iniziale prossimo a quello reale della macchia considerata, intendendo quindi tale
+procedimento come una fase di presegmentazione.
+Lo stato iniziale dello snake pu\o essere dato dal contorno della regione ottenuta a partire
+dalla binarizzazione della componente principale della {\it trasformata di Karhunen-Lo\`eve}
+(o di {Hotelling}) dell'immagine originale, successivamente elaborata con degli operatori
+morfologici in modo che risulti compatta.
+
+Elaborando la componente principale con un operatore locale anisotropo, il cui
+comportamento in un punto dell'immagine dipende dalle caratteristiche dei punti in un
+opportuno intorno, \e possibile definire una procedura per ridurre l'effetto di disturbo
+di elementi come i peli.

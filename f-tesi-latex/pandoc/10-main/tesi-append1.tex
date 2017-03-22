@@ -1,0 +1,151 @@
+\appendice{Matrici per B-splines cubiche uniformi}\lb{A}
+
+%===========================================================================================
+\section{Matrice di omotetia}\lb{A1}
+
+Dato il vettore dei {\it control points} ${\bf X}=[{\bf x}_i]$ che descrivono la curva,  
+e il centroide ${\bf c}$ \e definito da
+\be
+{\bf c}\,=\,\frac{1}{m}\,\sum_{i=0}^{m-1}\,{\bf x}_i.
+\ee
+si considerino ${\bf z}_i={\bf x}_i-{\bf c}$ i raggi vettore uscenti da ${\bf c}$ verso gli ${\bf x}_i$.
+
+Applicando l'omotetia di fattore $\gamma$ i nuovi raggi vettore $\hat{\bf z}_i$ risultano
+\be
+\hat{\bf z}_i\,=\,\gamma\,{\bf z}_i
+\ee
+per cui i nuovi control points si ottengono da
+\beqa
+\hat{\bf x}_i & = & \hat{\bf z}_i\,+\,{\bf c}\, 
+                    \,=\,\gamma\,({\bf x}_i-{\bf c})\,+\,{\bf c}\,= \nonumber\\
+              & = & \gamma\,{\bf x}_i\,+\,(1-\gamma)\,{\bf c}\, 
+                    \,=\,\gamma\,{\bf x}_i\,+\,\frac{1-\gamma}{m}\,{\bf 1}_{1 \times m}\,{\bf X}
+\eeqa
+Quindi il nuovo vettore di {\it control points} risulta 
+\beqa
+\hat{\bf X} & = & \gamma\,\qmatrix{     1 &     0 & \dots  &      0 \cr
+                                        0 &     1 & \dots  &      0 \cr
+                                   \vdots & \dots & \ddots & \vdots \cr
+                                        0 & \dots & \dots  &      1 \cr}\,{\bf X}\,+\,
+                  \frac{1-\gamma}{m}\qmatrix{     1 &     1   \dots  &      1 \cr
+                                                  1 &     1 & \dots  &      1 \cr
+                                             \vdots & \dots & \ddots & \vdots \cr
+                                                  1 & \dots & \dots  &      1 \cr}\,{\bf X}
+                  \nonumber\\
+            &   & \nonumber\\
+            & = & \Big[\,\gamma\,{\bf I}_m\,+\,\frac{1-\gamma}{m}\,{\bf 1}_m\,\Big]\,{\bf X}\,=\,
+                  {\bf R}(\gamma)\,{\bf X}
+\eeqa
+con ${\bf I}_m$ matrice identica di ordine $m$ e ${\bf 1}_m$ matrice $m \times m$ di "$1$".
+ 
+Esprimendo la rappresentazione a B-spline della curva nella forma
+\be
+{\bf r}(u)\,=\,\sum_{i=0}^{m-1}\,B_i(u)\,{\bf x}_i\,=\,{\bf B}(u)\,{\bf X}                                                      
+\ee
+dove ${\bf B}(u)$ e ${\bf X}$ sono rispettivamente i vettori delle basi $B_i$ e dei control
+points, la curva trasformata risulta
+\be
+\hat{\bf r}(u)\,=\,{\bf B}(u)\,{\bf R}(\gamma)\,{\bf X}.                                                     
+\ee
+
+%===========================================================================================
+\section{Matrici per la rappresentate a B-splines di curve}\lb{A2}
+
+A partire dalla (\r{cBsmat}), \e possibile rappresentare in termini di prodotto di matrici 
+la carta a B-splines che descrive lo span $i-esimo$, $i=0,\dots,N_s-1$, della curva
+$\Gamma$
+\be
+{\bf r}_i(s)\,=\,\frac{1}{6}\,{\bf s}^T\,{\bf M}\,{\bf Q}_i
+\ee
+dove ${\bf s}=[s^3,s^2,s,1]^T$, $s\in[0,1]$, $M$ \e la matrice $(4 \times 4)$ che descrive
+la forma della B-spline $B$ di riferimento, e ${\bf Q}_i$ \e la quaterna di {\it control
+points} che definiscono come si combinano i quattro tratti di cubica (Capitolo \r{BSC}).
+
+Si proceda quindi alla discretizzazione di $s$ a cui corrispondono i campioni ${\bf r}_i(s_j)$
+per $s_j=j/N_c$ con $j=0,\dots,N_c-1$ e $N_c$ il numero di campioni per span; si ottiene 
+quindi, per il singolo campione, 
+$$
+X_i(j)\,=\,\frac{1}{6}\,{\bf s}_j^T\,{\bf M}\,{\bf Q}_i
+$$
+e incolonnando per tutti i campioni dello span 
+\be
+{\bf X}_i\,=\,\hat{\bf A}_i\,{\bf Q}_i
+\ee 
+$$
+\hat{\bf A}_i=\frac{1}{6}\,\qmatrix{{\bf s}_0^T \cr
+                                         \vdots \cr 
+                                    {\bf s}_j^T \cr
+                                         \vdots \cr
+                                    {\bf s}_{N_c-1}^T \cr}\,{\bf M}\,=\,
+              {\bf S}_i\,{\bf M} \qquad (N_c \times 4)
+$$
+
+Un'ulteriore passo nella semplificazione dell'espressione \e fatto considerando 
+${\bf Q}_i={\bf G}_i{\bf Q}$, con ${\bf Q}$ vettore completo dei control points;
+quindi riassumendo si ottiene
+\be
+{\bf X}\,=\,\qmatrix{      {\bf X}_0 \cr
+                              \vdots \cr 
+                           {\bf X}_i \cr
+                              \vdots \cr
+                     {\bf X}_{N_s-1} \cr}\,=\,
+\qmatrix{            \hat{\bf A}_0\,{\bf G}_0 \cr
+                                       \vdots \cr 
+                     \hat{\bf A}_i\,{\bf G}_i \cr
+                                       \vdots \cr
+         \hat{\bf A}_{N_s-1}\,{\bf G}_{N_s-1} \cr}\,=\,{\bf A}\,{\bf Q}
+\ee
+con ${\bf X}\,(N_s\,N_c \times 2)$, ${\bf A}\,(N_s\,N_c \times N_s)$ e ${\bf Q}\,(N_s \times 2)$.
+
+Le matrici ${\bf G}_i\,(4 \times N_s)$ legano lo span $i-esimo$ con i relativi {\it control points}
+in ${\bf Q}$. 
+Si noti che rispetto a quanto detto nel Capitolo \r{BSC} \e possibile rappresentare un circuito senza aggiungere
+i primi tre {\it control points} alla fine del vettore ma direttamente attraverso la matrice ${\bf A}$.
+
+\vs(5)
+
+Per chiarire la struttura delle ${\bf G}_i$ si considera l'esempio in cui $N_s=5$:
+$$
+{\bf G}_0\,=\,\qmatrix{ 1 & 0 & 0 & 0 & 0 \cr
+                        0 & 1 & 0 & 0 & 0 \cr
+                        0 & 0 & 1 & 0 & 0 \cr
+                        0 & 0 & 0 & 1 & 0 \cr}, \quad
+{\bf G}_1\,=\,\qmatrix{ 0 & 1 & 0 & 0 & 0 \cr
+                        0 & 0 & 1 & 0 & 0 \cr
+                        0 & 0 & 0 & 1 & 0 \cr
+                        0 & 0 & 0 & 0 & 1 \cr}, \quad \dots
+$$
+Come si pu\o notare la seconda matrice \e ottenuta traslando verso destra la diagonale di $1$,
+ovvero moltiplicando la matrice ${\bf G}_0$ per una matrice ${\bf K}$ quadrata $(N_s \times N_s)$
+$$
+{\bf K}\,=\,\qmatrix{ 0 & 1 & 0 & 0 & 0 \cr
+                      0 & 0 & 1 & 0 & 0 \cr
+                      0 & 0 & 0 & 1 & 0 \cr
+                      0 & 0 & 0 & 0 & 1 \cr
+                      1 & 0 & 0 & 0 & 0 \cr}
+$$
+Il risultato pu\o essere esteso anche alle altre matrici ${\bf G}_i$ per cui vale
+$$
+{\bf G}_{i+1}\,=\,{\bf G}_i\,{\bf K} \qquad i=0,\dots,N_s-2 
+$$
+e dove ${\bf G}_0$ ha una struttura nota
+$$
+{\bf G}_0\,=\,\qmatrix{{\bf I}_4 & | &{\bf O}_{4,N_s-4} \cr}.
+$$ 
+ 
+\vs(5)
+
+Per ottenere le matrici ${\bf A}_s$ e ${\bf A}_{ss}$ \e sufficiente considerare che derivando
+rispetto a $s$ la ${\bf r}_i(s)$ si ottiene 
+\be
+{\bf r}_{i_s}(s)\,=\,\frac{1}{6}\,{\bf s}_s^T\,{\bf M}\,{\bf Q}_i
+\ee
+con ${\bf s}_s=[3s^3,2s,1,0]$; per cui \e sufficiente modificare le singole ${\bf S}_i$.
+
+Analogamente per la derivata seconda rispetto $s$.
+
+\finepar 
+ 
+    
+
+

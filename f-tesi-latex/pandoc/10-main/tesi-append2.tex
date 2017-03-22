@@ -1,0 +1,170 @@
+\appendice[Funzionali definiti su regioni regolari]
+          {Gradiente di funzioni integrali definite su regioni regolari}\lb{B}
+
+%========================================================================================
+%\section{}
+
+\blem
+Data ${\bf A}$, matrice quadrata $(n \times n)$, ${\bf x}$ e ${\bf y}$ due vettori colonna
+$n-dim$ allora vale
+ \be
+ {\bf A}\,{\bf x}\cdot{\bf y}\,-\,{\bf A}\,{\bf y}\cdot{\bf x}\,=\,
+             {\bf x}\cdot\Big[{\bf A}^T-{\bf A}\Big]\,{\bf y}.
+ \ee
+\lb{lemmaB1}
+\elem
+
+\begin{proof}
+  Dalla definizione di prodotto scalare $(\cdot)$  
+ $$
+ {\bf A}\,{\bf x}\cdot{\bf y}\,=\,({\bf A}\,{\bf x})^T\,{\bf y}
+ $$
+ e dalla commutativit\a si ha che 
+ $$
+ {\bf A}\,{\bf x}\cdot{\bf y}\,-\,{\bf A}\,{\bf y}\cdot{\bf x}\,=\,
+ {\bf x}^T\,{\bf A}^T\,{\bf y}\,-\,{\bf x}^T\,{\bf A}\,{\bf y}\,=\,
+ $$
+ $$ 
+ {\bf x}^T\,\Big[{\bf A}^T-{\bf A}\Big]\,{\bf y}\,=\,
+ {\bf x}\cdot\Big[{\bf A}^T-{\bf A}\Big]\,{\bf y}. 
+ $$
+\end{proof}
+
+
+Sia
+\be 
+h(t)\,=\,\ds\int_{R(t)}\,f(x,y)\,dxdy
+\ee
+con $R(t)$ la regione racchiusa dalla curva chiusa $\Gamma(t)$ e $f:\M(R)^2 \longrightarrow \M(R)$
+una funzione continua.
+
+Definita la funzione vettoriale {\bf g}(x,y) con
+\be
+g_1(x,y)\,=\,-\,\ds\int_0^y\,f(x,\lambda)\,d\lambda \qquad
+g_2(x,y)\,=\,\ds\int_0^x\,f(\lambda,y)\,d\lambda
+\ee
+\e possibile scrivere
+\be
+h(t)\,=\,\ds\int_{R(t)}\,\frac{1}{2}\,
+ \Bigg[\frac{\partial g_2}{\partial x}\,(x,y)\,-\,\frac{\partial g_1}{\partial y}\,(x,y)\Bigg]
+ \,dxdy
+\ee
+
+Dal {\it teorema di Stokes}, che nel caso in esame di curve piane si riduce alle {\it formule
+di Green}, si ottiene 
+\be 
+h(t)\,=\,\frac{1}{2}\ds\int_{\Gamma(t)}\,{\bf g}\cdot{\bf \tau}\,dl.
+\ee
+Considerando che $\Gamma(t)$ \e rappresentata dalla carta ${\bf r}(s,t)=[x(s,t),y(s,t)]$,
+con $s \in [0,1]$\footnotemark, e che il vettore tangente alla curva \e esprimibile in funzione
+della parametrizzazione
+\be
+{\bf \tau}(s,t)\,=\,\frac{{\bf r}_s(s,t)}{\|{\bf r}(s,t)\|}
+\lb{tau}
+\ee
+risulta
+\be
+h(t)\,=\,\frac{1}{2}\ds\int_0^1\,{\bf g}\cdot\frac{{\bf r}_s(s,t)}{\|{\bf r}(s,t)\|}\,
+         {\|{\bf r}(s,t)\|}\,ds\,=\,
+       \,\frac{1}{2}\ds\int_0^1\,{\bf g}\cdot{\bf r}_s(s,t)
+\ee
+
+\footnotetext{Si \e scelto il dominio del parametro $s$ in $[0,1]$ per comodit\aac; \e
+comunque valido un qualsiasi intervallo del tipo $[\omega_o,\omega_1]$.} 
+
+Calcolare $\nabla h$ lungo la curva regolare $\Gamma$ \e equivalente a massimizzare la
+variazione $h^{\,\prime}(t)$
+\be
+h^{\,\prime}(t)\,=\,\frac{1}{2}\ds\int_0^1\,\Bigg[{\bf g}_t\cdot{\bf r}_s(s,t)\,+\,
+                                            {\bf g}\cdot{\bf r}_{s,t}(s,t)\Bigg]\,ds.
+\ee
+
+Integrando per parti rispetto a $s$ il secondo termine dell'integranda risulta
+\beqa
+\ds\int_0^1\,{\bf g}\cdot{\bf r}_{s,t}(s,t)
+  & = & {\bf g}\cdot{\bf r}_t\Big\vert_{s=0}^{s=1}\,
+        -\,\ds\int_0^1\,{\bf g}_s\cdot{\bf r}_t(s,t)\,ds\,= \nonumber\\
+  & = & -\,\ds\int_0^1\,{\bf g}_s\cdot{\bf r}_t(s,t)\,ds 
+\eeqa
+in quanto il primo addendo \e nullo dato che la curva \e chiusa e quindi 
+${\bf r}(0)={\bf r}(1)$ per cui ${\bf g}({\bf r}(0))={\bf g}({\bf r}(1))$ e cos\iac\,pure 
+${\bf r}_t(0)={\bf r}_t(1)$.
+
+Considerando inoltre che il differenziale di funzioni composte
+\beqa
+{\bf g}_s & = & {\bf g}_s({\bf r}(s,t))\,=\,J{\bf g}(x,y){\bf r}_s(s,t) \nonumber \\
+          &   & \\
+{\bf g}_t & = & {\bf g}_t({\bf r}(s,t))\,=\,J{\bf g}(x,y){\bf r}_t(s,t), \nonumber
+\eeqa
+con
+$$
+J{\bf g}(x,y)\,=\,
+\smatrix{2}{{\ds\frac{\partial g_1}{\partial x}} & {\ds\frac{\partial g_1}{\partial y}} \cr
+        {\ds\frac{\partial g_2}{\partial x}} & {\ds\frac{\partial g_2}{\partial y}}}(x,y)\,=\,
+\smatrix{2}{ 0 & -f \cr
+             f &  0 }(x,y)\,=\,
+$$
+\be
+=\,f(x,y)\,\smatrix{2}{ 0 & -1 \cr
+                        1 &  0 },
+\lb{jac}
+\ee
+assieme alle precedenti si ottiene l'espressione per $h^{\,\prime}(t)$
+\be
+h^{\,\prime}(t)\,=\,\frac{1}{2}\ds\int_0^1\,\Big[J{\bf g}\,{\bf r}_t\cdot{\bf r}_s\,-\,
+                    J{\bf g}\,{\bf r}_s\cdot{\bf r}_t\Big]\,ds.
+\ee
+
+Applicando il Lemma \r{lemmaB1} con ${\bf x}={\bf r}_t$, ${\bf A}=J{\bf g}$ e
+${\bf y}={\bf r}_s$ 
+\be
+h^{\,\prime}(t)\,=\,\frac{1}{2}\ds\int_0^1\,
+                  \Big[{\bf r}_t\cdot\bigg((J{\bf g})^T-J{\bf g}\bigg)\,{\bf r}_s\Big]\,ds
+\lb{hprime}
+\ee
+
+Dalla (\r{jac}) si vede che lo {\it Jacobiano} \e antisimmetrico, per cui lo \e pure la
+differenza $(J{\bf g})^T-J{\bf g}$ che infatti vale
+$$
+2\,f(x,y)\,\smatrix{2}{  0 & 1 \cr
+                        -1 & 0 },
+$$
+dato che per la propriet\a di antisimmetria $(J{\bf g})^T=-J{\bf g}$.
+
+Sostituendo nella (\r{hprime}) 
+\be
+h^{\,\prime}(t)\,=
+         \,\ds\int_0^1\,\Big[{\bf r}_t\cdot\,f\,\smatrix{2}{  0 & 1 \cr
+                                                             -1 & 0 }\,{\bf r}_s\Big]\,ds
+\lb{hprime2}
+\ee
+
+Nell'ipotesi per cui l'orientamento positivo di percorrenza di $\Gamma$ sia quello antiorario
+e che l'orientamento positivo della regione $R$ sia ${\bf e}_3$ allora sussiste la relazione
+fra il versore tangente e quello normale alla curva 
+$$
+{\bf n}\,=\,\smatrix{2}{  0 & 1 \cr
+                         -1 & 0 }\,{\bf \tau};
+$$
+considerando inoltre l'espressione (\r{tau}) si ha
+\be
+\|{\bf r}_s\|\,{\bf n}\,=\,\smatrix{2}{  0 & 1 \cr
+                                        -1 & 0 }\,{\bf r}_s.
+\ee 
+
+Quest'ultimo \e uno dei termini del prodotto scalare dell'integranda in (\r{hprime2}) e 
+quindi
+\be
+h^{\,\prime}(t)\,=
+         \,\ds\int_0^1\,\Big[{\bf r}_t\cdot\,f\,{\bf n}\Big]\,\|{\bf r}_s\|\,ds\,=\,
+         \,\ds\int_{\Gamma(t)}\,{\bf r}_t\cdot\,f\,{\bf n}\,dl
+\lb{hprime3}
+\ee
+per cui la direzione lungo la quale deformare la curva $\Gamma$ in modo che sia massima
+$h^{\,\prime}$ \e data dal flusso 
+$$
+{\bf r}_t\,=\,f\,{\bf n}.
+$$
+
+
+\finepar

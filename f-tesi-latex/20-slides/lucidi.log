@@ -1,0 +1,280 @@
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=latex 2015.4.16)  25 MAY 2015 17:55
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**lucidi.tex
+(./lucidi.tex
+LaTeX2e <2011/06/27>
+Babel <3.9h> and hyphenation patterns for 78 languages loaded.
+(/usr/share/texlive/texmf-dist/tex/latex/base/latex209.def
+File: latex209.def 1998/05/13 v0.52 Standard LaTeX file
+
+
+          Entering LaTeX 2.09 COMPATIBILITY MODE
+ *************************************************************
+    !!WARNING!!    !!WARNING!!    !!WARNING!!    !!WARNING!!   
+ 
+ This mode attempts to provide an emulation of the LaTeX 2.09
+ author environment so that OLD documents can be successfully
+ processed. It should NOT be used for NEW documents!
+ 
+ New documents should use Standard LaTeX conventions and start
+ with the \documentclass command.
+ 
+ Compatibility mode is UNLIKELY TO WORK with LaTeX 2.09 style
+ files that change any internal macros, especially not with
+ those that change the FONT SELECTION or OUTPUT ROUTINES.
+ 
+ Therefore such style files MUST BE UPDATED to use
+          Current Standard LaTeX: LaTeX2e.
+ If you suspect that you may be using such a style file, which
+ is probably very, very old by now, then you should attempt to
+ get it updated by sending a copy of this error message to the
+ author of that file.
+ *************************************************************
+
+\footheight=\dimen102
+\@maxsep=\dimen103
+\@dblmaxsep=\dimen104
+\@cla=\count79
+\@clb=\count80
+\mscount=\count81
+(/usr/share/texlive/texmf-dist/tex/latex/base/tracefnt.sty
+Package: tracefnt 1997/05/29 v3.0j Standard LaTeX package (font tracing)
+\tracingfonts=\count82
+LaTeX Info: Redefining \selectfont on input line 101.
+)
+\symbold=\mathgroup4
+\symsans=\mathgroup5
+\symtypewriter=\mathgroup6
+\symitalic=\mathgroup7
+\symsmallcaps=\mathgroup8
+\symslanted=\mathgroup9
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 293.
+LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 294.
+LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 295.
+LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 301.
+LaTeX Info: Redefining \em on input line 311.
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/latexsym.sty
+Package: latexsym 1998/08/17 v2.2e Standard LaTeX package (lasy symbols)
+\symlasy=\mathgroup10
+LaTeX Font Info:    Overwriting symbol font `lasy' in version `bold'
+(Font)                  U/lasy/m/n --> U/lasy/b/n on input line 47.
+)
+LaTeX Font Info:    Redeclaring math delimiter \lgroup on input line 375.
+LaTeX Font Info:    Redeclaring math delimiter \rgroup on input line 377.
+LaTeX Font Info:    Redeclaring math delimiter \bracevert on input line 379.
+)
+(/usr/share/texlive/texmf-dist/tex/latex/base/report.cls
+Document Class: report 2007/10/19 v1.4h Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo
+File: size10.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count83
+\c@chapter=\count84
+\c@section=\count85
+\c@subsection=\count86
+\c@subsubsection=\count87
+\c@paragraph=\count88
+\c@subparagraph=\count89
+\c@figure=\count90
+\c@table=\count91
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+Compatibility mode: definition of \rm ignored.
+Compatibility mode: definition of \sf ignored.
+Compatibility mode: definition of \tt ignored.
+Compatibility mode: definition of \bf ignored.
+Compatibility mode: definition of \it ignored.
+Compatibility mode: definition of \sl ignored.
+Compatibility mode: definition of \sc ignored.
+LaTeX Info: Redefining \cal on input line 586.
+LaTeX Info: Redefining \mit on input line 587.
+\bibindent=\dimen105
+) (./psfig.sty
+\@unused=\write3
+
+psfig/tex 1.9
+\ps@stream=\read1
+\p@intvaluex=\dimen106
+\p@intvaluey=\dimen107
+) (/usr/share/texlive/texmf-dist/tex/generic/epsf/epsf.sty
+This is `epsf.tex' v2.7.4 <14 February 2011>
+\epsffilein=\read2
+\epsfframemargin=\dimen108
+\epsfframethickness=\dimen109
+\epsfrsize=\dimen110
+\epsftmp=\dimen111
+\epsftsize=\dimen112
+\epsfxsize=\dimen113
+\epsfysize=\dimen114
+\pspoints=\dimen115
+) (/usr/share/texlive/texmf-dist/tex/latex/ntgclass/a4.sty
+Package: a4 2004/04/15 v1.2g A4 based page layout
+) (./tesisty.sty)
+(./lucidisty.sty
+\c@npagine=\count92
+) (./lucidi.aux (./lucido1.aux) (./lucido2.aux) (./lucido3.aux) (./lucido4.aux)
+ (./lucido5.aux) (./lucido6.aux))
+\openout1 = `lucidi.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+\openout2 = `lucido1.aux'.
+
+ (./lucido1.tex
+("./images/unipd.eps"
+)
+) [1
+
+
+]
+\openout2 = `lucido2.aux'.
+
+ (./lucido2.tex
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 49.
+ (/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <9> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 49.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <9> on input line 49.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 49.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 49.
+LaTeX Font Info:    Try loading font information for U+lasy on input line 49.
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/ulasy.fd
+File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
+))
+Overfull \hbox (6.79999pt too wide) in paragraph at lines 49--20
+ [][] 
+ []
+
+[2
+
+
+]
+\openout2 = `lucido3.aux'.
+
+ (./lucido3.tex
+psfig: searching "./images/conv_h1.eps" for bounding box
+(clip)
+psfig: including "./images/conv_h1.eps" 
+[3
+
+
+] [4]
+psfig: searching "./images/Eyezzi.eps" for bounding box
+(clip)
+psfig: including "./images/Eyezzi.eps" 
+) [5]
+\openout2 = `lucido4.aux'.
+
+ (./lucido4.tex
+psfig: searching "./images/reticolo.eps" for bounding box
+(clip)
+psfig: including "./images/reticolo.eps" 
+) [6
+
+
+]
+\openout2 = `lucido5.aux'.
+
+ (./lucido5.tex
+psfig: searching "./images/cpeli.eps" for bounding box
+(clip)
+psfig: including "./images/cpeli.eps" 
+psfig: searching "./images/spelio.eps" for bounding box
+(clip)
+psfig: including "./images/spelio.eps" 
+psfig: searching "./images/spelig.eps" for bounding box
+(clip)
+psfig: including "./images/spelig.eps" 
+psfig: searching "./images/spelim.eps" for bounding box
+(clip)
+psfig: including "./images/spelim.eps" 
+[7
+
+
+]
+psfig: searching "./images/neobin2.eps" for bounding box
+(clip)
+psfig: including "./images/neobin2.eps" 
+psfig: searching "./images/neobo2.eps" for bounding box
+(clip)
+psfig: including "./images/neobo2.eps" 
+psfig: searching "./images/neoboc2.eps" for bounding box
+(clip)
+psfig: including "./images/neoboc2.eps" 
+) [8]
+\openout2 = `lucido6.aux'.
+
+ (./lucido6.tex
+psfig: searching "./images/ris1I1o.eps" for bounding box
+(clip)
+psfig: including "./images/ris1I1o.eps" 
+psfig: searching "./images/ris1I1.eps" for bounding box
+(clip)
+psfig: including "./images/ris1I1.eps" 
+psfig: searching "./images/segfin1.eps" for bounding box
+(clip)
+psfig: including "./images/segfin1.eps" 
+[9
+
+
+]
+psfig: searching "./images/rI2o.eps" for bounding box
+(clip)
+psfig: including "./images/rI2o.eps" 
+psfig: searching "./images/rI2f.eps" for bounding box
+(clip)
+psfig: including "./images/rI2f.eps" 
+psfig: searching "./images/segfin2.eps" for bounding box
+(clip)
+psfig: including "./images/segfin2.eps" 
+[10]
+psfig: searching "./images/ris1I1.eps" for bounding box
+(clip)
+psfig: including "./images/ris1I1.eps" 
+psfig: searching "./images/segfin1.eps" for bounding box
+(clip)
+psfig: including "./images/segfin1.eps" 
+psfig: searching "./images/rI2f.eps" for bounding box
+(clip)
+psfig: including "./images/rI2f.eps" 
+psfig: searching "./images/segfin2".eps for bounding box
+(clip)
+psfig: including "./images/segfin2".eps 
+[11]
+psfig: searching "./images/r3I9.eps" for bounding box
+(clip)
+psfig: including "./images/r3I9.eps" 
+psfig: searching "./images/r2I9.eps" for bounding box
+(clip)
+psfig: including "./images/r2I9.eps" 
+) [12] (./lucidi.aux (./lucido1.aux) (./lucido2.aux) (./lucido3.aux)
+(./lucido4.aux) (./lucido5.aux) (./lucido6.aux)) ) 
+Here is how much of TeX's memory you used:
+ 839 strings out of 493305
+ 9048 string characters out of 6139897
+ 61680 words of memory out of 5000000
+ 4245 multiletter control sequences out of 15000+600000
+ 12034 words of font info for 44 fonts, out of 8000000 for 9000
+ 957 hyphenation exceptions out of 8191
+ 30i,8n,24p,209b,323s stack positions out of 5000i,500n,10000p,200000b,80000s
+
+Output written on lucidi.dvi (12 pages, 12572 bytes).

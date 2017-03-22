@@ -1,0 +1,13 @@
+% Nuovo ambiente per appendici
+
+\newenvironment{appendici}{
+\cleardoublepage
+\def\chaptername{Appendice}
+\let\appendice\chapter
+\setcounter{chapter}{0}
+\setcounter{section}{0}
+\def\thechapter{\Alph{chapter}}
+\def\thesection{\thechapter.\arabic{section}}
+}% fine
+
+

@@ -1,0 +1,643 @@
+\chapter{Segmentazione}\lb{SGM}
+
+Il processo di segmentazione ha come risultato finale la ripartizione dell'im-magine in
+unit\a morfologiche, segmenti, disgiunte fra loro.
+Questo pu\o essere ottenuto determinando i bordi di tali segmenti oppure raggruppando
+i pixels (unit\a elementari) in regioni omogenee rispetto ad una particolare propriet\a
+({\it feature}) fissata che pu\o essere il colore e/o la tessitura ({\it texture}).
+
+%======================================================================================
+\section{Caratterizzazione della segmentazione}
+
+Formalmente la segmentazione pu\o essere definita
+\bdf
+Dati l'insieme $I$, che definisce nel nostro caso l'immagine da analizzare, e il
+predicato di omogeneit\a $\cal O$, la segmentazione di $I$ dato $\cal O$ \e una
+partizione $\cal P$ di $I$ in $N$ sottoinsiemi, o regioni, $R_i$ tali che
+\ben
+\im \quad ${\displaystyle \bigcup_{i=1}^{N}\,R_i\,=\,I}
+     \qquad R_i\,\cap\,R_j\,=\,\emptyset \quad \forall\,i\,\neq\,j$
+
+\im \quad ${\cal O}(R_i)\,=\,true \quad \forall\,i$
+
+\im \quad ${\cal O}(R_i\,\cup\,R_j)\,=\,false \quad \forall\,R_i,R_j \quad adiacenti$
+\een
+ 
+\edf
+
+La prima \e propria della definizione di partizione; pi\u interessanti le altre due
+che stabiliscono che ciascuna regione \e omogenena rispetto $\cal O$ e soprattutto
+che a conclusione della segmentazione le regioni adiacenti devono necessariamente essere
+diverse tra loro, al contrario sarebbe possibile unirle con una
+ulteriore semplificazione della rappresentazione della stessa immagine $I$.
+
+%======================================================================================
+\section{Tecniche di segmentazione}
+
+Seguendo la classificazione data in \cite{Lucchese} le tecniche di segmentazione possono
+essere suddivise nel seguente modo
+\ben
+\im Tecniche definite sullo spazio delle primitive ({\it features}).\par
+    ({\sl Feature-Space Based Techniques}) 
+    \ben
+    \im Clustering \& Adaptive k-means Clustering
+    \im Histogram Thresholding
+    \een
+\im Tecniche definite sull'intera morfologia dell'immagine.\par
+    ({\sl Image-Domain Based Techniques})
+    \ben
+    \im Split \& Merge
+    \im Region Growing
+    \im Edge Based
+    \im Neural-Network Based Classification
+    \een
+\im Tecniche che tengono conto della fisica dell'interazione tra la luce e le 
+    superfici dei materiali.\par 
+    ({\sl Physics Based Techniques})
+\een 
+
+Anche se la classificazione in \cite{Lucchese} \e definita in relazione alle tecniche
+che considerano l'informazione ricavata dal solo {\it colore} delle superfici, 
+\e possibile estenderla anche al caso in cui si consideri la tessitura
+({\it texture segmentation}).
+
+
+%--------------------------------------------------------------------------------------
+\subsection{Feature-Space Based Techniques}\lb{ftdom}
+
+Nell'ipotesi che ciascun elemento dell'immagine sia omogeneo e definito da una ben nota
+primitiva ({\it feature}) \e possibile raggruppare i pixels che la soddisfano considerandoli 
+come un'unica unit\a ({\it cluster}).
+Alternativamente \e possibile costruire un particolare istogramma, definito nello spazio
+delle {\it features}, e dalla sua analisi determinare uno o pi\u valori di soglia 
+({\it binarization \& multilevel thresholding}) che suddividono lo spazio in un certo
+numero di classi.
+
+Il difetto di tali approcci \e che non tengono in conto la morfologia dei clusters 
+individuati trascurando le relazioni spaziali di vicinanza fra le features.
+A causa dei disturbi dovuti alle condizioni di illuminazione \e probabile che si abbiano
+i clusters principali non compatti e ben definiti, come dovrebbero risultare, ma interroti da
+altri clusters piccoli o piccolissimi che possono complicare o falsare i successivi
+passi di analisi e riconoscimento degli oggetti visualizzati.
+
+%--------------------------------------------------------------------------------------
+\subsection{Image-Domain Based Techniques}\lb{imdom}
+
+Per garantire anche quest'ultima condizione di compattezza \e necessario introdurre delle 
+condizioni che tengano conto della distribuzione spaziale delle features.
+
+% .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+\subsubsection{Tecniche di Split \& Merge e Region Growing}
+
+Le prime suddividono ricorsivamente ({\it split}) l'immagine in unit\a sempre pi\u piccole
+fino ad ottenere una partizione omogenea; successivamente procedono alla
+fusione ({\it merge}) di clusters vicini, appartenenti in generale a due rami differenti
+della ripartizione, che si possano considerare omogenei fra loro.
+
+Le seconde invece partono dalla definizione di alcuni nuclei iniziali, {\it semi} e
+progressivamente li accrescono agglomerando i punti vicini che soddisfano il criterio
+di prossimit\`a, o omogeneit\a, fissato.
+
+In entrambe le classi di algoritmi \e rilevante la scelta del criterio
+di omogeneit\a, il predicato $\cal O$, che generalmente viene definito come 
+funzione che misura la distanza fra le classi in relazione alla {\it distribuzione delle
+features al loro interno} \cite{Puzicha}.
+Nello stesso articolo \e sottolineato il fatto che non \e possibile stabilire una
+misura che sembri offrire delle prestazioni superiori alle altre in ogni applicazione,
+ma che comunque alcune si comportano meglio in determinate ipotesi di lavoro.
+Nel caso della segmentazione risulta che la scelta mediamente  soddisfacente
+in termini di errore di ripartizione \e la $\chi^2-statistics$.
+
+Inoltre nel caso delle tecniche ad accrescimento tipo {\it region growing} \e problematica
+anche la decisione dei punti di aggregazione iniziali i quali possono essere fissati
+in corrispondenza dei punti di minimo del modulo del gradiente del colore dell'immagine, a cui
+corrispondono regioni abbastanza uniformi, oppure realizzando una opportuna quantizzazione
+dei colori presenti, o pi\u semplicemente distribuendo i semi in modo uniforme.
+
+% .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+\subsubsection{Tecniche basate sulla rilevazione dei bordi ({\it Edge})}\lb{imedg}
+
+Alla stessa classe di algoritmi appartengono quelli che realizzano la segmentazione
+individuando i bordi ({\it edge}), cio\e l'insieme dei punti di transizione,
+e quindi a maggior contrasto, fra una regione omogenea e l'altra.
+Nel caso di immagini scalari, in cui \e presente la sola componente di intensit\`a, esistono 
+diversi algoritmi ottenuti applicando all'immagine un opportuno operatore, Sobel, Kirsch,
+pseudo-Laplace, LoG (Mexican-hat), morfologici \cite{Zamperoni} o il pi\u noto filtro di
+Canny \cite{Canny} che rappresenta il filtro lineare ottimo, nel caso unidimensionale e con 
+rumore gaussiano bianco, che soddisfa le seguenti condizioni
+\ben
+\im bassa probabilit\a di mancare un buon edge e bassa probabilit\a di considerare
+    vero un falso edge; ovvero massimizzare l'$SNR$ in uscita al filtro;
+\im corretta localizzazione dell'edge.
+\een 
+Il risultato \e un filtro le cui prestazioni possono essere ottenute, con buona
+approssimazione, anche dalla derivata prima, $G_{\sigma}^{\,\prime}\,(x)$, della gaussiana
+$$
+G_\sigma(x)\,=\,\frac{1}{\sigma\,\sqrt{2\,\pi}}\exp\,\Big(\,-\,\frac{x^2}{2\,\sigma^2}\,\Big);
+$$
+e quindi gli edges sono determinati dalla convoluzione 
+$$
+C(x)\,=\,G_{\sigma}^{\,\prime}(x) \ast I(x)\,=\,(\,G_{\sigma} (x) \ast I(x)\,)^{\,\prime}
+$$
+per le propriet\a del filtro gaussiano.
+
+\vs(5)
+
+L'estensione al caso bidimensionale \e ottenuta tenendo presente che si deve ora considerare
+il gradiente di $G_\sigma (x,y)$
+$$
+C(x,y)\,=\,\nabla G_\sigma \ast I\,=\,\nabla (\,G_\sigma \ast I\,)\,=\,
+ \nabla (\,G_\sigma (x) \ast (\,G_\sigma (y) \ast I\,)\,)
+$$
+dove le ultime due uguaglianze sono valide ancora per le prorpiet\a della gaussiana.
+
+Noto $C$ \e possibile determinare l'orientazione dell'{\it edgel} (edge element)
+dalle componenti di $C\,/\,|C|$ mentre la sua altezza dal modulo $|C|$.
+
+E' possibile che fra gli {\it edgel} determinati ve ne siamo molti non desiderati dovuti
+ad esempio alla tessitura delle superfici o ad altri disturbi che non sono eliminati
+dalla convoluzione col filtro passa basso $G_\sigma$.
+Si potrebbe pensare di poter aumentare la scala $\sigma$, ma ci\o vorrebbe dire
+ridurre la capacit\a di localizzazione degli edge; invece si fissa un valore di soglia
+per la scala utilizzata in modo da scartare gli edge che hanno un'intensit\a inferiore.
+
+Il problema appena individuato \e dovuto alla due condizioni strutturali rispetto le quali
+\e stato definito il filtro e che non possono essere soddisfatte contemporaneamente; 
+infatti una migliore realizzazione della prima porta un degrado della seconda, e viceversa.
+La scelta dei parametri \e quindi frutto di un compromesso ({\it trade-off}) fra le due.
+
+Esistono inoltre delle situazioni in cui il filtro di Canny pu\o fallire:
+\bi
+\im nel caso di un'area dell'immagine con un gradiente di intensit\a che \e costante
+    ma non nullo il filtro pu\o decidere per la presenza di edges quando invece non
+    dovrebbero esserci;
+\im se si \e in presenza di edge composito, per esempio gradino pi\u rampa,
+    si ha un errore sistematico nella localizzazione dell'edge stesso;
+\im non riesce ad individuare le giunzioni a $T$ che si hanno quando tre regioni 
+    distinte e adiacenti l'una all'altra.
+\ei
+ 
+Una delle cause dei problemi appena menzionati \e la natura lineare del filtro; infatti
+\e mostrato in \cite{Perona90} che per ogni famiglia finita di filtri lineari esiste
+un {\it edgel} composito per cui le risposte presentano un errore sistematico.
+Sempre in \cite{Perona90} \e fornita la soluzione al problema che \e data dalla
+scelta di una diversa classe di filtri ottenuti come combinazione di filtri
+in quadratura tra loro.
+Dalla convoluzione tra questi e l'immagine, ed elevando al quadrato il modulo, si ottiene
+una forma quadratica che individua l'{\it edgel} nel suo punto di estremo.
+Tale forma quadratica dipende anche dalla fase e quindi l'estremo determinato permette
+di definire l'orientazione dell'{\it edgel} in modo pi\u preciso rispetto al caso precedente,
+con una risoluzione che \e possibile stabilire a priori.
+Un altro grado di libert\a \e dato dalla forma della coppia di filtri che \e vincolabile
+fissando un criterio che condizioni gli {\it edgel} risultanti: un elevato $SNR$, come
+nel caso di Canny, minima varianza dell'errore di localizzazione, bassa probabilit\a
+di {\it edgel} multipli (cio\e falsi {\it edgel} dovuti al ripple del filtro e che si affiancano
+a quelli veri), etc.
+
+\vs(5)
+
+Nel caso delle immagini a colori si possono applicare gli stessi metodi previa l'estensione
+della nozione di gradiente nel caso di immagini vettoriali che \e realizzabile in due
+modi:
+\ben
+\im calcolare per ciacuna componente il gradiente e quindi combinare opportunamente
+    i risultati parziali;
+\im definire l'estensione del calcolo del gradiente per funzioni vettoriali
+    \cite{Gevers}, \cite{Lucchese}
+
+    Sia definita l'immagine 
+    $$
+    {\bf \Psi}({\bf x}):\,\M(R)^2\,\longrightarrow\,\M(R)^N
+    $$
+    la variazione di ${\bf \Psi}({\bf x})$, $d{\bf \Psi}$, per uno spostamento infinitesimo
+    $d{\bf x}$ \e espressa dalla forma differenziale
+    $$
+    d{\bf \Psi}\,=\,\frac{\,\partial {\bf \Psi}}{\partial x}\,dx\,+
+                  \,\frac{\,\partial {\bf \Psi}}{\partial y}\,dy
+    $$
+    la cui norma al quadrato risulta
+    $$
+    d{\bf \Psi}^2\,=\,d{\bf x}^T\,G\,d{\bf x}
+    $$
+    dove $G$ \e una matrice $(2 \times 2)$ le cui componenti sono 
+    $$
+    g_{ij}\,=\,\frac{\partial {\bf \Psi}}{\partial x_i}
+             \,\frac{\partial {\bf \Psi}}{\partial x_j}.
+    $$
+    Le direzioni di estremo della forma quadratica sono definite dagli autovettori di $G$, 
+    mentre gli autovalori associati stabiliscono l'altezza del-l'estremo; quindi
+    riferendoci all'immagine di partenza, gli autovettori indicano le direzioni di massima
+    e minima variazione, mentre gli autovalori l'entit\a della variazione rispetto al
+    punto {\bf x}.
+    
+    \vs(5)
+ 
+    {\sl La ripidit\a ({\it sharpeness}) dell'immagine nel punto, ovvero il "{\it gradiente}",
+    pu\o essere definito dalla radice quadrata della differenza dei due autovalori;
+    cos\iac\,\,facendo si \e ottenuto in una sola misura l'informazione sulle variazioni
+    di grandezza vettoriali}.
+\een
+
+Rispetto all'immagine originale costituita da tutti i suoi {\it pixels}, \e quindi possibile
+ottenere una rappresentazione pi\u compatta considerando gli {\it edgels} ricavati con
+uno degli edge-detector menzionati.
+Il grado di compressione risulta dipendente dall'immagine considerata in quanto
+vi possono essere comunque un numero elevato di elementi in base anche alla scelta del
+valore di soglia fissato; inoltre la rappresentazione non tiene conto della possibile
+continuit\a degli edgels, rendendo difficoltosa l'interpretazione degli oggetti, o di
+loro parti, individuati.
+
+Per ovviare a questo inconveniente si pu\o ricorrere ad un'altra classe di modelli 
+denominati {\bf active contours} o {\it snakes}, originalmente proposti da Kass \cite{Kass}
+e rielaborati nel caso particolare delle immagini a colori nei {\it color snakes} \cite{Gevers}
+dove si sfrutta la definizione data sopra sul calcolo del gradiente
+per immagini vettoriali.
+
+\vs(5)
+
+{\sl Tale modello rappresenta uno degli elementi fondamentali dell'algoritmo proposto in
+questa tesi e sar\a perci\o approfondito nei prossimi capitoli}.
+
+% .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+\subsubsection{Tecniche di classificazione basate sulle reti Neuronali}
+
+Una rete neuronale \cite{Bose} \e costituita da uno o pi\u strati ({\it multi-layer}), esclusi
+quello d'ingresso e quello di uscita, di celle elementari, i {\it neuroni}.
+Ciascun neurone \e costituito da due elementi: il primo, denominato {\it adaptive linear
+combiner}, riceve in ingresso i segnali provenienti dai neuroni dello strato che
+lo precede e li combina linearmente secondo dei coefficienti, {\it pesi sinattici};
+mentre il secondo \e una particolare funzione, {\it legge di attivazione} che elabora
+il risulato della combinazione determinando il nuovo stato del neurone, che rappresenta
+l'uscita che si propaga agli strati successivi.
+Esempi di leggi di attivazione sono la funzione segno, la rampa lineare, la sigmoide 
+\footnote{$1/(1+\exp(-k\,x))$}, etc.
+
+Il vantaggio di presentare una struttura intrinsecamente parallela, che pu\o risultare
+determinante in termini di tempo di calcolo, oltre ad un buon comportamento nei confronti
+dei disturbi, \e controbilanciato dallo svantaggio di richiedere una fase di
+apprendimento ({\it learning}) in cui vengono adattati i pesi sinattici in relazione alle
+caretteristche del {\it pattern} in esame. 
+
+Esistono due tipi principali di apprendimento:
+\bi
+\im {\it supervisionato}: deve essere disponibile una collezione, {\it training set},
+     di coppie $I/O$. Le leggi di apprendimento sono definite in modo che sia
+     minimo l'errore in uscita fra il valore desiderato e quello reale fornito
+     dalla rete, una volta fissati i pesi.\par 
+     Gli algoritmi si suddividono quindi in {\it algoritmi a correzione d'errore}
+     ($\alpha-LMS$ o Widrow-Hoff Delta, MRI, MRII) e {\it algoritmi a discesa lungo il
+     gradiente dell'errore} ($\mu-LMS$, Back-Propagation) sviluppati in base al tipo di 
+     rete (single-layer, AdaLinE o multi-layer, M-AdaLinE). 
+\im {\it senza supervisione}: in questo caso non \e disponibile un insieme di prova
+    ma \e la rete che aggiorna il suo comportamento in relazione al tipo di ingressi.
+    Si realizza una struttura basata su rapporti di associazione tra un dato tipo
+    di ingresso \e una quota di neuroni che risultano particolarmente attivi quando
+    questi si presenta e che \e fissata incrementando il valore dei rispettivi pesi
+    sinattici.
+    Uno dei modelli di rete che utilizza questo tipo di apprendimento \e dato dalle
+    reti di Kohonen o $SOM$ ({\it Self Organizing Map}). 
+\ei
+
+Un'altra importante tipologia di reti \e data dalle {\it reti di Hopfield} che presentano 
+carateristiche peculiari:
+\bi
+\im a differenza dei modelli precedenti in cui i segnali si propagano in una sola
+    direzione dall'ingresso verso l'uscita ({\it feed-forward}), queste presentano
+    anche dei collegamenti in retroazione ({\it feed-back}) dato che ciascun nodo
+    della rete, il neurone, \e collegato con tutti gli altri ({\it fully-connected});
+    per cui non \e pi\u possibile una organizzazione a strati;
+\im una volta annullato l'ingresso l'evoluzione dello stato del neurone pu\o raggiungere
+    una condizione di equilibrio stabile, con l'esaurimento del transitorio, oppure rimanere
+    in uno di stato di instabilit\a con oscillazioni permanenti;
+\im vengono utilizzate nella risoluzione di problemi di ottimizzazione 
+    nella minimizzazione di {\it funzioni costo} che possono, nel nostro caso,
+    rappresentare dei vincoli per la segmentazione.
+    In particolare i minimi di tali funzioni corrispondono agli stati finali stabili,
+    o attrattori stabili, della rete.
+\ei
+    
+%--------------------------------------------------------------------------------------
+\subsection{Physics Based Techniques}
+
+Sostanzialmente non differiscono dalle precedenti se non nel fatto che inseriscono
+dei termini che tengano conto del comportamento fisico delle superfici dei materiali,
+in termini di riflessione, al variare delle condizioni di illuminazione.
+Pu\o risultare infatti che la superficie di uno stesso materiale, caratterizzata
+da un solo colore, pu\o apparire invece non uniforme con possibili problemi di
+sovrasegmentazione in quanto si individuano pi\u regioni di quelle reali.
+In generale i materiali sono suddivisi in tre categorie: dielettrici otticamente omogenei,
+dielettrici otticamente non omogenei e metalli; per ciasuna delle quali \e definibile
+un modello che rappresenti i fenomeni di riflessione della superficie che determinano il
+colore percepito.
+Tali modelli tengono conto della geometria e del tipo di superficie, della posizione relativa
+sorgente-soggetto, della natura della sorgente (la lunghezza d'onda della luce emessa)
+ovvero se sia luce bianca o abbia delle componenti monocromatiche prevalenti.
+In alcuni casi permettono di determinare le diverse componenti di riflessione dovuti
+anche alle interazioni fra gli oggetti presenti fra cui necessariamente il sensore che
+effettua la misura. 
+
+%======================================================================================
+\section{Texture segmentation}
+
+Come accennato precedentemente le tecniche utilizzate nella segmentazione sono valide
+sia che si consideri il solo colore sia che si consideri la tessitura ({\it texture})
+sia che vengano utilizzate entrambe.
+
+A differenza del colore che \e una propriet\a puntuale, la tessitura da una descrizione
+locale delle relazioni spaziali fra pixel vicini; inoltre dipende dalla scala 
+utilizzata, ovvero ad un determinato livello di risoluzione alcuni dettagli possono non
+essere presenti mentre lo sono se la si aumenta, come se si analizzasse la stessa superficie 
+a diversi gradi di ingrandimento.
+
+Per cui gli algoritmi di analisi della tessitura fanno largo utilizzo di metodi
+a multirisoluzione con strutture tipo {\it piramide di immagini} a cui sono applicate
+filtri la cui forma dipende dalla scala del livello.
+
+Vista la caratteristica che devono avere i filtri una delle scelte comunemente adottate
+\e data dal filtro gaussiano $G_\sigma$, il cui fattore di forma \e dato dalla sua varianza,
+oppure, per problemi pi\u complessi, dalla famiglia di filtri complessi che vanno sotto
+il nome di {\it filtri di Gabor}
+$$
+G_\sigma({\bf x},{\bf k})\,=\,\frac{1}{\sigma\,\sqrt{2\,\pi}}
+                           \exp\,\Big(\,-\,\frac{{\bf x}^T\,{\bf x}}{2\,\sigma^2}\,\Big)
+                           \exp\,\Big(\,{\mit i}\,{\bf k}^T\,{\bf x}\,\Big)
+$$
+con $\sigma$ funzione di ${\bf k}$, il pararmetro che caratterizza la feature di interesse.
+Si considera quindi il modulo della convoluzione tra il filtro e l'immagine data
+ottenendo, per ogni pixel, ad un dato livello di risoluzione, un vettore $n-dimensionale$
+dei coefficienti di Gabor che descrive le relazioni spaziali tra il pixel in esame e quelli prossimi.
+
+Per caratterizzare l'intera tessitura \e opportuno ora considerare la distribuzione di tali
+features nell'intorno del pixel sfruttando le considerazioni viste precedentemente nella
+sezione (\r{imdom}) oppure quanto suggerito in \cite{Puzicha}.
+
+\vs (3)
+
+Il problema appena esposto pu\o essere visto in una forma pi\u generale considerando la 
+matrice delle mutue occorrenze ({\it co-occurrence matrix}) (si veda a proposito 
+\cite{Haralick92}):
+\bdf {\bf Matrice delle mutue-occorrenze}.
+
+Dati l'insieme $Q$ delle primitive (features) in cui \e scomposta l'immagine e l'insieme
+$A$ degli attributi associati ad ogni primitiva (ad esempio l'intensi-t\`a) dalla
+funzione $f$, si definisca una relazione binaria $S\,\subseteq\,Q \times Q$ che esprima
+la relazione spaziale che intercorre fra ogni coppia di features $(q_i,q_j)$
+(distanza, adiacenza, etc.).
+Si definisce la matrice delle occorrenze mutue
+$$
+P(a_i,a_j)\,=\frac{\M(\#)\,\{\,(q_i,q_j)\,\in\,S\,:\,f(q_i)=a_i,\,f(q_j)=a_j\,\}}{\M(\#)\,S}
+$$
+\edf
+ 
+che rappresenta in termini di frequenze relative la distribuzione delle feature in $S$.
+
+Una volta ottenuta le distribuzioni $P_1$ e $P_2$ di due regioni $S_1$ e $S_2$
+e possibile applicare i diversi criteri di omogeneit\a o similarit\a.
+
+\vs(3)
+
+Altre tecniche per descrivere la tessitura sono basate sull'analisi dell'im-magine nel dominio
+della frequenza, anche se poco utilizzato, sull'uso di operatori morfologici, attraverso
+la definizione di edge per regioni a tessitura differente, sulla sintesi  di particolari
+modelli {\sl ARMA} o modellando la tessitura come un processo aleatorio e ricorrendo
+a un {\it Discrete Markov Random Field}.
+
+%======================================================================================
+\section{Binarizzazione}
+
+Nell'ambito delle {\it Feature-Space Based Techniques} (\r{ftdom}) si \e accennato
+a {\it binarization \& multilevel thresholding} per la determinazione dei valori di soglia
+che realizzano la ripartizione dello spazio delle {\it features}.
+
+Si prende ora in considerazione il caso in cui tali {\it features} siano l'intensit\a o una componente dei
+modelli per la rappresentazione del colore.
+Nonostante le limitazioni di tali tecniche segnalate in (\r{ftdom}), queste possono comunque
+rappresentare una soluzione all'inizializzazione degli {\it active contours} (\r{imdom}).  
+
+%--------------------------------------------------------------------------------------
+\subsection{Binarizzazione come tecnica di segmentazione}\lb{segbin}
+
+Nel caso in cui l'immagine si possa ritenere bimodale ({\it foreground \& background}),
+ad esempio due oggetti di colori diversi, il testo e la pagina su cui \e scritto,
+\e possibile aumentare la discriminazione fra i diversi elementi
+determinando un opportuno valore di soglia.
+
+La binarizzazione ({\it binarization} or {\it spatial thresholding}) rappresenta perci\o una delle
+prime forme di segmentazione sviluppata per le immagini in scala di grigio e successivamente
+estesa alle immagini a colori \cite{Lucchese}.
+
+Per ridurre i tempi di calcolo \e possibile calcolare la soglia  analizzando l'istogramma
+dei valori di un'opportuna "intensit\aac", che pu\o essere direttamente l'immagine a toni di grigio
+o una o pi\u componenti delle possibili rappresentazioni delle immagini a colori
+($RGB$, $HSI$) e delle loro trasformate ({\it trasformata di Hotelling}) opportunamente
+combinate.
+
+\vs(5)
+
+Una volta realizzato l'istogramma questi viene normalizzato ottenendo un vettore
+di frequenze relative intese come la distribuzione di probabilit\a per i livelli
+di intensit\a della primitiva considerata.
+
+Se $N(i)$ \e il numero di pixels con intansit\a $i$ e $N$ \e il numero totale di pixels,
+la frequenza relativa risulta
+$$
+P\,(i)\,=\,\frac{N(i)}{N} 
+$$
+La distribuzione ottenuta \e la descrizione statistica dell'intensit\a dei punti
+dell'immagine, per cui \e possibile applicare un qualsiasi metodo di classificazione
+supervisionato e non supervisionato ({\it supervised \& unsupervised}) che permetta
+di costruire una funzione discriminante.
+Il caso pi\u semplice prevede che tale funzione sia costante e pari al valore della
+soglia, oppure si pu\o introdurre un'isteresi che permette di ridurre gli effetti
+delle oscillazioni dell'intensit\a nell'intorno del valore di soglia, in modo
+da rendere la binarizzazione pi\u robusta e ottenere delle regioni pi\u uniformi.
+
+%--------------------------------------------------------------------------------------
+\subsubsection{Un algoritmo iterativo}
+
+A partire da un valore di soglia iniziale, che pu\o essere il valore medio della
+scala di intensit\aac, si procede con approssimazioni successive che portano ad una
+soluzione finale che si arresta quando la differenza fra due stime successive
+\e inferiore ad uno scarto $\varepsilon$ fissato.
+
+\balg
+
+Il numero di livelli $L$ su cui \e quantizzata l'intensit\a \e solitamente pari a $256$ che 
+corrisponde ad un'occupazione di memoria di un $byte$ per ciascun pixel e quindi
+i valori  $i$ che pu\o assumere appartengono alla sequenza $\{0,\dots,L-1\}$. 
+
+\bdsc
+
+\im[\tt Passo 0] Si fissa la soglia iniziale $s=(L-1)/2$.
+
+\im[\tt Passo 1] $s_a\,=\,s$
+    \bary(2)
+    \ds Q_0\,=\,\sum_{i=0}^{\lfloor s \rfloor}\,P(i)  
+      & \ds \mu_0\,=\,\sum_{i=0}^{\lfloor s \rfloor}\,i\,\frac{P(i)}{Q_0} \\ 
+     & \\
+    \ds Q_1\,=\,\sum_{i=\lfloor s+1 \rfloor}^{L-1}\,P(i)  
+      & \ds \mu_1\,=\,\sum_{i=\lfloor s+1 \rfloor}^{L-1}\,i\,\frac{P(i)}{Q_1} \\
+    \eary
+    
+        
+\im[\tt Passo 2] Aggiornamento della stima di $s$
+    \beqa
+    s & = & \frac{1}{2}\,\big[\,\mu_0\,+\,\mu_1\,\big]\qquad
+    \,Q_0\,\wedge\,Q_1\,\ne\,0 \nonumber\\
+    s & = & \mu_0\qquad\qquad\,
+    \,Q_0\,\ne\,0\,\wedge\,Q_1\,=\,0 \nonumber\\
+    s & = & \mu_1\qquad\qquad\,
+    \,Q_0\,=\,0\,\wedge\,Q_1\,\ne\,0 \nonumber
+    \eeqa
+
+\im[\tt Passo 3] Se \quad$|\,s\,-\,s_a\,|\,\leq\,\varepsilon$\quad l'algoritmo termina 
+   altrimenti si torna al {\tt Passo 1}.
+
+\edsc
+
+\lb{algiter}
+\ealg
+
+Il numero di passi \e ovviamente funzione della tolleranza $\varepsilon$ fissata, comunque
+generalmente il procedimento si arresta dopo pochi passi.
+La soglia ottenuta \e tale da minimizzare 
+
+$$
+\sum_{i=0}^{\lfloor s \rfloor}\,(\,i-\mu_0\,)^2\,P(i)\,+\,\sum_{i=\lfloor s+1 \rfloor}^{L-1}\,(\,i-\mu_1\,)^2\,P(i)
+$$
+
+che esprime la somma delle varianze dei due gruppi di pixels in cui \e ripartita l'immagine.
+
+%--------------------------------------------------------------------------------------
+\subsection{Binarizzazione come problema di classificazione}
+
+Come accennato precedentemente \e possibile intendere la binarizzazione co-me la soluzione
+di un problema di classificazione dove la funzione discriminante \e costante e pari alla
+soglia.
+La capacit\a del classificatore dipende dalla conoscenza delle caratteristiche 
+dei dati da analizzare e quanto queste informazioni siano descritte dal classificatore
+stesso.
+In alcuni casi \e possibile ritenere che la descrizione statistica dell'intensit\a
+dei pixels dell'immagine, descritta attraverso il suo istogramma normalizzato,
+sia approssimabile alla combinazione di due gaussiane centrate attorno a due valori
+medi ben distinti e con varianze sufficientemente piccole in modo che non vi sia
+una eccessiva interferenza, cio\e sia abbastanza netta la zona di separazione in cui
+cadr\a sicuramente il valore di soglia. 
+
+Con queste ipotesi risulta semplice considerare, ad esempio, il criterio della 
+minimizzazione della {\it distanza di Kullback} $J$ definita 
+
+$$
+J\,=\,\sum_{i=0}^{L-1}\,P(i)\,\log\frac{P(i)}{f(i)}
+$$
+
+dove $f(i)\,=\,Q_0\,g_0(i)\,+\,Q_1\,g_1(i)$ \e la distribuzione di massa ottenuta
+come combinazione pesata di due distribuzioni gaussiane $g_0$ e $g_1$ i cui pesi
+sono le probabilit\a relative dei due gruppi.
+
+\vs(5)
+
+Un'altra soluzione \e data dall'algoritmo proposto da Otsu \cite{Otsu},
+\cite{Haralick92},\cite{Zamperoni}
+\bdf
+Si definisce $s$, soglia, il valore che minimizza la somma pesata $\sigma_W^2$ 
+({\it within-group variance}) delle varianze dei due gruppi $\Omega_0$ e $\Omega_1$
+risultati dalla binarizzazione.
+\edf
+
+\newpage
+\balg
+{\bf Minimizzazione della varianza di $\Omega_0$ e $\Omega_1$.}\par
+Definiti i parametri
+\bary(2)
+\ds q_0(t)\,=\,\sum_{i=0}^{t}\,P(i) 
+ & \ds q_1(t)\,=\,\sum_{i=t+1}^{L-1}\,P(i) \\
+ & \\
+\ds \mu_0(t)\,=\,\sum_{i=0}^{t}\,i\,\frac{P(i)}{q_0(t)} 
+ & \ds \mu_1(t)\,=\,\sum_{i=t+1}^{L-1}\,i\,\frac{P(i)}{q_1(t)} \\
+ & \\
+\ds \sigma_0^2(t)\,=\,\sum_{i=0}^{t}\,[i-\mu_0(t)]^2\,\frac{P(i)}{q_0(t)} 
+ & \ds \sigma_1^2(t)\,=\,\sum_{i=t+1}^{L-1}\,[i-\mu_1(t)]^2\,\frac{P(i)}{q_1(t)} 
+\eary
+
+\be
+\sigma_W^2\,=\,q_0(t)\,\sigma_0^2(t)\,+\,q_1(t)\,\sigma_1^2(t)
+\lb{sigmaW}
+\ee
+
+il valore di soglia $s$ pu\o essere ottenuto
+\be
+s\,=\,\arg\,\min_{t}\,\big\{\,\sigma_W^2(t)\,\big\}
+\lb{smin}
+\ee
+\ealg
+
+Un'algoritmo pi\u efficiente \e realizzabile rielaborando le espressioni precedenti
+ottenendo una formulazione duale che consideri il valore di soglia che massimizzi
+la varianza fra le due classi $\Omega_0$ e $\Omega_1$ ({\it between-group variance})
+\be
+\sigma_B^2(t)\,=\,q_0(t)\,[\mu_0(t)-\mu]^2\,+\,q_1(t)\,[\mu_1(t)-\mu]^2
+\lb{sigmaB}
+\ee
+
+con $\ds \mu\,=\,\sum_{i=0}^{L-1}\,i\,P(i)$ media totale.
+
+\balg
+{\bf Duale. Massimizzazione della varianza tra $\Omega_0$ e $\Omega_1$.}
+
+Una volta sviluppata l'espressione genarale della varianza totale 
+$\ds \sigma^2\,=\,\sum_{i=0}^{L-1}\,[i-\mu]^2\,P(i)$ \e possibile scomporre la sommatoria
+nei due termini di estremi $\{0,t\}$ e $\{t+1,L-1\}$ per ottenere, tenendo conto dei parametri
+definiti precedentemente, l'equazione
+\beqa
+\sigma^2 & = & q_0(t)\,\sigma_0^2(t)\,+\,q_1(t)\,\sigma_1^2(t)\,+ \nonumber\\
+         &   & \quad +\,q_0(t)\,[\mu_0(t)-\mu]^2\,+\,q_1(t)\,[\mu_1(t)-\mu]^2
+\eeqa
+
+nella quale si riconoscono le due componenti $\sigma_W^2(t)$ e $\sigma_B^2(t)$
+definite, rispettivamente, dalle (\r{sigmaW}) e (\r{sigmaB}).
+
+Dato che $\sigma^2$ \e indipendente da t, costante una volta fissata $P(i)$, se $\sigma_W^2(t)$
+diminuisce allora $\sigma_B^2(t)$ necessariamente deve aumentare e il risultato che si ottiene
+\e la soluzione del problema duale del precedente (\r{smin})
+
+\be
+s\,=\,\arg\,\max_{t}\,\big\{\,\sigma_B^2(t)\,\big\}
+\lb{smax}
+\ee
+
+Sfruttando le relazioni
+\bary(2)
+\ds \mu\,=\,q_0(t)\,\mu_0(t)\,+\,q_1(t)\,\mu_1(t) 
+ & e\quad \ds q_1(t)\,=\,1\,-\,q_0(t)
+\eary
+
+quest'ultima ricavata da $\ds \sum_{i=0}^{L-1}\,P(i)\,=\,1$, che vale perche' $P(i)$ \e una
+funzione distribuzione di massa, si ottiene un'ulteriore semplificazione
+\be
+\sigma_B^2(t)\,=\,q_0(t)\,[1-q_0(t)]\,[\mu_0(t)-\mu_1(t)]^2
+\ee
+
+a cui possono essere associate le espressioni ricorsive
+\beqa
+q_0(t+1) & = & q_0(t)\,+\,P(t+1) \nonumber\\
+& & \nonumber \\
+\mu_0(t+1) & = & \frac{q_0(t)\,\mu_0(t)\,+\,(t+1)\,P(t+1)}{q_0(t+1)} \nonumber\\
+& & \nonumber\\
+\mu_1(t+1) & = & \frac{\mu\,-\,q_0(t+1)\,\mu_0(t+1)}{1\,-\,q_0(t+1)} \nonumber
+\eeqa
+
+dove $\mu$ viene calcolata una volta per tutte non appena \e nota la distribuzione $P(i)$,
+mentre gli altri termini sono aggiornati ad ogni passo sfruttando i risultati precedenti 
+con una migliorata efficienza dell'algoritmo rispetto alla formulazione originale.  
+
+\lb{algdisc}
+\ealg
+
+%--------------------------------------------------------------------------------------
+
+
+\finepar
+
+
+%======================================================================================

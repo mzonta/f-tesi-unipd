@@ -1,0 +1,60 @@
+This is BibTeX, Version 0.99d (TeX Live 2013/Debian)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: tesi.aux
+A level-1 auxiliary file: tesi-abstract.aux
+A level-1 auxiliary file: tesi-intro.aux
+A level-1 auxiliary file: tesi-operators.aux
+A level-1 auxiliary file: tesi-segment.aux
+A level-1 auxiliary file: tesi-bsplines.aux
+A level-1 auxiliary file: tesi-activecont.aux
+A level-1 auxiliary file: tesi-algor.aux
+A level-1 auxiliary file: tesi-final.aux
+A level-1 auxiliary file: tesi-append1.aux
+A level-1 auxiliary file: tesi-append2.aux
+The style file: plain.bst
+Database file #1: tesibib.bib
+Warning--empty journal in Wouver
+Warning--empty journal in Lucchese
+Warning--empty year in Lucchese
+You've used 28 entries,
+            2118 wiz_defined-function locations,
+            690 strings with 8027 characters,
+and the built_in function-call counts, 9610 in all, are:
+= -- 968
+> -- 411
+< -- 2
++ -- 161
+- -- 132
+* -- 678
+:= -- 1576
+add.period$ -- 85
+call.type$ -- 28
+change.case$ -- 142
+chr.to.int$ -- 0
+cite$ -- 31
+duplicate$ -- 347
+empty$ -- 763
+format.name$ -- 132
+if$ -- 1996
+int.to.chr$ -- 0
+int.to.str$ -- 28
+missing$ -- 36
+newline$ -- 144
+num.names$ -- 56
+pop$ -- 156
+preamble$ -- 1
+purify$ -- 122
+quote$ -- 0
+skip$ -- 248
+stack$ -- 0
+substring$ -- 785
+swap$ -- 60
+text.length$ -- 2
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 96
+warning$ -- 3
+while$ -- 92
+width$ -- 30
+write$ -- 299
+(There were 3 warnings)
