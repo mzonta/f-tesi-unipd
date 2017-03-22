@@ -4,11 +4,17 @@ Università degli Studi di Padova, Corso di Laurea in Ingegneria Elettronica, DE
 
 In these repository I have collected what I did, some years ago, when developed my thesis.
 
-* [Thesis - Latex][thesis-latex] 
+* [f-tesi-latex][thesis-latex] 
 
 In this folder can be found the Latex source and the Postscript result.
 Unfortunately it's only in Italian.
 
 [thesis-latex]: https://github.com/mzonta/f-tesi-unipd/tree/master/f-tesi-latex
 
+* [f-tesi-sw][thesis-sw]
 
+In this folder can be found the code developed in Matlab and the conversion to Octave I made in 2015.
+They are the routines I wrote to implement the different part of the algorithm described in the thesis.
+I know, it's not well organized, but surprisingly it looks that every functions is well documented.
+
+[thesis-sw]: https://github.com/mzonta/f-tesi-unipd/tree/master/f-tesi-sw
