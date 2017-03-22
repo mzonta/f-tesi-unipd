@@ -15,6 +15,6 @@ Unfortunately it's only in Italian.
 
 In this folder can be found the code developed in Matlab and the conversion to Octave I made in 2015.
 They are the routines I wrote to implement the different part of the algorithm described in the thesis.
-I know, it's not well organized, but surprisingly most of the functions are quite well documented.
+I know, it's not well organized, but most of the functions are quite well documented.
 
 [thesis-sw]: https://github.com/mzonta/f-tesi-unipd/tree/master/f-tesi-sw
